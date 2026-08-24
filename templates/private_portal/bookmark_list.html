@@ -1,0 +1,87 @@
+{% extends "private_base.html" %}
+
+{% block title %}Bookmarked Fragments | Sanctuary{% endblock %}
+
+{% block content %}
+<div class="section-head reveal" style="max-width: 800px; margin: 0 auto 3rem; text-align: center;">
+    <h1>Saved <span>Fragments</span></h1>
+    <p>Your curated collection of internal echoes and immortalized moments.</p>
+</div>
+
+<!-- Engagement Overview Bar (Expert Step) -->
+<div class="luxury-card reveal" style="max-width: 800px; margin: 0 auto 3rem; padding: 1.5rem; display: flex; justify-content: space-around; background: rgba(0, 210, 255, 0.05); border: 1px solid rgba(0, 210, 255, 0.2);">
+    <div style="text-align: center;">
+        <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.3rem;">Curated Echoes</div>
+        <div style="font-size: 1.5rem; font-weight: 800; color: #fff;">{{ bookmarked_items|length }}</div>
+    </div>
+    <div style="width: 1px; background: rgba(255,255,255,0.1);"></div>
+    <div style="text-align: center;">
+        <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.3rem;">Sanctuary Health</div>
+        <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent-blue);">PRIME</div>
+    </div>
+</div>
+
+<div class="reveal">
+    <div class="feed-grid">
+        {% for post in bookmarked_items %}
+            {% include "private_portal/partials/feed_item.html" with post=post is_social=False %}
+        {% empty %}
+            <div class="luxury-card reveal" style="text-align: center; padding: 6rem 2rem; grid-column: 1/-1;">
+                <i class="fas fa-bookmark" style="font-size: 5rem; opacity: 0.1; margin-bottom: 2.5rem; color: var(--accent-blue);"></i>
+                <h3 style="color: #fff; margin-bottom: 1rem; font-size: 1.8rem;">The Archive is Empty</h3>
+                <p style="color: var(--text-dim); margin-bottom: 3rem; font-size: 1.1rem;">Immortalize your favorite fragments from the Sanctuary Pulse.</p>
+                <a href="{% url 'private_portal:pulse' %}" class="action-btn" style="display: inline-flex; background: linear-gradient(135deg, #00d2ff, #9d50bb); color: #fff; padding: 1rem 3rem; border-radius: 30px; font-weight: 800; letter-spacing: 1px;">RETURN TO PULSE</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Basic AJAX logic for bookmarks/loves (reusable)
+    function handleSocialAction(btn, url, successCallback) {
+        const ct = btn.dataset.ct;
+        const id = btn.dataset.id;
+        const formData = new FormData();
+        formData.append('content_type_id', ct);
+        formData.append('object_id', id);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'ok') successCallback(data, btn);
+        });
+    }
+
+    document.querySelectorAll('.love-toggle').forEach(btn => {
+        btn.onclick = () => handleSocialAction(btn, '{% url "private_portal:toggle_love" %}', (data, el) => {
+            const icon = el.querySelector('i');
+            const count = el.querySelector('.count');
+            if (data.action === 'loved') {
+                icon.classList.replace('far', 'fas');
+                icon.style.color = '#ef4444';
+            } else {
+                icon.classList.replace('fas', 'far');
+                icon.style.color = '';
+            }
+            count.innerText = data.count;
+        });
+    });
+
+    document.querySelectorAll('.bookmark-toggle').forEach(btn => {
+        btn.onclick = () => handleSocialAction(btn, '{% url "private_portal:toggle_bookmark" %}', (data, el) => {
+            if (data.action === 'unbookmarked') {
+                el.closest('.memory-card').style.opacity = '0.5';
+                el.style.color = '#94a3b8';
+                setTimeout(() => { el.closest('.memory-card').remove(); }, 300);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

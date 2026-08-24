@@ -1,0 +1,384 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | Raj Bhoj Elite Command Center{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}" style="display: flex; align-items: center; gap: 14px; color: #ffffff; text-decoration: none; font-family: 'Outfit', 'Inter', sans-serif; font-weight: 800; letter-spacing: -0.5px;">
+        <div class="cyber-pulse-group">
+            <span class="pulse-dot dot-red"></span>
+            <span class="pulse-dot dot-yellow"></span>
+            <span class="pulse-dot dot-blue"></span>
+            <span class="pulse-dot dot-crimson"></span>
+        </div>
+        <div style="font-size: 1.25rem;">
+            <span style="color: #FF2E63;">&lt;</span><span style="color: #F9CD05;">BHOJ</span><span style="color: #00E8FF;">RAJ</span><span style="color: #FF2E63;"> /&gt;</span>
+        </div>
+        <span class="badge-command">ELITE COMMAND CENTER</span>
+    </a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    /* ================================================================
+       RAJ BHOJ ELITE COMMAND CENTER — RED / YELLOW / BLUE CYBER LUXURY
+       ================================================================ */
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+    :root {
+        --cyber-red: #FF2E63;
+        --cyber-crimson: #E63946;
+        --cyber-yellow: #F9CD05;
+        --cyber-gold: #FFD166;
+        --cyber-blue: #00E8FF;
+        --cyber-navy: #2563EB;
+        --cyber-purple: #A855F7;
+        
+        --bg-void: #080C14;
+        --bg-surface: #0E1422;
+        --bg-card: rgba(18, 26, 43, 0.75);
+        --bg-hover: rgba(28, 40, 65, 0.85);
+        
+        --border-glass: rgba(255, 255, 255, 0.08);
+        --border-glow-red: rgba(255, 46, 99, 0.35);
+        --border-glow-yellow: rgba(249, 205, 5, 0.35);
+        --border-glow-blue: rgba(0, 232, 255, 0.35);
+
+        --text-primary: #F8FAFC;
+        --text-secondary: #94A3B8;
+        --text-dim: #64748B;
+
+        --primary: var(--cyber-yellow);
+        --secondary: var(--cyber-red);
+        --accent: var(--cyber-blue);
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        background: var(--bg-void) !important;
+        background-image: 
+            radial-gradient(circle at 5% 10%, rgba(255, 46, 99, 0.12) 0%, transparent 45%),
+            radial-gradient(circle at 95% 15%, rgba(0, 232, 255, 0.12) 0%, transparent 45%),
+            radial-gradient(circle at 50% 90%, rgba(249, 205, 5, 0.1) 0%, transparent 50%) !important;
+        background-attachment: fixed !important;
+        color: var(--text-primary) !important;
+        min-height: 100vh;
+    }
+
+    /* Fixed Glass Header */
+    #header {
+        position: sticky !important;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background: rgba(8, 12, 20, 0.88) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        padding: 0.9rem 2rem !important;
+        z-index: 1000 !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.6), 0 1px 0 rgba(255, 46, 99, 0.2);
+    }
+
+    #user-tools {
+        font-size: 0.85rem !important;
+        color: var(--text-secondary) !important;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    #user-tools a {
+        color: var(--cyber-yellow) !important;
+        text-decoration: none !important;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 6px;
+        background: rgba(249, 205, 5, 0.1);
+        border: 1px solid rgba(249, 205, 5, 0.25);
+        transition: all 0.2s;
+    }
+    #user-tools a:hover {
+        background: var(--cyber-yellow) !important;
+        color: #080C14 !important;
+        box-shadow: 0 0 12px rgba(249, 205, 5, 0.5);
+    }
+
+    /* Pulse Dots */
+    .cyber-pulse-group {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 8px;
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        animation: cyberPulse 2s infinite ease-in-out;
+    }
+    .dot-red { background: var(--cyber-red); box-shadow: 0 0 8px var(--cyber-red); }
+    .dot-yellow { background: var(--cyber-yellow); box-shadow: 0 0 8px var(--cyber-yellow); animation-delay: 0.3s; }
+    .dot-blue { background: var(--cyber-blue); box-shadow: 0 0 8px var(--cyber-blue); animation-delay: 0.6s; }
+    .dot-crimson { background: var(--cyber-crimson); box-shadow: 0 0 8px var(--cyber-crimson); animation-delay: 0.9s; }
+
+    @keyframes cyberPulse {
+        0%, 100% { transform: scale(0.9); opacity: 0.6; }
+        50% { transform: scale(1.3); opacity: 1; }
+    }
+
+    .badge-command {
+        font-size: 0.7rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+        color: var(--cyber-blue);
+        background: rgba(0, 232, 255, 0.1);
+        border: 1px solid rgba(0, 232, 255, 0.35);
+        padding: 3px 8px;
+        border-radius: 6px;
+        letter-spacing: 1.5px;
+        text-shadow: 0 0 8px rgba(0, 232, 255, 0.4);
+    }
+
+    /* Main Container */
+    #container {
+        padding: 1.5rem 2rem !important;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* Breadcrumbs */
+    div.breadcrumbs {
+        background: rgba(14, 20, 34, 0.7) !important;
+        border: 1px solid var(--border-glass) !important;
+        border-radius: 10px !important;
+        padding: 0.75rem 1.2rem !important;
+        color: var(--text-dim) !important;
+        font-size: 0.85rem !important;
+        margin-bottom: 1.5rem !important;
+        backdrop-filter: blur(10px);
+    }
+    div.breadcrumbs a {
+        color: var(--cyber-yellow) !important;
+        text-decoration: none !important;
+        font-weight: 600;
+    }
+
+    /* Modules & Cards */
+    .module {
+        background: var(--bg-card) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border: 1px solid var(--border-glass) !important;
+        border-radius: 18px !important;
+        padding: 1.5rem !important;
+        margin-bottom: 1.8rem !important;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45) !important;
+        transition: all 0.3s ease !important;
+        position: relative;
+        overflow: hidden;
+    }
+    .module::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--cyber-red), var(--cyber-yellow), var(--cyber-blue), var(--cyber-red));
+        opacity: 0.7;
+    }
+    .module:hover {
+        border-color: rgba(255, 255, 255, 0.16) !important;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(0, 232, 255, 0.1) !important;
+        transform: translateY(-2px);
+    }
+
+    .module h2, .module caption {
+        background: none !important;
+        color: #ffffff !important;
+        font-family: 'Outfit', sans-serif !important;
+        font-size: 1.2rem !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.3px !important;
+        padding-bottom: 0.9rem !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        margin-bottom: 0.8rem !important;
+    }
+
+    /* Tables */
+    table {
+        border-collapse: separate !important;
+        border-spacing: 0 6px !important;
+        width: 100% !important;
+    }
+    table thead th {
+        background: rgba(255, 255, 255, 0.03) !important;
+        border: none !important;
+        color: var(--cyber-blue) !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 0.75rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1.5px !important;
+        font-weight: 700 !important;
+        padding: 10px 14px !important;
+        border-radius: 8px !important;
+    }
+    table tbody tr {
+        background: rgba(14, 20, 34, 0.6) !important;
+        transition: all 0.2s ease !important;
+        border-radius: 10px !important;
+    }
+    table tbody tr:hover {
+        background: var(--bg-hover) !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.3) !important;
+    }
+    table tbody td, table tbody th {
+        padding: 12px 14px !important;
+        border: none !important;
+        color: var(--text-primary) !important;
+    }
+    table tbody tr td:first-child, table tbody tr th:first-child {
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+    }
+    table tbody tr td:last-child, table tbody tr th:last-child {
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+
+    /* Action Badges in Table */
+    .addlink {
+        color: var(--cyber-yellow) !important;
+        background: rgba(249, 205, 5, 0.12) !important;
+        border: 1px solid rgba(249, 205, 5, 0.35) !important;
+        padding: 4px 10px !important;
+        border-radius: 6px !important;
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
+        display: inline-flex !important;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s !important;
+    }
+    .addlink:hover {
+        background: var(--cyber-yellow) !important;
+        color: #080C14 !important;
+        box-shadow: 0 0 12px rgba(249, 205, 5, 0.5) !important;
+    }
+
+    .changelink, .viewlink {
+        color: var(--cyber-blue) !important;
+        background: rgba(0, 232, 255, 0.12) !important;
+        border: 1px solid rgba(0, 232, 255, 0.35) !important;
+        padding: 4px 10px !important;
+        border-radius: 6px !important;
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
+        display: inline-flex !important;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s !important;
+    }
+    .changelink:hover, .viewlink:hover {
+        background: var(--cyber-blue) !important;
+        color: #080C14 !important;
+        box-shadow: 0 0 12px rgba(0, 232, 255, 0.5) !important;
+    }
+
+    .deletelink {
+        color: var(--cyber-red) !important;
+        background: rgba(255, 46, 99, 0.12) !important;
+        border: 1px solid rgba(255, 46, 99, 0.35) !important;
+        padding: 4px 10px !important;
+        border-radius: 6px !important;
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
+        display: inline-flex !important;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s !important;
+    }
+    .deletelink:hover {
+        background: var(--cyber-red) !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 12px rgba(255, 46, 99, 0.5) !important;
+    }
+
+    /* Buttons */
+    .button, input[type=submit], input[type=button], .submit-row input {
+        background: linear-gradient(135deg, var(--cyber-red), #e11d48) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 10px 22px !important;
+        font-weight: 800 !important;
+        font-family: inherit !important;
+        font-size: 0.88rem !important;
+        letter-spacing: 0.5px !important;
+        cursor: pointer !important;
+        box-shadow: 0 4px 16px rgba(255, 46, 99, 0.35) !important;
+        transition: all 0.25s ease !important;
+    }
+    .button:hover, input[type=submit]:hover, input[type=button]:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 24px rgba(255, 46, 99, 0.5) !important;
+    }
+    .button.default, input[type=submit].default {
+        background: linear-gradient(135deg, var(--cyber-yellow), #eab308) !important;
+        color: #080C14 !important;
+        box-shadow: 0 4px 16px rgba(249, 205, 5, 0.35) !important;
+    }
+    .button.default:hover, input[type=submit].default:hover {
+        box-shadow: 0 8px 24px rgba(249, 205, 5, 0.55) !important;
+    }
+
+    /* Form Fields */
+    input[type=text], input[type=password], input[type=email], input[type=url], 
+    input[type=number], textarea, select {
+        background: rgba(8, 12, 20, 0.85) !important;
+        border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
+        border-radius: 8px !important;
+        color: #ffffff !important;
+        padding: 9px 12px !important;
+        font-family: inherit !important;
+        font-size: 0.9rem !important;
+        outline: none !important;
+        transition: all 0.2s ease !important;
+    }
+    input[type=text]:focus, input[type=password]:focus, input[type=email]:focus, 
+    input[type=url]:focus, textarea:focus, select:focus {
+        border-color: var(--cyber-blue) !important;
+        box-shadow: 0 0 0 3px rgba(0, 232, 255, 0.25) !important;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-void); }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 46, 99, 0.3); border-radius: 6px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--cyber-red); }
+
+    /* Login Page Overhaul */
+    .login {
+        background: var(--bg-void) !important;
+        background-image: 
+            radial-gradient(circle at 10% 20%, rgba(255, 46, 99, 0.18) 0%, transparent 40%),
+            radial-gradient(circle at 90% 80%, rgba(0, 232, 255, 0.18) 0%, transparent 40%),
+            radial-gradient(circle at 50% 50%, rgba(249, 205, 5, 0.1) 0%, transparent 50%) !important;
+    }
+    .login #container {
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border-glass) !important;
+        border-radius: 20px !important;
+        box-shadow: 0 20px 45px rgba(0,0,0,0.7) !important;
+        padding: 2.5rem !important;
+        backdrop-filter: blur(20px) !important;
+    }
+</style>
+{% endblock %}

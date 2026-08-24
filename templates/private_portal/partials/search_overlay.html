@@ -1,0 +1,214 @@
+<!-- Command Palette Search Overlay -->
+<div id="search-palette" class="search-overlay">
+    <div class="palette-container luxury-card">
+        <div class="palette-header">
+            <i class="fas fa-search"></i>
+            <input type="text" id="palette-input" placeholder="Search Guardians and Fragments..." autocomplete="off">
+            <div class="palette-close">ESC</div>
+        </div>
+        <div id="palette-results" class="palette-results">
+            <div class="palette-hint">Type to discover resonance...</div>
+        </div>
+    </div>
+</div>
+
+<style>
+.search-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 15, 30, 0.85);
+    backdrop-filter: blur(10px);
+    z-index: 9999;
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 10vh;
+    animation: fadeIn 0.2s ease;
+}
+
+.search-overlay.active {
+    display: flex;
+}
+
+.palette-container {
+    width: 90%;
+    max-width: 700px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 0 50px rgba(0,0,0,0.5);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.palette-header {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    gap: 1.5rem;
+}
+
+.palette-header i {
+    font-size: 1.5rem;
+    color: var(--accent-blue);
+}
+
+#palette-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.3rem;
+    font-family: inherit;
+    outline: none;
+}
+
+.palette-close {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
+    background: rgba(255,255,255,0.1);
+    border-radius: 5px;
+    color: var(--text-dim);
+}
+
+.palette-results {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.palette-hint {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-dim);
+}
+
+.result-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    gap: 1.2rem;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 12px;
+    transition: 0.2s;
+}
+
+.result-item:hover {
+    background: rgba(255,255,255,0.05);
+    transform: translateX(10px);
+}
+
+.result-icon {
+    width: 45px;
+    height: 45px;
+    background: rgba(0, 210, 255, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-blue);
+    font-size: 1.2rem;
+}
+
+.result-meta b { display: block; font-size: 1.1rem; }
+.result-meta span { font-size: 0.8rem; color: var(--text-dim); }
+
+.result-link {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    flex: 1;
+    text-decoration: none;
+    color: inherit;
+}
+
+.palette-follow-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.palette-follow-btn:hover {
+    background: var(--accent-gradient);
+    transform: scale(1.1);
+}
+
+.palette-follow-btn.following {
+    background: #10b981;
+    border-color: #10b981;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+</style>
+
+<script>
+document.getElementById('palette-input').oninput = function(e) {
+    const q = e.target.value;
+    const resultsDiv = document.getElementById('palette-results');
+    if (q.length < 2) {
+        resultsDiv.innerHTML = '<div class="palette-hint">Type to discover resonance...</div>';
+        return;
+    }
+
+    fetch(`/private/search/?q=${encodeURIComponent(q)}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.results.length === 0) {
+                resultsDiv.innerHTML = '<div class="palette-hint">No resonance found for this query.</div>';
+                return;
+            }
+            resultsDiv.innerHTML = data.results.map(r => `
+                <div class="result-item">
+                    <a href="${r.url}" class="result-link">
+                        <div class="result-icon">
+                            <i class="fas ${r.type === 'guardian' ? 'fa-user-circle' : 'fa-gem'}"></i>
+                        </div>
+                        <div class="result-meta">
+                            <b>${r.title}</b>
+                            <span>${r.subtitle}</span>
+                        </div>
+                    </a>
+                    ${r.type === 'guardian' ? `
+                        <button class="palette-follow-btn ${r.is_following ? 'following' : ''}" data-user-id="${r.id}" onclick="toggleFollowPalette(this, event)">
+                            <i class="fas ${r.is_following ? 'fa-check' : 'fa-plus'}"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            `).join('');
+        });
+};
+
+function toggleFollowPalette(btn, event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const userId = btn.dataset.userId;
+    fetch(`/private/toggle-follow/${userId}/`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'ok') {
+                if (data.action === 'followed') {
+                    btn.innerHTML = '<i class="fas fa-check"></i>';
+                    btn.classList.add('following');
+                } else {
+                    btn.innerHTML = '<i class="fas fa-plus"></i>';
+                    btn.classList.remove('following');
+                }
+            }
+        });
+}
+</script>

@@ -1,0 +1,308 @@
+{% extends "public_portal/base.html" %}
+{% load static %}
+
+{% block title %}{{ blog.title }} | Bhoj Raj Upadhayay{% endblock %}
+{% block og_title %}{{ blog.title }} — {{ blog.get_category_display }}{% endblock %}
+{% block og_description %}{{ blog.excerpt|default:blog.subtitle|default:blog.content|truncatewords:30 }}{% endblock %}
+
+{% block content %}
+<!-- Reading Progress Bar -->
+<div class="reading-progress-bar" id="readingProgress"></div>
+
+<div class="article-reading-container">
+    <!-- Breadcrumb & Back -->
+    <div class="article-nav-top reveal-up">
+        <a href="{% url 'public_portal:blog_list' %}" class="back-to-hub-link">
+            <i class="fas fa-arrow-left"></i> Back to All Pieces
+        </a>
+        <div class="category-breadcrumbs">
+            <a href="{% url 'public_portal:blog_list' %}">Journal</a>
+            <span>/</span>
+            <a href="{% url 'public_portal:blog_list' %}?category={{ blog.category }}">{{ blog.get_category_display }}</a>
+        </div>
+    </div>
+
+    <!-- Article Header -->
+    <header class="article-header reveal-up">
+        <div class="article-badge-row">
+            <span class="card-cat-badge" style="font-size: 0.85rem; padding: 4px 14px;">
+                {{ blog.get_category_display }}
+            </span>
+            <span class="read-estimate"><i class="far fa-clock"></i> {{ blog.read_time }}</span>
+            <span class="pub-date"><i class="far fa-calendar-alt"></i> {{ blog.created_at|date:"F d, Y" }}</span>
+        </div>
+
+        <h1 class="article-main-title {% if blog.category == 'poem' %}poem-title-serif{% endif %}">
+            {{ blog.title }}
+        </h1>
+
+        {% if blog.subtitle %}
+        <p class="article-subtitle-text">
+            {{ blog.subtitle }}
+        </p>
+        {% endif %}
+
+        <!-- Author Byline Bar -->
+        <div class="article-author-bar">
+            <div class="author-micro">
+                <div class="micro-avatar">RB</div>
+                <div>
+                    <span class="author-name">Bhoj Raj Upadhayay</span>
+                    <span class="author-role">IT Systems Architect &bull; Writer</span>
+                </div>
+            </div>
+            <div class="article-actions-top">
+                <button type="button" class="btn-share-icon" onclick="copyCurrentUrl()" title="Copy Link">
+                    <i class="fas fa-link"></i>
+                </button>
+                <a href="https://twitter.com/intent/tweet?text={{ blog.title|urlencode }}&url={{ request.build_absolute_uri|urlencode }}" target="_blank" class="btn-share-icon" title="Share on Twitter/X">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri|urlencode }}" target="_blank" class="btn-share-icon" title="Share on LinkedIn">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+                <a href="https://api.whatsapp.com/send?text={{ blog.title|urlencode }}%20{{ request.build_absolute_uri|urlencode }}" target="_blank" class="btn-share-icon" title="Share on WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Cover Image (if present) -->
+    {% if blog.cover_image %}
+    <div class="article-cover-frame reveal-up">
+        <img src="{{ blog.cover_image.url }}" alt="{{ blog.title }}">
+    </div>
+    {% endif %}
+
+    <!-- Main Content Body -->
+    <div class="article-body-wrapper reveal-up">
+        {% if blog.category == 'poem' %}
+        <!-- Poem Presentation Container -->
+        <div class="poem-body-container">
+            <div class="poem-ornament-top">
+                <i class="fas fa-feather-alt"></i>
+            </div>
+            
+            <div class="poem-verses" id="poemContent">
+                {{ blog.content|linebreaksbr }}
+            </div>
+
+            <div class="poem-ornament-bottom">
+                <span>✦ ❦ ✦</span>
+                <p class="poem-signature">— भोजराज उपाध्याय</p>
+            </div>
+
+            <!-- Poem Action Toolbar -->
+            <div class="poem-action-bar">
+                <button type="button" class="btn-copy-poem" onclick="copyPoemText()">
+                    <i class="fas fa-copy"></i> Copy Verse
+                </button>
+            </div>
+        </div>
+        {% else %}
+        <!-- Standard Longform Article / Essay -->
+        <div class="prose-body-container">
+            <div class="prose-content">
+                {{ blog.content|linebreaksbr }}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Tags Cloud -->
+        {% if blog.tag_list %}
+        <div class="article-tags-wrap">
+            <span class="tags-label"><i class="fas fa-tags"></i> Topics:</span>
+            {% for tag in blog.tag_list %}
+            <a href="{% url 'public_portal:blog_list' %}?tag={{ tag }}" class="tag-chip">#{{ tag }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Interactive Reaction & Heart Section -->
+        <div class="reaction-section-card">
+            <div class="reaction-info">
+                <h4>Enjoyed this creation?</h4>
+                <p>Leave a pulse of appreciation to inspire the writer's journey.</p>
+            </div>
+            <div class="reaction-btn-wrapper">
+                <button type="button" class="like-pulse-btn" id="likeBtn" onclick="sendLike({{ blog.id }})">
+                    <i class="fas fa-heart" id="likeIcon"></i>
+                    <span id="likeText">Applaud</span>
+                    <span class="like-counter-badge" id="likeCount">{{ blog.likes_count }}</span>
+                </button>
+                <div id="heartParticleBox"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Author Profile Card -->
+    <div class="author-spotlight-box reveal-up">
+        <div class="author-box-avatar">
+            <span>RB</span>
+        </div>
+        <div class="author-box-details">
+            <h3>Bhoj Raj Upadhayay</h3>
+            <p>IT Systems Architect, Core Banking Systems Consultant, and Author. Exploring the symphony between high-performance computing and expressive literary arts in Nepal.</p>
+            <div class="author-box-links">
+                <a href="{% url 'public_portal:home' %}#about"><i class="fas fa-user-circle"></i> Full Biography</a>
+                <a href="{% url 'public_portal:blog_list' %}"><i class="fas fa-book-open"></i> All Writings</a>
+                <a href="{% url 'public_portal:home' %}#contact"><i class="fas fa-envelope"></i> Send Feedback</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation between Next / Previous Posts -->
+    <div class="prev-next-navigator reveal-up">
+        {% if prev_blog %}
+        <a href="{% url 'public_portal:blog_detail' prev_blog.slug %}" class="nav-direction-card prev-card">
+            <span class="dir-label"><i class="fas fa-arrow-left"></i> Previous Piece</span>
+            <span class="dir-title">{{ prev_blog.title }}</span>
+            <span class="dir-cat">{{ prev_blog.get_category_display }}</span>
+        </a>
+        {% else %}
+        <div class="nav-direction-card disabled-dir">
+            <span class="dir-label">Beginning of Collection</span>
+        </div>
+        {% endif %}
+
+        {% if next_blog %}
+        <a href="{% url 'public_portal:blog_detail' next_blog.slug %}" class="nav-direction-card next-card">
+            <span class="dir-label">Next Piece <i class="fas fa-arrow-right"></i></span>
+            <span class="dir-title">{{ next_blog.title }}</span>
+            <span class="dir-cat">{{ next_blog.get_category_display }}</span>
+        </a>
+        {% else %}
+        <div class="nav-direction-card disabled-dir">
+            <span class="dir-label">Latest Piece</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Related Writings Section -->
+    {% if related_blogs %}
+    <section class="related-section reveal-up">
+        <h3 class="related-section-title">
+            <i class="fas fa-compass"></i> More to Explore
+        </h3>
+        <div class="blog-cards-grid">
+            {% for r in related_blogs %}
+            <article class="blog-card reveal-up {% if r.category == 'poem' %}poem-card-style{% endif %}">
+                <div class="blog-card-pattern">
+                    <span class="card-cat-badge">{{ r.get_category_display }}</span>
+                    {% if r.category == 'poem' %}
+                    <i class="fas fa-feather-alt pattern-icon"></i>
+                    {% else %}
+                    <i class="fas fa-code pattern-icon"></i>
+                    {% endif %}
+                </div>
+                <div class="blog-card-body">
+                    <div class="blog-card-meta">
+                        <span><i class="far fa-calendar-alt"></i> {{ r.created_at|date:"M d, Y" }}</span>
+                        <span><i class="far fa-clock"></i> {{ r.read_time }}</span>
+                    </div>
+                    <h3 class="blog-card-title">
+                        <a href="{% url 'public_portal:blog_detail' r.slug %}">{{ r.title }}</a>
+                    </h3>
+                    <p class="blog-card-excerpt">
+                        {{ r.excerpt|default:r.content|truncatewords:18 }}
+                    </p>
+                    <div class="blog-card-footer">
+                        <a href="{% url 'public_portal:blog_detail' r.slug %}" class="read-more-link">
+                            Read Now <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <div class="card-reactions">
+                            <span><i class="far fa-heart" style="color: #f43f5e;"></i> {{ r.likes_count }}</span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+
+<!-- Toast notification container -->
+<div id="toastMessage" class="article-toast"></div>
+
+<script>
+    // Reading Progress
+    window.addEventListener('scroll', () => {
+        const docElem = document.documentElement;
+        const docBody = document.body;
+        const scrollTop = docElem['scrollTop'] || docBody['scrollTop'];
+        const scrollBottom = (docElem['scrollHeight'] || docBody['scrollHeight']) - window.innerHeight;
+        const scrollPercent = scrollBottom > 0 ? (scrollTop / scrollBottom) * 100 : 0;
+        document.getElementById('readingProgress').style.width = scrollPercent + '%';
+    });
+
+    // Toast function
+    function showToast(msg) {
+        const toast = document.getElementById('toastMessage');
+        toast.innerText = msg;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    // Copy URL
+    function copyCurrentUrl() {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            showToast('✓ Link copied to clipboard!');
+        });
+    }
+
+    // Copy Poem
+    function copyPoemText() {
+        const poem = document.getElementById('poemContent');
+        if (poem) {
+            navigator.clipboard.writeText(poem.innerText).then(() => {
+                showToast('✓ Verse copied to clipboard!');
+            });
+        }
+    }
+
+    // Send Like AJAX
+    function sendLike(blogId) {
+        const btn = document.getElementById('likeBtn');
+        const countSpan = document.getElementById('likeCount');
+        const icon = document.getElementById('likeIcon');
+        
+        // Spawn heart particles
+        spawnHeartParticle();
+
+        fetch(`/blog/${blogId}/like/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'ok') {
+                countSpan.innerText = data.likes;
+                btn.classList.add('liked');
+                icon.style.color = '#f43f5e';
+            }
+        })
+        .catch(err => console.error(err));
+    }
+
+    function spawnHeartParticle() {
+        const box = document.getElementById('heartParticleBox');
+        if (!box) return;
+        for (let i = 0; i < 6; i++) {
+            const heart = document.createElement('span');
+            heart.innerHTML = '❤️';
+            heart.classList.add('floating-heart-particle');
+            heart.style.left = (Math.random() * 40 - 20) + 'px';
+            heart.style.animationDuration = (0.8 + Math.random() * 0.5) + 's';
+            box.appendChild(heart);
+            setTimeout(() => heart.remove(), 1200);
+        }
+    }
+</script>
+{% endblock %}

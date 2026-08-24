@@ -1,0 +1,19 @@
+{% if page_obj.has_other_pages %}
+<div style="margin-top: 3rem; display: flex; justify-content: center; gap: 0.5rem;">
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="btn" style="padding: 0.5rem 1rem; background: rgba(15,23,42,0.8); color: var(--text-color);">&laquo; Prev</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <span class="btn" style="padding: 0.5rem 1rem; background: var(--accent-color); color: #0f172a;">{{ num }}</span>
+        {% else %}
+            <a href="?page={{ num }}" class="btn" style="padding: 0.5rem 1rem; background: rgba(15,23,42,0.8); color: var(--text-color);">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="btn" style="padding: 0.5rem 1rem; background: rgba(15,23,42,0.8); color: var(--text-color);">Next &raquo;</a>
+    {% endif %}
+</div>
+{% endif %}

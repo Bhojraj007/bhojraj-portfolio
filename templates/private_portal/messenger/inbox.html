@@ -1,0 +1,246 @@
+{% extends 'private_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .inbox-container { max-width: 900px; margin: 0 auto; }
+    .inbox-hero {
+        text-align: center; margin-bottom: 2.5rem;
+    }
+    .inbox-hero h1 {
+        font-size: 2.2rem; font-weight: 800; margin: 0 0 0.5rem;
+    }
+    .inbox-hero h1 span {
+        background: linear-gradient(to right, var(--primary), var(--accent, #00d2ff));
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .inbox-hero p { color: var(--text-dim); }
+
+    .inbox-search {
+        display: flex; justify-content: center; margin-bottom: 2rem;
+    }
+    .inbox-search input {
+        width: 100%; max-width: 500px; padding: 1.25rem 1.5rem 1.25rem 3.5rem;
+        background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 30px; color: white; font-size: 1.05rem; outline: none;
+        transition: all 0.3s; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+    }
+    .inbox-search input:focus { 
+        border-color: #10b981; 
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 0 15px rgba(16,185,129,0.3); 
+    }
+    .inbox-search-wrapper {
+        position: relative; width: 100%; max-width: 500px;
+    }
+    .inbox-search-wrapper i {
+        position: absolute; left: 1.2rem; top: 50%; transform: translateY(-50%);
+        color: var(--text-dim);
+    }
+
+    .inbox-grid {
+        display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;
+    }
+
+    .conversations-card {
+        background: rgba(20, 20, 25, 0.6);
+        backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255,255,255,0.05); border-radius: 20px;
+        padding: 1.5rem; overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    .conversations-card h3 {
+        margin: 0 0 1.5rem; font-size: 1.1rem; display: flex;
+        align-items: center; gap: 0.5rem; color: var(--text-dim);
+    }
+    .conversation-list {
+        display: flex; flex-direction: column; gap: 0.5rem;
+    }
+    .convo-item {
+        display: flex; align-items: center; gap: 1.2rem;
+        padding: 1rem 1.2rem; background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.04); border-radius: 16px;
+        text-decoration: none; color: white; transition: all 0.3s ease;
+        position: relative;
+    }
+    .convo-item:hover {
+        background: rgba(255,255,255,0.06); transform: translateX(6px);
+        border-color: var(--primary);
+    }
+    .convo-avatar {
+        width: 52px; height: 52px; border-radius: 50%;
+        overflow: hidden; flex-shrink: 0; position: relative;
+    }
+    .convo-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .convo-avatar-placeholder {
+        width: 100%; height: 100%; display: flex;
+        align-items: center; justify-content: center;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        font-weight: 800; font-size: 1.1rem;
+    }
+    .convo-avatar .online-ring {
+        position: absolute; bottom: 1px; right: 1px;
+        width: 14px; height: 14px; border-radius: 50%;
+        background: #10b981; border: 2px solid #0f172a;
+    }
+    .convo-content { flex: 1; overflow: hidden; }
+    .convo-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem; }
+    .convo-name { font-weight: 700; font-size: 1rem; }
+    .convo-time { font-size: 0.75rem; color: var(--text-dim); }
+    .convo-preview {
+        margin: 0; font-size: 0.85rem; color: var(--text-dim);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .unread-badge {
+        width: 10px; height: 10px; border-radius: 50%;
+        background: var(--primary); box-shadow: 0 0 10px var(--primary);
+        flex-shrink: 0; animation: pulseBadge 2s infinite;
+    }
+    @keyframes pulseBadge {
+        0%, 100% { box-shadow: 0 0 5px var(--primary); }
+        50% { box-shadow: 0 0 15px var(--primary); }
+    }
+
+    .empty-inbox {
+        text-align: center; padding: 3rem; opacity: 0.5;
+    }
+    .empty-inbox i { font-size: 3rem; margin-bottom: 1rem; display: block; }
+
+    /* New Connection Card */
+    .new-chat-card {
+        background: rgba(20, 20, 25, 0.6);
+        backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255,255,255,0.05); border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    .new-chat-card h3 {
+        margin: 0 0 1.5rem; font-size: 1.1rem; display: flex;
+        align-items: center; gap: 0.5rem; color: var(--text-dim);
+    }
+    .new-chat-list {
+        display: flex; flex-direction: column; gap: 0.4rem;
+        max-height: 450px; overflow-y: auto;
+    }
+    .new-chat-list::-webkit-scrollbar { width: 3px; }
+    .new-chat-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    .new-chat-item {
+        display: flex; align-items: center; gap: 0.8rem;
+        padding: 0.7rem 0.8rem; border-radius: 12px;
+        text-decoration: none; color: white; transition: all 0.2s;
+    }
+    .new-chat-item:hover {
+        background: rgba(255,255,255,0.06);
+    }
+    .new-chat-item .mini-avatar {
+        width: 38px; height: 38px; border-radius: 50%; overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+    .new-chat-item .mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .new-chat-item .mini-avatar-placeholder {
+        width: 100%; height: 100%; display: flex;
+        align-items: center; justify-content: center;
+        background: rgba(255,255,255,0.05); font-size: 0.85rem;
+    }
+    .new-chat-item span { font-size: 0.95rem; }
+    .new-chat-item .chat-arrow {
+        margin-left: auto; font-size: 0.75rem; opacity: 0.3;
+        transition: all 0.2s;
+    }
+    .new-chat-item:hover .chat-arrow { opacity: 1; transform: translateX(3px); }
+
+    @media (max-width: 768px) {
+        .inbox-grid { grid-template-columns: 1fr; }
+        .inbox-hero h1 { font-size: 1.8rem; }
+    }
+</style>
+
+<div class="inbox-container">
+    <div class="inbox-hero reveal">
+        <h1>Echo <span>Links</span></h1>
+        <p>Your private channels of communication</p>
+    </div>
+
+    <div class="inbox-search reveal">
+        <div class="inbox-search-wrapper">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search conversations..." id="convo-search" oninput="filterConversations(this.value)">
+        </div>
+    </div>
+
+    <div class="inbox-grid reveal">
+        <div class="conversations-card">
+            <h3><i class="fas fa-comments"></i> Conversations</h3>
+            {% if conversations %}
+                <div class="conversation-list" id="conversation-list">
+                    {% for other_user in conversations %}
+                        <a href="{% url 'private_portal:chat_detail' other_user.id %}" class="convo-item" data-name="{{ other_user.username|lower }}">
+                            <div class="convo-avatar">
+                                {% if other_user.profile_picture %}
+                                    <img src="{{ other_user.profile_picture.url }}" alt="">
+                                {% else %}
+                                    <div class="convo-avatar-placeholder">{{ other_user.username|make_list|first|upper }}</div>
+                                {% endif %}
+                                <div class="online-ring"></div>
+                            </div>
+                            <div class="convo-content">
+                                <div class="convo-top">
+                                    <span class="convo-name">{{ other_user.username|title }}</span>
+                                    <span class="convo-time">{{ other_user.last_message.timestamp|timesince }} ago</span>
+                                </div>
+                                <p class="convo-preview">
+                                    {% if other_user.last_message.sender == request.user %}
+                                        <i class="fas fa-reply" style="font-size: 0.7rem; margin-right: 3px; opacity: 0.5;"></i>
+                                    {% endif %}
+                                    {{ other_user.last_message.body|default:"📎 Attachment"|truncatewords:8 }}
+                                </p>
+                            </div>
+                            {% if not other_user.last_message.is_read and other_user.last_message.recipient == request.user %}
+                                <div class="unread-badge"></div>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-inbox">
+                    <i class="fas fa-comment-slash"></i>
+                    <p>No conversations yet.<br>Start one from the right panel!</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="new-chat-card">
+            <h3><i class="fas fa-plus-circle"></i> Start Chat</h3>
+            <div class="new-chat-list">
+                {% for u in all_users %}
+                    <a href="{% url 'private_portal:chat_detail' u.id %}" class="new-chat-item">
+                        <div class="mini-avatar">
+                            {% if u.profile_picture %}
+                                <img src="{{ u.profile_picture.url }}" alt="">
+                            {% else %}
+                                <div class="mini-avatar-placeholder">{{ u.username|make_list|first|upper }}</div>
+                            {% endif %}
+                        </div>
+                        <span>{{ u.username|title }}</span>
+                        <i class="fas fa-chevron-right chat-arrow"></i>
+                    </a>
+                {% empty %}
+                    <div style="text-align: center; padding: 2rem; opacity: 0.5;">
+                        <p>No other guardians yet</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterConversations(query) {
+        const items = document.querySelectorAll('.convo-item');
+        items.forEach(item => {
+            const name = item.dataset.name || '';
+            item.style.display = name.includes(query.toLowerCase()) ? 'flex' : 'none';
+        });
+    }
+</script>
+{% endblock %}

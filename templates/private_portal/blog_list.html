@@ -1,0 +1,100 @@
+{% extends "private_base.html" %}
+
+{% block title %}Poems & Blogs | Bhojraj Private Portal{% endblock %}
+
+{% block content %}
+<div style="max-width: 960px; margin: 0 auto;">
+  <div class="reveal" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-feather-alt" style="color: var(--accent);"></i> Creative Journal & Poems
+      </h1>
+      <p style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.2rem;">Manage your published poems, tech essays, reflections, and thoughts.</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{% url 'public_portal:blog_list' %}" target="_blank" style="background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); color: var(--text-primary); text-decoration: none; padding: 0.55rem 1.1rem; border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 0.4rem;">
+        <i class="fas fa-external-link-alt"></i> View Public Hub
+      </a>
+      <a href="{% url 'private_portal:blog_add' %}" style="background: var(--accent); color: #fff; text-decoration: none; padding: 0.55rem 1.25rem; border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 0.4rem; box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);">
+        <i class="fas fa-plus"></i> Write Poem / Blog
+      </a>
+    </div>
+  </div>
+
+  <div class="reveal" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem;">
+    {% for blog in object_list %}
+    <div style="background: var(--bg-card); border: 1px solid var(--divider); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--divider)'">
+      {% if blog.cover_image %}
+      <div style="height: 160px; overflow: hidden; position: relative;">
+        <img src="{{ blog.cover_image.url }}" alt="{{ blog.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+        {% if blog.is_featured %}
+        <span style="position: absolute; top: 10px; right: 10px; background: rgba(245, 158, 11, 0.9); color: #000; font-weight: 800; font-size: 0.7rem; padding: 3px 8px; border-radius: 99px;">★ Featured</span>
+        {% endif %}
+      </div>
+      {% endif %}
+      <div style="padding: 1.2rem; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="background: rgba(56, 189, 248, 0.12); color: var(--accent); font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 6px;">
+              {{ blog.get_category_display }}
+            </span>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">{{ blog.read_time }}</span>
+          </div>
+          <h3 style="margin: 0 0 0.4rem; font-size: 1.1rem; font-weight: 700; line-height: 1.4;">{{ blog.title }}</h3>
+          {% if blog.subtitle %}
+          <p style="color: var(--accent); font-size: 0.82rem; margin-bottom: 0.5rem; font-style: italic;">{{ blog.subtitle }}</p>
+          {% endif %}
+          <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.6; margin-bottom: 0.75rem;">
+            {{ blog.content|truncatewords:20 }}
+          </p>
+          {% if blog.tag_list %}
+          <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 0.75rem;">
+            {% for t in blog.tag_list %}
+            <span style="background: rgba(255,255,255,0.05); color: var(--text-muted); font-size: 0.7rem; padding: 2px 6px; border-radius: 4px;">#{{ t }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.8rem; margin-top: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; gap: 0.8rem; font-size: 0.78rem; color: var(--text-muted);">
+            <span><i class="far fa-eye"></i> {{ blog.views_count }}</span>
+            <span><i class="far fa-heart" style="color: #f43f5e;"></i> {{ blog.likes_count }}</span>
+            {% if blog.is_public %}
+            <span style="color: #10b981;"><i class="fas fa-globe"></i> Public</span>
+            {% else %}
+            <span style="color: #f59e0b;"><i class="fas fa-lock"></i> Draft</span>
+            {% endif %}
+          </div>
+          <div style="display: flex; gap: 0.4rem;">
+            {% if blog.is_public and blog.slug %}
+            <a href="{% url 'public_portal:blog_detail' blog.slug %}" target="_blank" style="color: var(--accent); text-decoration: none; font-size: 0.85rem; padding: 0.3rem 0.5rem; border-radius: 6px;" title="View Live">
+              <i class="fas fa-external-link-alt"></i>
+            </a>
+            {% endif %}
+            <a href="{% url 'private_portal:blog_edit' blog.pk %}" style="color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; padding: 0.3rem 0.5rem; border-radius: 6px;" title="Edit">
+              <i class="fas fa-pen"></i>
+            </a>
+            <a href="{% url 'private_portal:blog_delete' blog.pk %}" style="color: var(--red); text-decoration: none; font-size: 0.85rem; padding: 0.3rem 0.5rem; border-radius: 6px;" title="Delete">
+              <i class="fas fa-trash"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 2rem; background: var(--bg-card); border-radius: var(--radius);">
+      <i class="fas fa-feather-alt" style="font-size: 3rem; color: var(--text-muted); opacity: 0.3; display: block; margin-bottom: 1.5rem;"></i>
+      <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">No Poems or Blogs Yet</h3>
+      <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1.5rem;">Write your first poem or blog post to showcase your creativity and knowledge.</p>
+      <a href="{% url 'private_portal:blog_add' %}" style="background: var(--accent); color: #fff; text-decoration: none; padding: 0.6rem 1.4rem; border-radius: var(--radius-full); font-size: 0.9rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-plus"></i> Write Now
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% include "private_portal/pagination.html" with page_obj=page_obj %}
+{% endblock %}
+

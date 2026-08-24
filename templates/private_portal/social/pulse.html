@@ -1,0 +1,525 @@
+{% extends "private_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="sanctuary-container">
+    <div class="dashboard-header animate__animated animate__fadeInDown">
+        <div class="header-main">
+            <h1 class="premium-title">Global <span class="glow-text">Pulse</span></h1>
+            <p class="premium-subtitle">The collective resonance of all Guardians</p>
+        </div>
+        <div class="header-actions">
+            {% if velocity is not None %}
+            <span class="stat-item" title="Community Velocity"><i class="fas fa-bolt animate-pulse"></i> {{ velocity }} New Fragments</span>
+            {% endif %}
+            {% if suggested_guardians %}
+            <span class="stat-item"><i class="fas fa-users"></i> {{ suggested_guardians|length }}+ Active Guardians</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Expert Phase: Sanctuary Moments Story Ring -->
+    <div class="moments-container animate__animated animate__fadeIn">
+        <div class="moments-scroll">
+            <a href="{% url 'private_portal:moment_add' %}" class="moment-item add-moment">
+                <div class="moment-ring">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <span>Ignite</span>
+            </a>
+            
+            {% for moment in active_moments %}
+            <div class="moment-item" title="{{ moment.title }}">
+                <div class="moment-ring {% if not moment.is_public %}private-ring{% endif %}">
+                    {% if moment.image %}
+                        <img src="{{ moment.image.url }}" alt="{{ moment.user.username }}">
+                    {% elif moment.video %}
+                        <div class="moment-video-icon"><i class="fas fa-play"></i></div>
+                    {% else %}
+                        <div class="avatar-placeholder">{{ moment.user.username|slice:":1"|upper }}</div>
+                    {% endif %}
+                </div>
+                <span>{{ moment.user.username }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+    <div class="feed-layout">
+        <div class="feed-main animate__animated animate__fadeInUp">
+            {% if feed_items %}
+                {% for item in feed_items %}
+                    {% include "private_portal/partials/feed_item.html" with post=item is_social=True %}
+                {% endfor %}
+            {% else %}
+                <div class="empty-state glass-card">
+                    <i class="fas fa-satellite-dish"></i>
+                    <h3>The Pulse is Quiet</h3>
+                    <p>Follow other Guardians to see their public fragments here.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <aside class="feed-sidebar">
+
+            <div class="sidebar-card glass-card animate__animated animate__fadeInRight animate__delay-1s">
+                <h3>Vibe <span class="glow-text">Insights</span></h3>
+                <div class="pulse-insights">
+                    {% if global_vibe %}
+                        {% for vibe in global_vibe %}
+                        <div class="insight-item" style="margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.3rem;">
+                                <span class="insight-label" style="color: {{ vibe.color }};">{{ vibe.label }}</span>
+                                <span style="opacity: 0.6;">{{ vibe.percent|floatformat:0 }}%</span>
+                            </div>
+                            <div class="vibe-bar">
+                                <div class="vibe-progress" style="width: {{ vibe.percent }}%; background: {{ vibe.color }}; box-shadow: 0 0 10px {{ vibe.color }}80;"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="font-size: 0.8rem; opacity: 0.5; text-align: center;">Vibe is equalizing...</p>
+                    {% endif %}
+                </div>
+            </div>
+
+        </aside>
+    </div>
+</div>
+
+<!-- Expert Phase: Immersive Story Viewer Modal -->
+<div id="story-viewer" class="story-viewer-overlay">
+    <div class="story-progress-container">
+        <!-- Progress bars will be injected here via JS -->
+    </div>
+    <div class="story-header">
+        <div class="story-user">
+            <div class="story-avatar"></div>
+            <span class="story-username"></span>
+        </div>
+        <button class="story-close" onclick="closeStory()">&times;</button>
+    </div>
+    <div class="story-content">
+        <img id="story-img" src="" alt="">
+        <video id="story-video" controls style="display:none;"></video>
+        <div class="story-caption"></div>
+    </div>
+    <div class="story-nav">
+        <button class="story-prev" onclick="prevStorySegment()"><i class="fas fa-chevron-left"></i></button>
+        <button class="story-next" onclick="nextStorySegment()"><i class="fas fa-chevron-right"></i></button>
+    </div>
+</div>
+
+<style>
+    .guardian-suggestions {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    .guardian-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .guardian-info {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+    .mini-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: var(--glass-accent);
+        border: 2px solid rgba(255,255,255,0.1);
+    }
+    .mini-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+    }
+    .guardian-meta {
+        display: flex;
+        flex-direction: column;
+    }
+    .guardian-name {
+        color: white;
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 0.95rem;
+    }
+    .guardian-bio {
+        font-size: 0.75rem;
+        color: rgba(255,255,255,0.5);
+    }
+    .follow-btn {
+        background: var(--glass-accent);
+        border: none;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .follow-btn:hover {
+        background: var(--accent-gradient);
+        transform: scale(1.1);
+    }
+    .follow-btn.following {
+        background: #10b981;
+    }
+
+    /* Vibe bar */
+    .vibe-bar {
+        height: 6px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 10px;
+        margin-top: 0.5rem;
+        overflow: hidden;
+    }
+    .vibe-progress {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Trending List */
+    .trending-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+        margin-top: 1rem;
+    }
+    .trending-item {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        padding: 0.8rem;
+        background: rgba(255,255,255,0.02);
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.05);
+        transition: 0.3s;
+    }
+    .trending-item:hover {
+        background: rgba(255,255,255,0.05);
+        transform: translateX(5px);
+    }
+    .trending-rank {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--accent-blue);
+        opacity: 0.3;
+        width: 30px;
+    }
+    .trending-meta {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+    .trending-type {
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.5;
+    }
+    .trending-title {
+        color: white;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin: 0.2rem 0;
+    }
+    .trending-love {
+        font-size: 0.75rem;
+        color: #ef4444;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    /* Streaks */
+    .streak-icon {
+        color: #f59e0b;
+        font-size: 0.8rem;
+        margin-left: 0.3rem;
+        filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.5));
+        animation: flicker 2s infinite;
+    }
+    @keyframes flicker {
+        0%, 100% { opacity: 0.8; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* Moments UI */
+    .moments-container {
+        margin-bottom: 2.5rem;
+        padding: 0.5rem 0;
+    }
+    .moments-scroll {
+        display: flex;
+        gap: 1.5rem;
+        overflow-x: auto;
+        padding: 5px;
+        scrollbar-width: none;
+    }
+    .moments-scroll::-webkit-scrollbar { display: none; }
+    
+    .moment-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: 0.3s;
+        text-decoration: none;
+        flex-shrink: 0;
+    }
+    .moment-item:hover { transform: scale(1.05); }
+    
+    .moment-ring {
+        width: 65px;
+        height: 65px;
+        border-radius: 50%;
+        padding: 3px;
+        background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+        position: relative;
+    }
+    .private-ring { background: linear-gradient(45deg, #fb7185, #e11d48); }
+    
+    .moment-ring img, .moment-ring .avatar-placeholder, .moment-ring .moment-video-icon {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #0f172a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #0f172a;
+    }
+    
+    .add-moment .moment-ring {
+        background: rgba(255,255,255,0.1);
+        border: 1px dashed var(--glass-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent-blue);
+    }
+    
+    .moment-item span {
+        font-size: 0.75rem;
+        color: #fff;
+        max-width: 65px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        opacity: 0.8;
+    }
+
+    /* Story Viewer Modal Styles */
+    .story-viewer-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+        backdrop-filter: blur(20px); z-index: 9999;
+        display: none; flex-direction: column; align-items: center; justify-content: center;
+        opacity: 0; transition: opacity 0.5s ease;
+    }
+    .story-viewer-overlay.active { display: flex; opacity: 1; }
+    
+    .story-progress-container {
+        position: absolute; top: 20px; left: 10px; right: 10px;
+        display: flex; gap: 5px; height: 3px; z-index: 10;
+    }
+    .story-progress-bar {
+        flex: 1; background: rgba(255,255,255,0.2); border-radius: 2px; overflow: hidden;
+    }
+    .story-progress-fill {
+        height: 100%; width: 0%; background: #fff; transition: width 0.1s linear;
+    }
+    
+    .story-header {
+        position: absolute; top: 40px; left: 20px; right: 20px;
+        display: flex; justify-content: space-between; align-items: center; z-index: 10;
+    }
+    .story-user { display: flex; align-items: center; gap: 10px; }
+    .story-avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--accent-blue); background-size: cover; }
+    .story-username { color: #fff; font-weight: 700; font-size: 0.9rem; }
+    .story-close { background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; opacity: 0.7; }
+    
+    .story-content {
+        width: 100%; max-width: 500px; height: 80vh; position: relative;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .story-content img, .story-content video { width: 100%; height: 100%; object-fit: contain; border-radius: 12px; }
+    .story-caption {
+        position: absolute; bottom: 40px; left: 20px; right: 20px;
+        color: #fff; text-align: center; font-size: 1.1rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    
+    .story-nav {
+        position: absolute; inset: 0; display: flex; justify-content: space-between; pointer-events: none;
+    }
+    .story-nav button {
+        width: 20%; height: 100%; border: none; background: transparent; pointer-events: auto;
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+        color: rgba(255,255,255,0.2); font-size: 2rem; transition: 0.3s;
+    }
+    .story-nav button:hover { color: #fff; background: rgba(255,255,255,0.05); }
+</style>
+
+<script>
+    document.querySelectorAll('.pulse-follow').forEach(btn => {
+        btn.onclick = async function() {
+            const userId = this.dataset.userId;
+            const res = await fetch(`/private/toggle-follow/${userId}/`);
+            const data = await res.json();
+            if (data.status === 'ok') {
+                if (data.action === 'followed') {
+                    this.innerHTML = '<i class="fas fa-check"></i>';
+                    this.classList.add('following');
+                } else {
+                    this.innerHTML = '<i class="fas fa-plus"></i>';
+                    this.classList.remove('following');
+                }
+            }
+        };
+    });
+
+    // Expert Phase: Story Viewer Logic
+    let currentStoryIndex = 0;
+    let storyTimer = null;
+    const storyData = [
+        {% for moment in active_moments %}
+        {
+            user: "{{ moment.user.username }}",
+            avatar: "{% if moment.user.profile_picture %}{{ moment.user.profile_picture.url }}{% endif %}",
+            media: "{% if moment.image %}{{ moment.image.url }}{% elif moment.video %}{{ moment.video.url }}{% endif %}",
+            type: "{% if moment.image %}image{% else %}video{% endif %}",
+            title: "{{ moment.title }}"
+        },
+        {% endfor %}
+    ];
+
+    window.openStory = function(index) {
+        currentStoryIndex = index;
+        const viewer = document.getElementById('story-viewer');
+        viewer.style.display = 'flex';
+        setTimeout(() => viewer.classList.add('active'), 10);
+        renderStory();
+    };
+
+    function renderStory() {
+        const story = storyData[currentStoryIndex];
+        const img = document.getElementById('story-img');
+        const video = document.getElementById('story-video');
+        const avatar = document.querySelector('.story-avatar');
+        const username = document.querySelector('.story-username');
+        const caption = document.querySelector('.story-caption');
+        const progressContainer = document.querySelector('.story-progress-container');
+
+        // Reset
+        img.style.display = 'none';
+        video.style.display = 'none';
+        video.pause();
+        clearInterval(storyTimer);
+
+        // Progress bars
+        progressContainer.innerHTML = '';
+        storyData.forEach((_, i) => {
+            const bar = document.createElement('div');
+            bar.className = 'story-progress-bar';
+            const fill = document.createElement('div');
+            fill.className = 'story-progress-fill';
+            if (i < currentStoryIndex) fill.style.width = '100%';
+            bar.appendChild(fill);
+            progressContainer.appendChild(bar);
+        });
+
+        // Set Content
+        username.innerText = story.user;
+        avatar.style.backgroundImage = story.avatar ? `url(${story.avatar})` : 'linear-gradient(135deg, #00d2ff, #9d50bb)';
+        caption.innerText = story.title;
+
+        if (story.type === 'image') {
+            img.src = story.media;
+            img.style.display = 'block';
+            startProgress(5000);
+        } else {
+            video.src = story.media;
+            video.style.display = 'block';
+            video.play();
+            video.onloadedmetadata = () => startProgress(video.duration * 1000);
+        }
+    }
+
+    function startProgress(duration) {
+        const fill = document.querySelectorAll('.story-progress-fill')[currentStoryIndex];
+        let start = null;
+        function animate(timestamp) {
+            if (!start) start = timestamp;
+            const progress = timestamp - start;
+            const percent = Math.min((progress / duration) * 100, 100);
+            fill.style.width = percent + '%';
+            if (percent < 100) {
+                storyTimer = requestAnimationFrame(animate);
+            } else {
+                nextStorySegment();
+            }
+        }
+        storyTimer = requestAnimationFrame(animate);
+    }
+
+    window.nextStorySegment = function() {
+        cancelAnimationFrame(storyTimer);
+        if (currentStoryIndex < storyData.length - 1) {
+            currentStoryIndex++;
+            renderStory();
+        } else {
+            closeStory();
+        }
+    };
+
+    window.prevStorySegment = function() {
+        cancelAnimationFrame(storyTimer);
+        if (currentStoryIndex > 0) {
+            currentStoryIndex--;
+            renderStory();
+        } else {
+            currentStoryIndex = 0;
+            renderStory();
+        }
+    };
+
+    window.closeStory = function() {
+        cancelAnimationFrame(storyTimer);
+        const viewer = document.getElementById('story-viewer');
+        viewer.classList.remove('active');
+        setTimeout(() => { viewer.style.display = 'none'; }, 500);
+        const video = document.getElementById('story-video');
+        video.pause();
+    };
+
+    // Attach click listeners to moments
+    document.querySelectorAll('.moment-item:not(.add-moment)').forEach((item, index) => {
+        item.onclick = (e) => {
+            e.preventDefault();
+            openStory(index);
+        };
+    });
+</script>
+{% endblock %}

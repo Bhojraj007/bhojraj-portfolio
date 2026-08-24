@@ -1,0 +1,102 @@
+{% extends "private_base.html" %}
+
+{% block title %}{{ content_title }} | Site Manager{% endblock %}
+
+{% block content %}
+<div class="sm-container">
+    <div class="sm-header">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+            <a href="{% url back_url %}" style="color: var(--text-muted); text-decoration: none; font-size: 0.8rem;">
+                <i class="fas fa-arrow-left"></i> Back to list
+            </a>
+        </div>
+        <h1><i class="{{ content_icon }}"></i> {{ content_title }}</h1>
+    </div>
+
+    <div class="sm-form-card">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                
+                {% if field.field.widget.input_type == 'checkbox' %}
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <label class="sm-toggle">
+                        <input type="checkbox" name="{{ field.html_name }}" {% if field.value %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                    <span style="font-size: 0.85rem; color: var(--text-secondary);">{{ field.help_text|default:"" }}</span>
+                </div>
+                {% elif field.field.widget.input_type == 'file' %}
+                {% if is_edit and field.value %}
+                <div style="margin-bottom: 0.5rem; font-size: 0.8rem; color: var(--text-secondary);">
+                    Current: {{ field.value }}
+                </div>
+                {% endif %}
+                <input type="file" name="{{ field.html_name }}" {% if field.field.widget.attrs.accept %}accept="{{ field.field.widget.attrs.accept }}"{% endif %} style="width: 100%; padding: 0.75rem; background: var(--bg-input); border: 1.5px dashed var(--divider); border-radius: var(--radius-xs); color: var(--text-secondary); font-family: inherit;">
+                {% elif field.field.widget.input_type == 'select' or field.field.widget.input_type == 'selectmultiple' %}
+                <select name="{{ field.html_name }}" style="width: 100%; padding: 0.75rem 1rem; background: var(--bg-input); border: 1.5px solid var(--divider); border-radius: var(--radius-xs); color: var(--text-primary); font-size: 0.9rem; font-family: inherit; outline: none;">
+                    {% for choice in field.field.choices %}
+                    <option value="{{ choice.0 }}" {% if field.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>{{ choice.1 }}</option>
+                    {% endfor %}
+                </select>
+                {% else %}
+                {{ field }}
+                {% endif %}
+                
+                {% if field.errors %}
+                <div style="color: var(--accent-rose); font-size: 0.8rem; margin-top: 0.3rem;">
+                    {% for error in field.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+                {% if field.help_text and field.field.widget.input_type != 'checkbox' %}
+                <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.3rem;">{{ field.help_text }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="sm-form-actions">
+                <button type="submit" class="sm-submit-btn">
+                    <i class="fas fa-save"></i> {% if is_edit %}Update{% else %}Create{% endif %}
+                </button>
+                <a href="{% url back_url %}" class="sm-cancel-btn">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Style Django form widgets */
+    .sm-form-card input[type="text"],
+    .sm-form-card input[type="email"],
+    .sm-form-card input[type="url"],
+    .sm-form-card input[type="number"],
+    .sm-form-card textarea,
+    .sm-form-card select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: var(--bg-input);
+        border: 1.5px solid var(--divider);
+        border-radius: var(--radius-xs);
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        font-family: inherit;
+        outline: none;
+        transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .sm-form-card input:focus,
+    .sm-form-card textarea:focus,
+    .sm-form-card select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .sm-form-card select option {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+    }
+</style>
+{% endblock %}

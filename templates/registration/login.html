@@ -1,0 +1,176 @@
+{% extends "public_portal/base.html" %}
+{% load static %}
+
+{% block title %}Secure Access | Raj Bhoj Elite Command{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at top left, #1e1b4b, #020617);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .auth-card {
+        background: rgba(15, 23, 42, 0.4);
+        backdrop-filter: blur(40px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 30px;
+        padding: 3.5rem;
+        width: 100%;
+        max-width: 480px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        position: relative;
+        z-index: 10;
+        animation: cardReveal 1s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    @keyframes cardReveal {
+        from { opacity: 0; transform: translateY(30px) scale(0.95); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .auth-card h2 {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 800;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #fff, #94a3b8);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -1px;
+    }
+
+    .auth-card p.subtitle {
+        color: var(--accent-blue);
+        font-weight: 600;
+        margin-bottom: 2.5rem;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+        text-align: left;
+    }
+
+    .form-group label {
+        display: block;
+        color: #f8fafc;
+        font-weight: 600;
+        margin-bottom: 0.6rem;
+        font-size: 0.9rem;
+        padding-left: 5px;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 1rem 1.2rem;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        color: white;
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--accent-blue);
+        background: rgba(0, 0, 0, 0.5);
+        box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+    }
+
+    .btn-login {
+        width: 100%;
+        padding: 1.2rem;
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+        border: none;
+        border-radius: 15px;
+        color: white;
+        font-weight: 800;
+        font-size: 1.1rem;
+        cursor: pointer;
+        margin-top: 1rem;
+        box-shadow: 0 10px 20px rgba(0, 210, 255, 0.2);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .btn-login:hover {
+        transform: scale(1.02);
+        box-shadow: 0 15px 30px rgba(0, 210, 255, 0.4);
+    }
+
+    .error-msg {
+        background: rgba(239, 68, 68, 0.1);
+        border-left: 4px solid #ef4444;
+        color: #f87171;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        font-size: 0.85rem;
+        text-align: left;
+    }
+
+    /* Aura Background */
+    .aura {
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        filter: blur(150px);
+        opacity: 0.4;
+        z-index: 1;
+        animation: auraMove 20s infinite alternate linear;
+    }
+
+    @keyframes auraMove {
+        from { transform: translate(-20%, -20%); }
+        to { transform: translate(20%, 20%); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="aura" style="background: var(--accent-blue); top: 10%; left: 10%;"></div>
+    <div class="aura" style="background: var(--accent-purple); bottom: 10%; right: 10%; animation-delay: -5s;"></div>
+
+    <div class="auth-card">
+        <h2>System Login</h2>
+        <p class="subtitle">Secure Node Entry</p>
+
+        {% if form.errors %}
+        <div class="error-msg">
+            <i class="fas fa-exclamation-triangle"></i> Access Denied. Verify identification and try again.
+        </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_username">Authorized Identifier</label>
+                <input type="text" name="username" id="id_username" placeholder="Username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="id_password">Access Key</label>
+                <input type="password" name="password" id="id_password" placeholder="••••••••" required>
+            </div>
+            <input type="hidden" name="next" value="{{ next }}">
+            <button type="submit" class="btn-login">Initialize Session</button>
+        </form>
+
+        <p style="margin-top: 2rem; font-size: 0.8rem; color: #64748b;">
+            Not authorized? <a href="{% url 'public_portal:home' %}" style="color: var(--accent-blue); text-decoration: none;">Return to Hub</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

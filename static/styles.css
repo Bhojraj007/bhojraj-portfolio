@@ -1,0 +1,197 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+:root {
+  /* Retaining the dawn background */
+  --bg-gradient: linear-gradient(180deg, #FDFDFB 0%, #FAFAF8 40%, #F4F6F5 100%);
+  --bg-creamy: #FAFAF8; 
+  
+  /* Richer, high-contrast foreground colors */
+  --text-main: #14241B; /* Very rich deep pine green, almost black */
+  --text-muted: #647569;
+  --sage-green: #7BA084; /* Slightly richer sage */
+  --lavender: #A594C6; /* Richer lavender */
+  --warm-gold: #C5A059; /* Vibrant luxury gold */
+  
+  /* High-end glass UI */
+  --card-bg: rgba(255, 255, 255, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --gold-glow: 0 10px 40px rgba(197, 160, 89, 0.15);
+  --shadow-subtle: 0 20px 50px rgba(20, 36, 27, 0.05);
+}
+
+body {
+  margin: 0; font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg-gradient); color: var(--text-main);
+  overflow-x: hidden; line-height: 1.8;
+}
+
+h1, h2, h3, h4, h5, h6 { font-family: 'Playfair Display', serif; font-weight: 600; color: var(--text-main); margin: 0; }
+
+/* Custom Cursor & Canvas overrides - removed for authentic simplicity */
+#starfield, .cursor-dot, .cursor-outline, .aurora-bg { display: none; }
+a, button, .btn { cursor: pointer; }
+
+/* Navigation */
+.sanctuary-nav {
+  position: fixed; top: 0; width: 100%; z-index: 1000;
+  background: rgba(250, 250, 248, 0.8);
+  backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.9);
+  transition: all 0.4s ease;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
+}
+
+.nav-content {
+  max-width: 1400px; margin: 0 auto; padding: 1.2rem 2rem;
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+/* Lotus Logo */
+.logo {
+  font-size: 1.8rem; font-family: 'Playfair Display', serif; font-weight: 700;
+  text-decoration: none; color: var(--text-main);
+  display: flex; align-items: center; gap: 0.8rem; letter-spacing: 2px;
+}
+.logo-icon svg { width: 34px; height: 34px; fill: var(--warm-gold); transition: transform 0.5s ease; }
+.logo:hover .logo-icon svg { transform: rotate(90deg); }
+
+.nav-links a {
+  color: var(--text-muted); text-decoration: none; margin-left: 2.5rem;
+  font-weight: 500; font-size: 0.95rem; letter-spacing: 1.5px; text-transform: uppercase; transition: color 0.3s;
+}
+.nav-links a:hover { color: var(--warm-gold); }
+
+.btn-small {
+  padding: 0.6rem 1.6rem; background: var(--text-main); color: #fff !important;
+  border-radius: 4px; font-weight: 500; transition: background 0.3s, transform 0.3s;
+}
+.btn-small:hover { background: var(--warm-gold); transform: translateY(-2px); }
+
+/* Layout */
+main { max-width: 1200px; margin: 0 auto; padding: 180px 2rem 0; position: relative; z-index: 10; }
+section { margin-bottom: 10rem; position: relative; }
+
+.section-title {
+  font-size: 3.5rem; text-align: center; margin-bottom: 4rem;
+  font-weight: 500; letter-spacing: 1px; color: var(--text-main);
+}
+.section-title::after {
+  content: ''; display: block; width: 60px; height: 2px;
+  background: var(--warm-gold); margin: 1.5rem auto 0;
+}
+
+/* Hero Section */
+.hero {
+  min-height: 70vh; display: flex; flex-direction: column;
+  justify-content: center; align-items: center; text-align: center;
+}
+.hero p.lead-small {
+  color: var(--warm-gold); font-weight: 700; text-transform: uppercase;
+  letter-spacing: 4px; margin-bottom: 1.5rem; font-size: 0.9rem;
+}
+.hero h1 { font-size: 5.5rem; line-height: 1.1; letter-spacing: -1px; margin-bottom: 2rem; font-weight: 500; }
+.hero span.highlight { color: var(--sage-green); font-style: italic; font-weight: 400; }
+.hero-subtitle {
+  font-size: 1.25rem; color: var(--text-muted); max-width: 750px;
+  margin: 0 auto 3.5rem; font-weight: 300; line-height: 2;
+}
+
+.btn {
+  display: inline-flex; align-items: center; gap: 12px; padding: 1.2rem 3rem;
+  background: transparent; border: 1px solid var(--warm-gold);
+  color: var(--warm-gold); text-decoration: none; border-radius: 2px;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.95rem; letter-spacing: 3px; text-transform: uppercase;
+  transition: all 0.4s ease; font-weight: 600;
+  position: relative; overflow: hidden;
+}
+.btn::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: var(--warm-gold); z-index: -1; transform: scaleX(0); transform-origin: right;
+  transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+}
+.btn:hover::before { transform: scaleX(1); transform-origin: left; }
+.btn:hover { color: #fff; box-shadow: var(--gold-glow); border-color: transparent;}
+
+/* High-End Glass UI Cards */
+.zen-card {
+  background: var(--card-bg); border-radius: 12px; padding: 3.5rem;
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-subtle); border: 1px solid var(--glass-border);
+  transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), box-shadow 0.5s ease, border-color 0.5s ease;
+  height: 100%; box-sizing: border-box; position: relative; overflow: hidden;
+}
+.zen-card::before {
+  content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.8), transparent);
+  transform: skewX(-25deg); transition: 0.7s; z-index: 1; pointer-events: none;
+}
+.zen-card:hover::before { left: 150%; }
+.zen-card:hover { 
+  transform: translateY(-8px); 
+  box-shadow: var(--gold-glow), 0 30px 60px rgba(20, 36, 27, 0.08); 
+  border-color: rgba(197, 160, 89, 0.3);
+}
+
+/* Skills */
+.skills-container { display: flex; flex-wrap: wrap; gap: 1.2rem; justify-content: center; }
+.skill-pill {
+  background: rgba(255,255,255,0.7); border: 1px solid var(--glass-border); color: var(--text-main);
+  padding: 1rem 2.5rem; border-radius: 50px; font-size: 1rem; letter-spacing: 1px; font-weight: 500;
+  display: flex; align-items: center; gap: 12px; transition: all 0.4s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+.skill-pill:hover { background: var(--warm-gold); color: #fff; border-color: var(--warm-gold); transform: translateY(-3px); box-shadow: var(--gold-glow); }
+
+/* Zen Grid */
+.zen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 3rem; align-items: stretch; }
+
+.exp-date { color: var(--warm-gold); font-size: 0.85rem; font-weight: 700; margin-bottom: 1.2rem; display: block; letter-spacing: 2px; text-transform: uppercase;}
+.exp-role { font-size: 2.2rem; color: var(--text-main); margin-bottom: 0.5rem; font-family: 'Playfair Display', serif; line-height: 1.2;}
+.exp-comp { font-size: 1.05rem; color: var(--sage-green); margin-bottom: 1.5rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;}
+.exp-desc { color: var(--text-muted); font-size: 1.1rem; line-height: 1.8;}
+
+/* Projects */
+.project-card { text-decoration: none; color: inherit; padding: 3rem; display: block; z-index: 2; position: relative;}
+.project-img {
+  height: 220px; background: rgba(255,255,255,0.6); border-radius: 8px; margin-bottom: 2.5rem;
+  display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--sage-green);
+  transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); border: 1px solid var(--glass-border);
+}
+.zen-card:hover .project-img { background: var(--sage-green); color: #fff; transform: scale(1.04); box-shadow: 0 15px 30px rgba(123, 160, 132, 0.2); }
+.project-tags { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: auto; padding-top: 2rem; }
+.project-tag { font-size: 0.75rem; color: var(--lavender); letter-spacing: 2px; text-transform: uppercase; font-weight: 700; }
+
+/* Contact Form */
+.form-input {
+  width: 100%; background: transparent; border: none;
+  border-bottom: 1px solid rgba(20, 36, 27, 0.2); color: var(--text-main);
+  padding: 1.5rem 0; font-size: 1.2rem; font-family: 'Plus Jakarta Sans', sans-serif;
+  margin-bottom: 2.5rem; transition: border-color 0.4s, background 0.4s; border-radius: 4px 4px 0 0; box-sizing: border-box;
+}
+.form-input:focus { outline: none; border-color: var(--warm-gold); background: rgba(255,255,255,0.3); padding-left: 1rem;}
+.form-input::placeholder { color: rgba(100, 117, 105, 0.5); font-weight: 400;}
+textarea.form-input { min-height: 150px; resize: vertical; margin-bottom: 1.5rem; }
+
+/* Mountain/Lotus SVG Background Container */
+.mountain-bg {
+  position: absolute; bottom: 0; left: 0; width: 100vw; z-index: -1;
+  pointer-events: none; opacity: 1; overflow: hidden;
+}
+.mountain-bg svg { width: 100%; height: auto; display: block; min-width: 1200px; }
+
+footer {
+  text-align: center; padding: 4rem 2rem; border-top: 1px solid rgba(20, 36, 27, 0.05);
+  color: var(--text-muted); font-size: 0.95rem; font-weight: 400; background: var(--bg-creamy); letter-spacing: 1px;
+}
+
+/* Scroll Reveal */
+.reveal { opacity: 0; transform: translateY(50px); transition: all 1.2s cubic-bezier(0.165, 0.84, 0.44, 1); }
+.reveal.active { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 768px) {
+  .hero h1 { font-size: 3.5rem; }
+  .section-title { font-size: 2.6rem; }
+  .zen-grid { grid-template-columns: 1fr; }
+  main { padding-top: 130px; }
+  .zen-card { padding: 2rem; }
+}

@@ -1,0 +1,328 @@
+{% extends 'private_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* Premium Cash Book Aesthetics */
+    .cashbook-container { 
+        max-width: 1050px; margin: 0 auto; padding: 2rem 1rem; 
+    }
+
+    .cashbook-hero {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 3rem;
+        background: rgba(20, 20, 25, 0.6);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 24px;
+        padding: 2.5rem;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+        animation: fadeInDown 0.8s backwards;
+    }
+    .cashbook-hero h1 {
+        font-size: 2.8rem; font-weight: 900; margin: 0 0 0.5rem; letter-spacing: -1px;
+        color: var(--text-primary);
+    }
+    .cashbook-hero h1 span {
+        background: linear-gradient(135deg, #10b981, #00f2fe);
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
+    }
+    .cashbook-hero p { color: var(--text-secondary); margin: 0; font-size: 1.1rem; letter-spacing: 0.5px; }
+    
+    .cashbook-hero-actions { display: flex; gap: 1rem; }
+    .cb-btn {
+        padding: 0.9rem 1.6rem; border-radius: 16px; border: none;
+        font-weight: 800; font-size: 0.95rem; cursor: pointer;
+        display: flex; align-items: center; gap: 0.6rem;
+        text-decoration: none; transition: all 0.4s; letter-spacing: 0.5px;
+    }
+    .cb-btn-primary {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white; box-shadow: 0 10px 25px rgba(16,185,129,0.3);
+    }
+    .cb-btn-primary:hover { 
+        transform: translateY(-3px) scale(1.02); 
+        box-shadow: 0 15px 35px rgba(16,185,129,0.4); 
+    }
+    .cb-btn-outline {
+        background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15);
+        color: #fff;
+    }
+    .cb-btn-outline:hover { 
+        background: #fff; color: #000; 
+        box-shadow: 0 5px 20px rgba(255,255,255,0.3);
+    }
+
+    /* Elite Summary Cards */
+    .cb-summary-grid {
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+    .cb-summary-card {
+        background: rgba(20, 20, 25, 0.6);
+        backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255,255,255,0.05); border-radius: 20px;
+        padding: 2rem 1.5rem; text-align: center; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative; overflow: hidden;
+        animation: fadeInUp 0.8s backwards;
+    }
+    .cb-summary-card:nth-child(1) { animation-delay: 0.1s; }
+    .cb-summary-card:nth-child(2) { animation-delay: 0.2s; }
+    .cb-summary-card:nth-child(3) { animation-delay: 0.3s; }
+    .cb-summary-card:nth-child(4) { animation-delay: 0.4s; }
+
+    .cb-summary-card::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+        opacity: 0.8;
+    }
+    .cb-summary-card:nth-child(1)::before { background: linear-gradient(90deg, #10b981, #00f2fe); }
+    .cb-summary-card:nth-child(2)::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .cb-summary-card:nth-child(3)::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+    .cb-summary-card:nth-child(4)::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+
+    .cb-summary-card:hover { 
+        transform: translateY(-8px); 
+        box-shadow: 0 15px 30px rgba(0,0,0,0.4); 
+        border-color: rgba(255,255,255,0.15); 
+    }
+    
+    .cb-summary-icon {
+        width: 56px; height: 56px; border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; margin: 0 auto 1.2rem;
+        box-shadow: inset 0 2px 5px rgba(255,255,255,0.1);
+    }
+    .cb-summary-label {
+        font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px;
+        color: var(--text-secondary); margin-bottom: 0.5rem; font-weight: 700;
+    }
+    .cb-summary-value {
+        font-size: 2.2rem; font-weight: 900; margin: 0;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    /* Content Grid */
+    .cb-content-grid {
+        display: grid; grid-template-columns: 1fr 1.8fr; gap: 2rem;
+        animation: fadeInUp 0.8s backwards; animation-delay: 0.3s;
+    }
+
+    .cb-card {
+        background: rgba(20, 20, 25, 0.6);
+        backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255,255,255,0.05); border-radius: 24px;
+        padding: 2rem;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    .cb-card-title {
+        display: flex; align-items: center; gap: 0.8rem;
+        margin: 0 0 2rem; font-size: 1.2rem; color: #fff; font-weight: 800;
+        letter-spacing: 0.5px;
+    }
+    .cb-card-title i { color: #10b981; }
+
+    /* Category Breakdown */
+    .cat-item { margin-bottom: 1.8rem; }
+    .cat-header {
+        display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.6rem;
+    }
+    .cat-name { font-weight: 700; font-size: 1rem; color: #fff; }
+    .cat-amount { color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; }
+    .cat-bar {
+        width: 100%; height: 8px; background: rgba(0,0,0,0.3);
+        border-radius: 4px; overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.02);
+    }
+    .cat-fill {
+        height: 100%; border-radius: 4px; transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+        box-shadow: 0 0 10px rgba(255,255,255,0.2);
+    }
+
+    /* Transaction List */
+    .tx-list { display: flex; flex-direction: column; gap: 0.8rem; }
+    .tx-item {
+        display: flex; align-items: center; gap: 1.2rem;
+        padding: 1.2rem; background: rgba(0,0,0,0.2);
+        border: 1px solid rgba(255,255,255,0.05); border-radius: 16px;
+        transition: all 0.3s;
+    }
+    .tx-item:hover { 
+        background: rgba(255,255,255,0.03); 
+        transform: translateX(6px); 
+        border-color: rgba(255,255,255,0.1); 
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .tx-icon {
+        width: 48px; height: 48px; border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem; flex-shrink: 0; box-shadow: inset 0 2px 4px rgba(255,255,255,0.1);
+    }
+    .tx-icon.income { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+    .tx-icon.expense { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+    
+    .tx-info { flex: 1; min-width: 0; }
+    .tx-title { margin: 0 0 0.3rem; font-weight: 800; font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+    .tx-meta { margin: 0; font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; }
+    
+    .tx-amount { font-weight: 900; font-size: 1.15rem; white-space: nowrap; }
+    .tx-amount.income { color: #10b981; text-shadow: 0 0 10px rgba(16,185,129,0.3); }
+    .tx-amount.expense { color: #ef4444; text-shadow: 0 0 10px rgba(239,68,68,0.3); }
+    
+    .tx-actions {
+        display: flex; gap: 0.6rem; opacity: 0; transition: opacity 0.3s, transform 0.3s;
+        transform: translateX(10px);
+    }
+    .tx-item:hover .tx-actions { opacity: 1; transform: translateX(0); }
+    .tx-actions a {
+        width: 36px; height: 36px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        text-decoration: none; font-size: 0.9rem; transition: all 0.3s;
+    }
+    .tx-actions .edit-btn { background: rgba(59,130,246,0.15); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3); }
+    .tx-actions .edit-btn:hover { background: #3b82f6; color: #fff; }
+    .tx-actions .delete-btn { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+    .tx-actions .delete-btn:hover { background: #ef4444; color: #fff; }
+
+    .empty-state {
+        text-align: center; padding: 4rem 0; opacity: 0.6;
+    }
+    .empty-state i { font-size: 4rem; margin-bottom: 1.5rem; display: block; color: var(--text-secondary); }
+    .empty-state p { font-size: 1.1rem; color: #fff; font-weight: 600; margin-bottom: 1rem; }
+    .empty-state a { color: #10b981; font-weight: 800; text-decoration: none; border-bottom: 2px solid transparent; transition: 0.3s; }
+    .empty-state a:hover { border-bottom-color: #10b981; }
+
+    /* Animations */
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 950px) {
+        .cb-summary-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        .cb-content-grid { grid-template-columns: 1fr; }
+        .cashbook-hero { flex-direction: column; gap: 1.5rem; text-align: center; padding: 2rem; }
+        .cashbook-hero-actions { justify-content: center; }
+        .cb-summary-value { font-size: 1.8rem; }
+    }
+    @media (max-width: 500px) {
+        .cb-summary-grid { grid-template-columns: 1fr; }
+        .tx-item { flex-wrap: wrap; }
+        .tx-actions { opacity: 1; transform: none; width: 100%; justify-content: flex-end; margin-top: 0.5rem; }
+    }
+</style>
+
+<div class="cashbook-container">
+    <div class="cashbook-hero">
+        <div>
+            <h1>Cash <span>Book</span></h1>
+            <p>Your elite private financial sanctuary.</p>
+        </div>
+        <div class="cashbook-hero-actions">
+            <a href="{% url 'private_portal:cashbook_export' %}" class="cb-btn cb-btn-outline">
+                <i class="fas fa-download"></i> Output Ledger
+            </a>
+            <a href="{% url 'private_portal:transaction_add' %}" class="cb-btn cb-btn-primary">
+                <i class="fas fa-plus"></i> New Entry
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="cb-summary-grid">
+        <div class="cb-summary-card">
+            <div class="cb-summary-icon" style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3);">
+                <i class="fas fa-wallet"></i>
+            </div>
+            <div class="cb-summary-label">Total Balance</div>
+            <h2 class="cb-summary-value" style="color: {% if balance >= 0 %}#10b981{% else %}#ef4444{% endif %};">
+                {% if balance >= 0 %}${{ balance|floatformat:2 }}{% else %}-${{ balance|floatformat:2|cut:"-" }}{% endif %}
+            </h2>
+        </div>
+        <div class="cb-summary-card">
+            <div class="cb-summary-icon" style="background: rgba(59,130,246,0.15); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3);">
+                <i class="fas fa-arrow-up"></i>
+            </div>
+            <div class="cb-summary-label">Total Income</div>
+            <h2 class="cb-summary-value" style="color: #3b82f6;">+${{ total_income|floatformat:2 }}</h2>
+        </div>
+        <div class="cb-summary-card">
+            <div class="cb-summary-icon" style="background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3);">
+                <i class="fas fa-arrow-down"></i>
+            </div>
+            <div class="cb-summary-label">Total Expenses</div>
+            <h2 class="cb-summary-value" style="color: #ef4444;">-${{ total_expense|floatformat:2 }}</h2>
+        </div>
+        <div class="cb-summary-card">
+            <div class="cb-summary-icon" style="background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3);">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="cb-summary-label">Monthly Spend</div>
+            <h2 class="cb-summary-value" style="color: #f59e0b;">${{ monthly_expense|floatformat:2 }}</h2>
+        </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="cb-content-grid">
+        <!-- Expense Breakdown -->
+        <div class="cb-card">
+            <h3 class="cb-card-title"><i class="fas fa-chart-pie"></i> Category Breakdown</h3>
+            {% if categories_breakdown %}
+                {% for cat in categories_breakdown %}
+                <div class="cat-item">
+                    <div class="cat-header">
+                        <span class="cat-name">{{ cat.display }}</span>
+                        <span class="cat-amount">${{ cat.total|floatformat:2 }} <span style="opacity:0.6;">· {{ cat.percentage }}%</span></span>
+                    </div>
+                    <div class="cat-bar">
+                        <div class="cat-fill" style="width: {{ cat.percentage }}%;
+                            background: linear-gradient(90deg,
+                            hsl(calc({{ forloop.counter0|add:'1' }} * 40deg), 80%, 55%),
+                            hsl(calc(({{ forloop.counter0|add:'1' }} * 40deg) + 20deg), 80%, 65%));
+                        "></div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-chart-pie"></i>
+                    <p>No expenses tracked yet</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Transaction History -->
+        <div class="cb-card">
+            <h3 class="cb-card-title"><i class="fas fa-list-ul"></i> Target Transactions</h3>
+            {% if transactions %}
+                <div class="tx-list">
+                    {% for tx in transactions %}
+                    <div class="tx-item" style="animation: fadeInUp 0.5s backwards; animation-delay: 0.{{ forloop.counter }}s;">
+                        <div class="tx-icon {{ tx.transaction_type }}">
+                            <i class="fas {% if tx.transaction_type == 'income' %}fa-arrow-down{% else %}fa-arrow-up{% endif %}"></i>
+                        </div>
+                        <div class="tx-info">
+                            <h4 class="tx-title">{{ tx.title }}</h4>
+                            <p class="tx-meta">{{ tx.get_category_display }} <span style="opacity:0.5;">·</span> {{ tx.date|date:"M d, Y" }}</p>
+                        </div>
+                        <span class="tx-amount {{ tx.transaction_type }}">
+                            {% if tx.transaction_type == 'income' %}+{% else %}-{% endif %}${{ tx.amount|floatformat:2 }}
+                        </span>
+                        <div class="tx-actions">
+                            <a href="{% url 'private_portal:transaction_edit' tx.id %}" class="edit-btn"><i class="fas fa-edit"></i></a>
+                            <a href="{% url 'private_portal:transaction_delete' tx.id %}" class="delete-btn"><i class="fas fa-trash"></i></a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-receipt"></i>
+                    <p>Your ledger is completely empty</p>
+                    <a href="{% url 'private_portal:transaction_add' %}">Input your first entry <i class="fas fa-arrow-right"></i></a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

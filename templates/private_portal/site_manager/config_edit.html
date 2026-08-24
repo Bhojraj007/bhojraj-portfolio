@@ -1,0 +1,248 @@
+{% extends "private_base.html" %}
+
+{% block title %}Site Configuration | Site Manager{% endblock %}
+
+{% block content %}
+<div class="sm-container">
+    <div class="sm-header">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+            <a href="{% url 'private_portal:site_manager' %}" style="color: var(--text-muted); text-decoration: none; font-size: 0.8rem;">
+                <i class="fas fa-arrow-left"></i> Site Manager
+            </a>
+        </div>
+        <h1><i class="fas fa-sliders-h" style="color: #F9CD05;"></i> Global Site Configuration</h1>
+        <p>Edit your public portfolio branding, hero headlines, 4 metrics, core pillars, about narrative, and direct contact channels.</p>
+    </div>
+
+    {% if messages %}
+    <div style="margin-bottom: 1.5rem;">
+        {% for message in messages %}
+        <div style="background: var(--accent-emerald-glow); border: 1px solid var(--accent-emerald); color: var(--accent-emerald); padding: 0.75rem 1rem; border-radius: var(--radius-xs); font-size: 0.875rem; font-weight: 600;">
+            <i class="fas fa-check-circle"></i> {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Brand Identity -->
+        <div class="sm-form-card" style="margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; color: #F9CD05;">
+                <i class="fas fa-fingerprint"></i> Brand Identity
+            </h3>
+            <div class="form-group">
+                <label>Brand Name (Header / Preloader / Logo)</label>
+                <input type="text" name="brand_name" value="{{ config.brand_name|default:'BHOJ RAJ' }}">
+            </div>
+        </div>
+
+        <!-- Hero Section -->
+        <div class="sm-form-card" style="margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; color: #38bdf8;">
+                <i class="fas fa-star"></i> Hero Section
+            </h3>
+            <div class="form-group">
+                <label>Badge Text</label>
+                <input type="text" name="hero_badge_text" value="{{ config.hero_badge_text }}">
+            </div>
+            <div class="form-group">
+                <label>Greeting</label>
+                <input type="text" name="hero_greeting" value="{{ config.hero_greeting }}">
+            </div>
+            <div class="form-group">
+                <label>Title / Headline</label>
+                <input type="text" name="hero_title" value="{{ config.hero_title }}">
+            </div>
+            <div class="form-group">
+                <label>Subheadline</label>
+                <textarea name="hero_subheadline" rows="3">{{ config.hero_subheadline }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Hero Profile Image</label>
+                {% if config.hero_image %}
+                <div style="margin-bottom: 0.5rem;">
+                    <img src="{{ config.hero_image.url }}" alt="Current hero" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--divider);">
+                </div>
+                {% endif %}
+                <input type="file" name="hero_image" accept="image/*" style="width: 100%; padding: 0.75rem; background: var(--bg-input); border: 1.5px dashed var(--divider); border-radius: var(--radius-xs); color: var(--text-secondary); font-family: inherit;">
+            </div>
+        </div>
+
+        <!-- Dynamic Stat Metrics Strip -->
+        <div class="sm-form-card" style="margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; color: #F9CD05;">
+                <i class="fas fa-chart-line"></i> Homepage 4 Metric Stat Cards
+            </h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem;">
+                <div class="form-group">
+                    <label>Stat 1 (Number / Title / Sub)</label>
+                    <input type="text" name="stat_1_number" value="{{ config.stat_1_number|default:'5+' }}" style="margin-bottom: 0.4rem;" placeholder="e.g. 5+">
+                    <input type="text" name="stat_1_title" value="{{ config.stat_1_title|default:'Years Architecture' }}" style="margin-bottom: 0.4rem;" placeholder="Title">
+                    <input type="text" name="stat_1_sub" value="{{ config.stat_1_sub|default:'Enterprise IT & Web Systems' }}" placeholder="Subtitle">
+                </div>
+                <div class="form-group">
+                    <label>Stat 2 (Number / Title / Sub)</label>
+                    <input type="text" name="stat_2_number" value="{{ config.stat_2_number|default:'100%' }}" style="margin-bottom: 0.4rem;" placeholder="e.g. 100%">
+                    <input type="text" name="stat_2_title" value="{{ config.stat_2_title|default:'NRB Compliance' }}" style="margin-bottom: 0.4rem;" placeholder="Title">
+                    <input type="text" name="stat_2_sub" value="{{ config.stat_2_sub|default:'Audit Trails & Disaster Recovery' }}" placeholder="Subtitle">
+                </div>
+                <div class="form-group">
+                    <label>Stat 3 (Number / Title / Sub)</label>
+                    <input type="text" name="stat_3_number" value="{{ config.stat_3_number|default:'15+' }}" style="margin-bottom: 0.4rem;" placeholder="e.g. 15+">
+                    <input type="text" name="stat_3_title" value="{{ config.stat_3_title|default:'Enterprise Modules' }}" style="margin-bottom: 0.4rem;" placeholder="Title">
+                    <input type="text" name="stat_3_sub" value="{{ config.stat_3_sub|default:'ERP, POS, CBMS & Banking APIs' }}" placeholder="Subtitle">
+                </div>
+                <div class="form-group">
+                    <label>Stat 4 (Number / Title / Sub)</label>
+                    <input type="text" name="stat_4_number" value="{{ config.stat_4_number|default:'50k+' }}" style="margin-bottom: 0.4rem;" placeholder="e.g. 50k+">
+                    <input type="text" name="stat_4_title" value="{{ config.stat_4_title|default:'Lines of Code' }}" style="margin-bottom: 0.4rem;" placeholder="Title">
+                    <input type="text" name="stat_4_sub" value="{{ config.stat_4_sub|default:'Clean, Resilient Microservices' }}" placeholder="Subtitle">
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic 4 Architectural Pillars -->
+        <div class="sm-form-card" style="margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; color: #10B981;">
+                <i class="fas fa-columns"></i> 4 Core Competency Pillars
+            </h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;">
+                <div class="form-group">
+                    <label>Pillar 1: Core Banking &amp; CBS</label>
+                    <input type="text" name="pillar_1_title" value="{{ config.pillar_1_title|default:'Core Banking & CBS Systems' }}" style="margin-bottom: 0.4rem;">
+                    <textarea name="pillar_1_desc" rows="2">{{ config.pillar_1_desc }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Pillar 2: Python / Django Architecture</label>
+                    <input type="text" name="pillar_2_title" value="{{ config.pillar_2_title|default:'Python & Django Architecture' }}" style="margin-bottom: 0.4rem;">
+                    <textarea name="pillar_2_desc" rows="2">{{ config.pillar_2_desc }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Pillar 3: SAP B1 &amp; SQL HANA Ecosystem</label>
+                    <input type="text" name="pillar_3_title" value="{{ config.pillar_3_title|default:'SAP B1 & SQL HANA Ecosystem' }}" style="margin-bottom: 0.4rem;">
+                    <textarea name="pillar_3_desc" rows="2">{{ config.pillar_3_desc }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Pillar 4: Poetic &amp; Literary Expression</label>
+                    <input type="text" name="pillar_4_title" value="{{ config.pillar_4_title|default:'Poetic & Literary Expression' }}" style="margin-bottom: 0.4rem;">
+                    <textarea name="pillar_4_desc" rows="2">{{ config.pillar_4_desc }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Section -->
+        <div class="sm-form-card" style="margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; color: #c084fc;">
+                <i class="fas fa-user"></i> About Me Narrative
+            </h3>
+            <div class="form-group">
+                <label>Lead Paragraph</label>
+                <textarea name="about_me_lead" rows="3">{{ config.about_me_lead }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Paragraph 2</label>
+                <textarea name="about_me_text_1" rows="3">{{ config.about_me_text_1 }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Paragraph 3</label>
+                <textarea name="about_me_text_2" rows="3">{{ config.about_me_text_2 }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Paragraph 4 (Creative &amp; Philosophy)</label>
+                <textarea name="about_me_text_3" rows="3">{{ config.about_me_text_3 }}</textarea>
+            </div>
+        </div>
+
+        <!-- Contact & Links -->
+        <div class="sm-form-card" style="margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; color: #10B981;">
+                <i class="fas fa-link"></i> Direct Channels &amp; Links
+            </h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email_address" value="{{ config.email_address }}">
+                </div>
+                <div class="form-group">
+                    <label>Contact Phone Number</label>
+                    <input type="text" name="phone_number" value="{{ config.phone_number }}">
+                </div>
+                <div class="form-group">
+                    <label>WhatsApp Number</label>
+                    <input type="text" name="whatsapp_number" value="{{ config.whatsapp_number|default:'+977 9848485292' }}">
+                </div>
+                <div class="form-group">
+                    <label>WhatsApp Direct URL</label>
+                    <input type="url" name="whatsapp_url" value="{{ config.whatsapp_url|default:'https://wa.me/9779848485292' }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Location</label>
+                <input type="text" name="location" value="{{ config.location }}">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label>GitHub URL</label>
+                    <input type="url" name="github_url" value="{{ config.github_url }}">
+                </div>
+                <div class="form-group">
+                    <label>LinkedIn URL</label>
+                    <input type="url" name="linkedin_url" value="{{ config.linkedin_url }}">
+                </div>
+                <div class="form-group">
+                    <label>Prakriti Prabhav URL</label>
+                    <input type="url" name="prakriti_prabhav_url" value="{{ config.prakriti_prabhav_url }}">
+                </div>
+                <div class="form-group">
+                    <label>IbiSAP Live URL</label>
+                    <input type="url" name="ibisap_live_url" value="{{ config.ibisap_live_url }}">
+                </div>
+            </div>
+        </div>
+
+        <!-- Resume & CV Document -->
+        <div class="sm-form-card" style="margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; color: #F9CD05;">
+                <i class="fas fa-file-pdf"></i> Resume / CV Document
+            </h3>
+            <div class="form-group">
+                <label>Upload PDF CV / Resume</label>
+                {% if config.resume_file %}
+                <div style="margin-bottom: 0.6rem; display: flex; align-items: center; gap: 10px;">
+                    <a href="{{ config.resume_file.url }}" target="_blank" style="color: #F9CD05; text-decoration: none; font-size: 0.88rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-file-pdf"></i> Current CV: {{ config.resume_file.name }}
+                    </a>
+                </div>
+                {% endif %}
+                <input type="file" name="resume_file" accept=".pdf,.doc,.docx" style="width: 100%; padding: 0.75rem; background: var(--bg-input); border: 1.5px dashed var(--divider); border-radius: var(--radius-xs); color: var(--text-secondary); font-family: inherit;">
+            </div>
+            <div class="form-group">
+                <label>Or External CV Link (e.g. Google Drive, Dropbox, LinkedIn PDF)</label>
+                <input type="url" name="resume_url" value="{{ config.resume_url }}" placeholder="https://drive.google.com/...">
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="sm-form-card" style="margin-bottom: 2rem;">
+            <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; color: #F9CD05;">
+                <i class="fas fa-shoe-prints"></i> Footer
+            </h3>
+            <div class="form-group">
+
+                <label>Footer Text</label>
+                <input type="text" name="footer_text" value="{{ config.footer_text }}">
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" class="sm-add-btn" style="padding: 0.85rem 2rem; font-size: 0.95rem; background: linear-gradient(135deg, #F9CD05, #eab308); color: #121A17; font-weight: 800;">
+                <i class="fas fa-save"></i> Save Global Configuration
+            </button>
+            <a href="{% url 'private_portal:site_manager' %}" class="sm-cancel-btn" style="padding: 0.85rem 1.5rem;">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

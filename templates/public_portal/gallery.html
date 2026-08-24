@@ -1,0 +1,316 @@
+{% extends "public_portal/base.html" %}
+{% load static %}
+
+{% block title %}Visual Showcase & Systems Archive | Bhoj Raj Upadhayay{% endblock %}
+{% block og_title %}Visual Archive & Telemetry — Bhoj Raj Upadhayay{% endblock %}
+{% block og_description %}A curated anthology of enterprise system interfaces, Core Banking deployments, DevOps infrastructure, and photographic moments.{% endblock %}
+
+{% block content %}
+<div class="gallery-hub-page">
+    <!-- Gallery Hero Header -->
+    <section class="gallery-hero-header">
+        <div class="tech-grid"></div>
+        <div class="ambient-light" style="background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%);"></div>
+        <div class="ambient-light-2" style="background: radial-gradient(circle, rgba(249, 205, 5, 0.12) 0%, transparent 70%);"></div>
+
+        <span class="badge" style="background: rgba(249, 205, 5, 0.1); border-color: rgba(249, 205, 5, 0.35); color: #F9CD05;">
+            <i class="fas fa-camera-retro"></i> Curated Visuals &bull; Systems Telemetry &bull; Media
+        </span>
+
+        <h1 class="reveal-text">
+            Visual Archive &amp; <br>
+            <span class="gradient-text-alt">Systems Telemetry</span>
+        </h1>
+
+        <p class="gallery-hero-desc">
+            A high-resolution visual log spanning enterprise deployments, Core Banking interfaces, DevOps workstations, and public leadership engagements.
+        </p>
+
+        <!-- Quick Summary Stats Bar -->
+        <div class="gallery-telemetry-stats reveal-up">
+            <div class="g-stat-item">
+                <span class="g-stat-num">{{ total_count }}</span>
+                <span class="g-stat-lbl"><i class="fas fa-layer-group"></i> Total Artifacts</span>
+            </div>
+            <div class="g-stat-item">
+                <span class="g-stat-num" style="color: #F9CD05;">{{ gallery_items_count }}</span>
+                <span class="g-stat-lbl"><i class="fas fa-cubes"></i> Systems Showcases</span>
+            </div>
+            <div class="g-stat-item">
+                <span class="g-stat-num" style="color: #10B981;">{{ photos_count }}</span>
+                <span class="g-stat-lbl"><i class="fas fa-camera"></i> Photo Captures</span>
+            </div>
+            <div class="g-stat-item">
+                <span class="g-stat-num" style="color: #38bdf8;">{{ videos_count }}</span>
+                <span class="g-stat-lbl"><i class="fas fa-video"></i> Video Demos</span>
+            </div>
+        </div>
+
+        <!-- Filter Pill Tabs -->
+        <div class="gallery-filter-nav reveal-up">
+            <button type="button" class="g-filter-btn active" data-filter="all">
+                <i class="fas fa-border-all"></i> All Media
+            </button>
+            <button type="button" class="g-filter-btn" data-filter="systems">
+                <i class="fas fa-laptop-code"></i> Systems &amp; ERP
+            </button>
+            <button type="button" class="g-filter-btn" data-filter="compliance">
+                <i class="fas fa-shield-alt"></i> CBS &amp; Compliance
+            </button>
+            <button type="button" class="g-filter-btn" data-filter="workspace">
+                <i class="fas fa-terminal"></i> Dev &amp; Infrastructure
+            </button>
+            <button type="button" class="g-filter-btn" data-filter="events">
+                <i class="fas fa-users"></i> Events &amp; Leadership
+            </button>
+            {% if photos %}
+            <button type="button" class="g-filter-btn" data-filter="photo">
+                <i class="fas fa-camera"></i> Photos
+            </button>
+            {% endif %}
+            {% if videos %}
+            <button type="button" class="g-filter-btn" data-filter="video">
+                <i class="fas fa-play-circle"></i> Video Demos
+            </button>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Main Visual Gallery Stream -->
+    <section class="gallery-stream-container">
+        <div class="gallery-masonry-grid" id="galleryGrid">
+            
+            <!-- Systems & Showcase Gallery Items -->
+            {% for item in gallery_items %}
+            <div class="gallery-item-card reveal-up" 
+                 data-category="{% if item.category == 'ibisap' %}systems{% elif item.category == 'compliance' %}compliance{% elif item.category == 'workspace' %}workspace{% elif item.category == 'events' %}events{% else %}systems{% endif %}"
+                 onclick="openLightbox('{{ item.image_url }}', '{{ item.title|escapejs }}', '{{ item.category_label|default:item.category|escapejs }}', '{{ item.caption|escapejs }}', '{{ item.tags|escapejs }}')">
+                <div class="item-terminal-header">
+                    <div class="terminal-dots">
+                        <span class="dot dot-red"></span>
+                        <span class="dot dot-yellow"></span>
+                        <span class="dot dot-green"></span>
+                    </div>
+                    <span class="item-category-pill">{{ item.category_label|default:item.get_category_display }}</span>
+                    <span class="item-zoom-badge"><i class="fas fa-search-plus"></i></span>
+                </div>
+                
+                <div class="item-visual-wrap">
+                    <img src="{{ item.image_url }}" alt="{{ item.title }}" loading="lazy" class="item-visual-img">
+                    <div class="item-hover-backdrop">
+                        <div class="hover-content">
+                            <span class="hover-btn-view"><i class="fas fa-expand"></i> Inspect Artifact</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="item-info-footer">
+                    <h3 class="item-title">{{ item.title }}</h3>
+                    <p class="item-caption">{{ item.caption|truncatewords:20 }}</p>
+                    {% if item.tags %}
+                    <div class="item-tags-strip">
+                        {% for t in item.tags.split %}
+                        <span class="g-tag">#{{ t|cut:"," }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Public Photos -->
+            {% for photo in photos %}
+            <div class="gallery-item-card reveal-up" 
+                 data-category="photo"
+                 onclick="openLightbox('{{ photo.image.url }}', '{{ photo.title|escapejs }}', 'Photo Capture', '{{ photo.description|default:''|escapejs }}', 'Photography, Moment')">
+                <div class="item-terminal-header">
+                    <div class="terminal-dots">
+                        <span class="dot dot-red"></span>
+                        <span class="dot dot-yellow"></span>
+                        <span class="dot dot-green"></span>
+                    </div>
+                    <span class="item-category-pill" style="color: #10B981; border-color: rgba(16, 185, 129, 0.3);">Photo Capture</span>
+                    <span class="item-zoom-badge"><i class="fas fa-search-plus"></i></span>
+                </div>
+                
+                <div class="item-visual-wrap">
+                    <img src="{{ photo.image.url }}" alt="{{ photo.title }}" loading="lazy" class="item-visual-img">
+                    <div class="item-hover-backdrop">
+                        <div class="hover-content">
+                            <span class="hover-btn-view"><i class="fas fa-expand"></i> View Full Photo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="item-info-footer">
+                    <h3 class="item-title">{{ photo.title }}</h3>
+                    {% if photo.description %}
+                    <p class="item-caption">{{ photo.description|truncatewords:20 }}</p>
+                    {% endif %}
+                    <div class="item-date-row">
+                        <i class="far fa-calendar-alt"></i> {{ photo.upload_timestamp|date:"M d, Y" }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Video Demonstrations -->
+            {% for video in videos %}
+            <div class="gallery-item-card video-card-item reveal-up" data-category="video">
+                <div class="item-terminal-header">
+                    <div class="terminal-dots">
+                        <span class="dot dot-red"></span>
+                        <span class="dot dot-yellow"></span>
+                        <span class="dot dot-green"></span>
+                    </div>
+                    <span class="item-category-pill" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.3);">
+                        <i class="fas fa-video"></i> Video Walkthrough
+                    </span>
+                </div>
+
+                <div class="item-video-wrap">
+                    {% if video.video %}
+                    <video controls preload="metadata" class="embedded-video-player">
+                        <source src="{{ video.video.url }}" type="video/mp4">
+                        Your browser does not support the video element.
+                    </video>
+                    {% endif %}
+                </div>
+
+                <div class="item-info-footer">
+                    <h3 class="item-title">{{ video.title }}</h3>
+                    {% if video.description %}
+                    <p class="item-caption">{{ video.description }}</p>
+                    {% endif %}
+                    <div class="item-date-row">
+                        <i class="far fa-clock"></i> {{ video.upload_timestamp|date:"M d, Y" }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+    </section>
+
+    <!-- Bottom Exploration Banner -->
+    <section class="gallery-cta-banner reveal-up">
+        <div class="cta-inner-box">
+            <div class="cta-text">
+                <h3>Interested in Technical Implementations?</h3>
+                <p>Explore architectural patterns, CBS directives, and creative writings in the journal.</p>
+            </div>
+            <div class="cta-buttons">
+                <a href="{% url 'public_portal:blog_list' %}" class="btn-blog-glow">
+                    <i class="fas fa-feather-alt"></i> Read Creative Journal
+                </a>
+                <a href="{% url 'public_portal:home' %}#projects" class="btn-hire">
+                    <i class="fas fa-laptop-code"></i> Explore Systems
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Glassmorphic Lightbox Modal -->
+<div id="lightboxModal" class="lightbox-modal">
+    <div class="lightbox-overlay" onclick="closeLightbox()"></div>
+    <div class="lightbox-dialog">
+        <button type="button" class="lightbox-close-btn" onclick="closeLightbox()" title="Close (Esc)">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="lightbox-img-frame">
+            <img id="lightboxImg" src="" alt="">
+        </div>
+        <div class="lightbox-details-panel">
+            <div class="lightbox-meta-row">
+                <span class="card-cat-badge" id="lightboxCategory">Category</span>
+                <button type="button" class="btn-copy-url" onclick="copyLightboxUrl()" title="Copy Image URL">
+                    <i class="fas fa-link"></i> Copy Link
+                </button>
+            </div>
+            <h2 id="lightboxTitle" class="lightbox-title">Title</h2>
+            <p id="lightboxCaption" class="lightbox-caption">Caption description</p>
+            <div id="lightboxTags" class="lightbox-tags"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Category Filtering Logic
+    const filterButtons = document.querySelectorAll('.g-filter-btn');
+    const galleryCards = document.querySelectorAll('.gallery-item-card');
+
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const filter = btn.getAttribute('data-filter');
+
+            galleryCards.forEach(card => {
+                const category = card.getAttribute('data-category');
+                if (filter === 'all' || category === filter) {
+                    card.style.display = 'flex';
+                    gsap.fromTo(card, { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'power2.out' });
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // Lightbox Logic
+    const lightboxModal = document.getElementById('lightboxModal');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxTitle = document.getElementById('lightboxTitle');
+    const lightboxCategory = document.getElementById('lightboxCategory');
+    const lightboxCaption = document.getElementById('lightboxCaption');
+    const lightboxTags = document.getElementById('lightboxTags');
+
+    function openLightbox(url, title, category, caption, tags) {
+        lightboxImg.src = url;
+        lightboxTitle.innerText = title;
+        lightboxCategory.innerText = category;
+        lightboxCaption.innerText = caption;
+        
+        lightboxTags.innerHTML = '';
+        if (tags) {
+            const tagArr = tags.split(',');
+            tagArr.forEach(t => {
+                if (t.trim()) {
+                    const span = document.createElement('span');
+                    span.className = 'g-tag';
+                    span.innerText = '#' + t.trim();
+                    lightboxTags.appendChild(span);
+                }
+            });
+        }
+
+        lightboxModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        lightboxModal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    function copyLightboxUrl() {
+        if (lightboxImg.src) {
+            navigator.clipboard.writeText(lightboxImg.src).then(() => {
+                const btn = document.querySelector('.btn-copy-url');
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => btn.innerHTML = orig, 2000);
+            });
+        }
+    }
+
+    // Keyboard controls for lightbox
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && lightboxModal.classList.contains('active')) {
+            closeLightbox();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "private_base.html" %}
+{% load sm_filters %}
+
+{% block title %}{{ content_title }} | Site Manager{% endblock %}
+
+{% block content %}
+<div class="sm-container">
+    <div class="sm-header">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+            <a href="{% url 'private_portal:site_manager' %}" style="color: var(--text-muted); text-decoration: none; font-size: 0.8rem;">
+                <i class="fas fa-arrow-left"></i> Site Manager
+            </a>
+        </div>
+        <h1><i class="{{ content_icon }}"></i> {{ content_title }}</h1>
+    </div>
+
+    <div class="sm-table-wrap">
+        <div class="sm-table-header">
+            <h2><i class="{{ content_icon }}"></i> {{ content_title }} ({{ items|length }})</h2>
+            <a href="{% url add_url %}" class="sm-add-btn">
+                <i class="fas fa-plus"></i> Add New
+            </a>
+        </div>
+        
+        {% if items %}
+        <div style="overflow-x: auto;">
+            <table class="sm-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        {% for col in columns %}
+                        <th>{{ col }}</th>
+                        {% endfor %}
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td style="color: var(--text-muted); font-size: 0.8rem;">{{ forloop.counter }}</td>
+                        {% for field in fields %}
+                        <td>
+                            {% with val=item|get_field:field %}
+                                {% if val == True %}
+                                    <span class="sm-badge emerald"><i class="fas fa-check"></i></span>
+                                {% elif val == False %}
+                                    <span class="sm-badge rose"><i class="fas fa-times"></i></span>
+                                {% elif val is None or val == '' %}
+                                    <span style="color: var(--text-muted);">—</span>
+                                {% else %}
+                                    {{ val|truncatechars:50 }}
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                        {% endfor %}
+                        <td>
+                            <div class="sm-row-actions" style="justify-content: flex-end;">
+                                <a href="{% url edit_url item.pk %}" class="sm-row-btn" title="Edit">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <a href="{% url delete_url item.pk %}" class="sm-row-btn danger" title="Delete">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="sm-empty">
+            <i class="{{ content_icon }}"></i>
+            <h3>No {{ content_title }} yet</h3>
+            <p>Click "Add New" to create your first entry.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

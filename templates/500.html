@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>500 — Server Error | Bhojraj Upadhayay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0a0a0f;
+      color: #e8e8ed;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bg-orbs {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.12;
+      animation: orbFloat 20s ease-in-out infinite;
+    }
+
+    .orb-1 {
+      width: 500px; height: 500px;
+      background: #ef4444;
+      top: -15%; left: -10%;
+    }
+
+    .orb-2 {
+      width: 400px; height: 400px;
+      background: #f97316;
+      bottom: -20%; right: -5%;
+      animation-delay: -7s;
+      animation-duration: 25s;
+    }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(60px, -40px) scale(1.1); }
+      50% { transform: translate(-30px, 50px) scale(0.95); }
+      75% { transform: translate(40px, 20px) scale(1.05); }
+    }
+
+    .error-wrapper {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 2rem;
+      max-width: 600px;
+    }
+
+    .error-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(8rem, 20vw, 16rem);
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 1rem;
+      animation: codeEntry 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .error-code .code-main {
+      background: linear-gradient(135deg, #ef4444, #f97316, #fbbf24);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    @keyframes codeEntry {
+      from { transform: scale(0.5) translateY(40px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .error-icon {
+      font-size: 3rem;
+      margin-bottom: 1.5rem;
+      animation: pulse 2s ease-in-out infinite, iconEntry 0.6s ease 0.2s both;
+      display: inline-block;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    @keyframes iconEntry {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .error-title {
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.5px;
+      animation: textEntry 0.6s ease 0.3s both;
+    }
+
+    .error-description {
+      color: rgba(255, 255, 255, 0.55);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      max-width: 450px;
+      margin: 0 auto 2.5rem;
+      animation: textEntry 0.6s ease 0.4s both;
+    }
+
+    @keyframes textEntry {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .error-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: textEntry 0.6s ease 0.5s both;
+    }
+
+    .error-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.85rem 2rem;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      border: none;
+    }
+
+    .error-btn-primary {
+      background: linear-gradient(135deg, #ef4444, #f97316);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+    }
+
+    .error-btn-primary:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 8px 30px rgba(239, 68, 68, 0.45);
+    }
+
+    .error-btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .error-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .error-footer {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      color: rgba(255,255,255,0.2);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 480px) {
+      .error-actions { flex-direction: column; align-items: center; }
+      .error-btn { width: 100%; max-width: 280px; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
+  <div class="error-wrapper">
+    <div class="error-code"><span class="code-main">500</span></div>
+    <div class="error-icon">⚙️</div>
+    <h1 class="error-title">Something Went Wrong</h1>
+    <p class="error-description">
+      Our servers hit an unexpected snag. The issue has been noted and we're working on it. Please try again in a moment.
+    </p>
+    <div class="error-actions">
+      <a href="/" class="error-btn error-btn-primary">
+        <i class="fas fa-home"></i> Go Home
+      </a>
+      <button class="error-btn error-btn-secondary" onclick="location.reload()">
+        <i class="fas fa-redo"></i> Try Again
+      </button>
+    </div>
+  </div>
+
+  <div class="error-footer">Bhojraj Upadhayay</div>
+</body>
+</html>

@@ -1,0 +1,680 @@
+{% extends "public_portal/base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-forest-grid">
+    <div class="tech-grid"></div>
+    <div class="ambient-light"></div>
+    <div class="ambient-light-2"></div>
+    
+    <div class="hero-left-col">
+        <span class="badge">
+            <i class="fas fa-seedling" style="color: #10B981;"></i> {{ site_config.hero_badge_text|default:"IT Systems Architect • Full-Stack Engineer • Poet" }}
+        </span>
+        
+        <h1 class="reveal-text">
+            {{ site_config.hero_greeting|default:"I am Bhoj Raj Upadhayay"|safe }}<br>
+            <span class="gradient-text-alt">{{ site_config.hero_title|default:"Systems Architect &amp; Creative Thinker." }}</span>
+        </h1>
+        
+        <p class="hero-desc">
+            {{ site_config.hero_subheadline|default:"Mastering enterprise infrastructure, Core Banking operations, SAP Business One, and Python/Django engineering — intertwined with evocative poetry and reflective literature." }}
+        </p>
+        
+        <div class="hero-cta-group">
+            <div class="magnetic-wrap">
+                <a href="#projects" class="btn-hire">
+                    <i class="fas fa-laptop-code"></i> Explore My Systems
+                </a>
+            </div>
+            <div class="magnetic-wrap">
+                <a href="{% url 'public_portal:blog_list' %}" class="btn-blog-glow">
+                    <i class="fas fa-feather-alt"></i> Read Poems &amp; Blog
+                </a>
+            </div>
+            {% if site_config.cv_download_url %}
+            <div class="magnetic-wrap">
+                <button type="button" class="btn-cv-glow" onclick="openCvModal()" title="View Curriculum Vitae">
+                    <i class="fas fa-file-pdf"></i> View CV
+                </button>
+            </div>
+            {% endif %}
+
+            <div class="magnetic-wrap">
+                <a href="#contact" class="skill-pill" style="text-decoration: none;">
+                    <i class="fas fa-paper-plane"></i> Connect
+                </a>
+            </div>
+        </div>
+
+
+        <!-- Quick Tech Badges -->
+        <div class="hero-tech-strip reveal-up">
+            <span><i class="fab fa-python" style="color: #F9CD05;"></i> Python / Django</span>
+            <span><i class="fas fa-database" style="color: #10B981;"></i> SQL HANA &amp; PostgreSQL</span>
+            <span><i class="fas fa-shield-alt" style="color: #F9CD05;"></i> NRB IT Directives &amp; CBS</span>
+            <span><i class="fas fa-server" style="color: #10B981;"></i> Linux &amp; Cloud Infra</span>
+            <span><i class="fas fa-feather-alt" style="color: #F9CD05;"></i> Nepali Literature</span>
+        </div>
+    </div>
+
+    <!-- Nature Meets High-Tech Botanical Circuit Telemetry Card -->
+    <div class="hero-right-col reveal-up">
+        <div class="telemetry-terminal-card">
+            <div class="terminal-header-bar">
+                <div class="terminal-dots">
+                    <span class="dot dot-red"></span>
+                    <span class="dot dot-yellow"></span>
+                    <span class="dot dot-green"></span>
+                </div>
+                <span class="terminal-title"><i class="fas fa-terminal"></i> sys_telemetry.py // v2.6.4</span>
+                <span class="terminal-status-live">● LIVE</span>
+            </div>
+            <div class="terminal-body-content">
+                <div class="telemetry-emblem-wrap">
+                    <div class="botanical-glow-icon">
+                        <i class="fas fa-tree"></i>
+                        <i class="fas fa-network-wired emblem-circuit-overlay"></i>
+                    </div>
+                    <div class="telemetry-code-block">
+                        <span class="code-comment"># High-Tech Meets Nature Architecture</span><br>
+                        <span class="code-keyword">from</span> core_ecosystem <span class="code-keyword">import</span> Resilience, Trust<br>
+                        <span class="code-func">def</span> <span class="code-name">deploy_systems</span>(domain=<span class="code-str">"Nepal"</span>):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;CBS.audit(compliance=<span class="code-str">"100%"</span>)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">return</span> Trust.guaranteed()
+                    </div>
+                </div>
+                <div class="telemetry-metrics-grid">
+                    <div class="telemetry-metric-item">
+                        <span class="t-val">99.98%</span>
+                        <span class="t-lbl">Core CBS Uptime</span>
+                    </div>
+                    <div class="telemetry-metric-item">
+                        <span class="t-val" style="color: #10B981;">NRB IT</span>
+                        <span class="t-lbl">Directives Audited</span>
+                    </div>
+                    <div class="telemetry-metric-item">
+                        <span class="t-val" style="color: #F9CD05;">Django</span>
+                        <span class="t-lbl">Primary Backend</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- High Impact Metrics Strip -->
+<!-- High Impact Metrics Strip -->
+<section class="stats-strip-section reveal-up">
+    <div class="stats-strip-grid">
+        <div class="stat-card">
+            <span class="stat-number">{{ site_config.stat_1_number|default:"5+" }}</span>
+            <span class="stat-title">{{ site_config.stat_1_title|default:"Years Architecture" }}</span>
+            <span class="stat-detail">{{ site_config.stat_1_sub|default:"Enterprise IT & Web Systems" }}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number" style="color: #38bdf8;">{{ site_config.stat_2_number|default:"100%" }}</span>
+            <span class="stat-title">{{ site_config.stat_2_title|default:"NRB IT Compliance" }}</span>
+            <span class="stat-detail">{{ site_config.stat_2_sub|default:"CBS, Security & Audit Directives" }}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number" style="color: #a855f7;">{{ site_config.stat_3_number|default:"15+" }}</span>
+            <span class="stat-title">{{ site_config.stat_3_title|default:"Enterprise Modules" }}</span>
+            <span class="stat-detail">{{ site_config.stat_3_sub|default:"ERP, Inventory, POS & CBMS" }}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number" style="color: #F9CD05;">{{ site_config.stat_4_number|default:"50k+" }}</span>
+            <span class="stat-title">{{ site_config.stat_4_title|default:"Lines of Code" }}</span>
+            <span class="stat-detail">{{ site_config.stat_4_sub|default:"Clean, Resilient Microservices" }}</span>
+        </div>
+    </div>
+</section>
+
+<!-- About Me Section -->
+<section id="about" class="section-container">
+    <h2 class="section-title">About Me</h2>
+    <p class="section-subtitle">A synergy of rigorous systems engineering and creative reflection</p>
+
+    <div class="about-grid reveal-up">
+        <div class="pro-card about-main-card">
+            <div class="about-lead-text">
+                {{ site_config.about_me_lead|default:"I am an IT Systems Architect, Full-Stack Engineer, and Creative Writer based in Nepal."|safe }}
+            </div>
+            <p class="about-p">
+                {{ site_config.about_me_text_1|default:"In my professional practice, I architect and manage high-stakes Core Banking System (CBS) operations, enforce strict NRB IT security directives, design Disaster Recovery Plans (DRP), and supervise mission-critical enterprise systems."|safe }}
+            </p>
+            {% if site_config and site_config.about_me_text_2 %}
+            <p class="about-p">
+                {{ site_config.about_me_text_2|safe }}
+            </p>
+            {% endif %}
+            {% if site_config and site_config.about_me_text_3 %}
+            <p class="about-p">
+                {{ site_config.about_me_text_3|safe }}
+            </p>
+            {% endif %}
+        </div>
+
+        <div class="about-pillars-grid">
+            <div class="pillar-card">
+                <div class="pillar-icon" style="color: #38bdf8;"><i class="fas fa-university"></i></div>
+                <h4>{{ site_config.pillar_1_title|default:"Core Banking & CBS Systems" }}</h4>
+                <p>{{ site_config.pillar_1_desc|default:"Deep expertise in high-concurrency ledger operations, Maker-Checker RBAC authorization, and regulatory compliance under Nepal Rastra Bank guidelines." }}</p>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-icon" style="color: #10b981;"><i class="fab fa-python"></i></div>
+                <h4>{{ site_config.pillar_2_title|default:"Python & Django Architecture" }}</h4>
+                <p>{{ site_config.pillar_2_desc|default:"Crafting scalable web backends, RESTful microservices, asynchronous task queues, and resilient financial transaction pipelines." }}</p>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-icon" style="color: #F9CD05;"><i class="fas fa-cubes"></i></div>
+                <h4>{{ site_config.pillar_3_title|default:"SAP B1 & SQL HANA Ecosystem" }}</h4>
+                <p>{{ site_config.pillar_3_desc|default:"Database optimization, row-level locking consistency, and architectural design of IbiSAP — Nepal's compliant ERP alternative." }}</p>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-icon" style="color: #c084fc;"><i class="fas fa-feather-alt"></i></div>
+                <h4>{{ site_config.pillar_4_title|default:"Poetic & Literary Expression" }}</h4>
+                <p>{{ site_config.pillar_4_desc|default:"Weaving evocative verses in Nepali & English, contemplating human existence, philosophy, and the quiet harmony between technology and soul." }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Skills / Core Competencies Section -->
+<section id="skills" class="section-container">
+    <h2 class="section-title">Core Competencies</h2>
+    <p class="section-subtitle">Technical acumen forged across enterprise workloads and modern stacks</p>
+
+    <div class="skill-categories" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+        {% regroup skills by category as skill_list %}
+        {% for category in skill_list %}
+        <div class="pro-card reveal-up" style="background: rgba(255,255,255,0.02); height: auto;">
+            <h3 style="color: var(--accent-blue); margin-bottom: 1.25rem; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-layer-group"></i> {{ category.grouper|default:"Operations" }}
+            </h3>
+            <div class="skill-container" style="justify-content: flex-start; gap: 0.75rem; flex-wrap: wrap;">
+                {% for skill in category.list %}
+                <div class="skill-pill" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                    {% if skill.icon_class %}
+                    <i class="{{ skill.icon_class }}"></i>
+                    {% endif %}
+                    {{ skill.name }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="pro-card" style="grid-column: 1 / -1; text-align: center;">
+            <p>Mastering Python, Django, SAP Business One, SQL HANA, Linux Infrastructure, and NRB IT Regulations.</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Experience Section -->
+<section id="experience" class="section-container">
+    <h2 class="section-title">Professional Journey</h2>
+    <p class="section-subtitle">Track record of technical leadership and enterprise operational integrity</p>
+
+    <div class="pro-grid-2">
+        {% for exp in experiences %}
+        <div class="pro-card reveal-up">
+            <span class="date">{{ exp.date_range }}</span>
+            <i class="fas fa-terminal"></i>
+            <h3>{{ exp.role }}</h3>
+            <p style="color: var(--accent-blue); font-weight: bold; margin-bottom: 0.5rem;">{{ exp.company }}</p>
+            
+            <div class="description-content">
+                <ul class="description-list">
+                    {% for point in exp.description.splitlines %}
+                        {% if point.strip %}
+                        <li>{{ point.strip }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% empty %}
+        <p>Journey in progress...</p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Education Section -->
+<section id="education" class="section-container">
+    <h2 class="section-title">Educational Foundation</h2>
+    <div style="max-width: 800px; margin: 0 auto;">
+        {% for edu in educations %}
+        <div class="edu-pro-card reveal-up">
+            <i class="fas fa-graduation-cap edu-icon"></i>
+            <span class="date" style="color: var(--accent-blue); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">{{ edu.date_range }}</span>
+            <h3 style="font-size: 1.35rem; margin-bottom: 0.3rem;">{{ edu.degree }}</h3>
+            <p style="color: var(--accent-purple); font-weight: 600; font-size: 1.05rem; margin-bottom: 0.8rem;">{{ edu.institution }}</p>
+            {% if edu.description %}
+            <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6;">{{ edu.description }}</p>
+            {% endif %}
+        </div>
+        {% empty %}
+        <p>Foundation established through continuous learning.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Major Implementations (Projects) Section -->
+<section id="projects" class="section-container">
+    <div class="section-header-wrap text-center">
+        <span class="section-kicker"><i class="fas fa-cubes"></i> Core Systems &amp; Deployments</span>
+        <h2 class="section-title">Engineered Systems &amp; Projects</h2>
+        <p class="section-subtitle">Architected for enterprise security, NRB compliance, financial stability, and scale.</p>
+    </div>
+
+    <div class="pro-grid-2">
+        {% for project in projects %}
+        <div class="pro-card project-card reveal-up" style="padding: 0; overflow: hidden; height: auto;">
+            <!-- Terminal Header -->
+            <div class="item-terminal-header">
+                <div class="terminal-dots">
+                    <span class="dot dot-red"></span>
+                    <span class="dot dot-yellow"></span>
+                    <span class="dot dot-green"></span>
+                </div>
+                <span class="item-category-pill">{{ project.title|truncatechars:28 }}</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: #10B981;">● PRODUCTION</span>
+            </div>
+
+            <div style="width: 100%; height: 210px; background: #0c1411; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                {% if project.image %}
+                <img src="{{ project.image.url }}" alt="{{ project.title }}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: transform 0.5s ease;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                {% else %}
+                <div style="text-align: center; padding: 1.5rem;">
+                    <i class="fas fa-server" style="font-size: 3rem; color: #F9CD05; filter: drop-shadow(0 0 15px rgba(249, 205, 5, 0.4)); margin-bottom: 0.5rem; display: block;"></i>
+                    <span style="display: block; color: var(--text-primary); font-weight: 800; font-size: 1.15rem;">{{ project.title }}</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="project-info-static" style="padding: 1.8rem; background: var(--bg-card); display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1;">
+                <div>
+                    <h3 style="font-size: 1.35rem; margin-bottom: 0.6rem; color: #ffffff;">{{ project.title }}</h3>
+                    <div class="expandable-wrapper">
+                        <p class="expandable-content" id="prj-{{ forloop.counter }}" style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary); margin: 0;">
+                            {{ project.description }}
+                        </p>
+                        {% if project.description|length > 70 %}
+                        <button class="see-more-btn" onclick="toggleExpand('prj-{{ forloop.counter }}', this)" style="margin-top: 0.5rem;">
+                            <span>See More</span> <i class="fas fa-chevron-down"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="tag-list" style="margin-top: 1.2rem;">
+                        {% if project.tags %}
+                            {% for tag in project.tags.split %}
+                                <span>{{ tag|cut:"," }}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Project Action Buttons Row -->
+                <div class="project-actions-row" style="display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.5rem; padding-top: 1.2rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+                    {% if project.link %}
+                    <a href="{{ project.link }}" target="_blank" rel="noopener noreferrer" class="btn-project-link">
+                        <i class="fas fa-external-link-alt"></i> Live Project Link
+                    </a>
+                    {% endif %}
+                    
+                    <!-- Request Demo Button for Configured Projects -->
+                    {% if project.is_demo_requestable %}
+                    <button type="button" class="btn-project-demo" onclick="openDemoModal('{{ project.title|escapejs }}')">
+                        <i class="fas fa-desktop"></i> Request a Demo
+                    </button>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+        {% empty %}
+        <p>Innovations coming soon.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Creative Journal & Verses (Blog & Poems) Section -->
+<section id="writings" class="section-container">
+    <div class="section-header-row">
+        <div>
+            <h2 class="section-title" style="text-align: left; margin-bottom: 0.3rem;">Creative Journal &amp; Verses</h2>
+            <p class="section-subtitle" style="text-align: left; margin: 0;">Recent poems, architectural notes, and philosophical musings</p>
+        </div>
+        <a href="{% url 'public_portal:blog_list' %}" class="btn-view-all-journal">
+            Explore All Pieces <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+
+    <div class="home-blog-grid">
+        {% for b in featured_blogs %}
+        <article class="blog-card reveal-up {% if b.category == 'poem' %}poem-card-style{% endif %}">
+            {% if b.cover_image %}
+            <div class="blog-card-cover">
+                <img src="{{ b.cover_image.url }}" alt="{{ b.title }}" loading="lazy">
+                <span class="card-cat-badge">{{ b.get_category_display }}</span>
+            </div>
+            {% else %}
+            <div class="blog-card-pattern">
+                <span class="card-cat-badge">{{ b.get_category_display }}</span>
+                {% if b.category == 'poem' %}
+                <i class="fas fa-feather-alt pattern-icon"></i>
+                {% else %}
+                <i class="fas fa-terminal pattern-icon"></i>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="blog-card-body">
+                <div class="blog-card-meta">
+                    <span class="card-date"><i class="far fa-calendar-alt"></i> {{ b.created_at|date:"M d, Y" }}</span>
+                    <span class="card-readtime"><i class="far fa-clock"></i> {{ b.read_time }}</span>
+                </div>
+
+                <h3 class="blog-card-title">
+                    <a href="{% url 'public_portal:blog_detail' b.slug %}">{{ b.title }}</a>
+                </h3>
+
+                {% if b.subtitle %}
+                <p class="blog-card-subtitle">{{ b.subtitle|truncatewords:14 }}</p>
+                {% elif b.excerpt or b.content %}
+                <p class="blog-card-excerpt">
+                    {{ b.excerpt|default:b.content|truncatewords:20 }}
+                </p>
+                {% endif %}
+
+                <div class="blog-card-footer">
+                    <a href="{% url 'public_portal:blog_detail' b.slug %}" class="read-more-link">
+                        {% if b.category == 'poem' %}Read Poem{% else %}Read Article{% endif %} <i class="fas fa-arrow-right"></i>
+                    </a>
+                    <div class="card-reactions">
+                        <span><i class="far fa-heart" style="color: #f43f5e;"></i> {{ b.likes_count }}</span>
+                        <span><i class="far fa-eye"></i> {{ b.views_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </article>
+        {% empty %}
+        <div class="pro-card reveal-up" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+            <i class="fas fa-feather-alt" style="font-size: 2.5rem; color: var(--accent-blue); opacity: 0.4; margin-bottom: 1rem; display: block;"></i>
+            <h3>Creative Journal Initializing</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Poems and articles will be published shortly.</p>
+            <a href="{% url 'public_portal:blog_list' %}" class="btn-hire">Visit Creative Corner</a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Contact / Cyber Command Transmission Matrix -->
+<section id="contact" class="section-container transmission-section">
+    <div class="section-header-wrap text-center">
+        <span class="section-kicker"><i class="fas fa-satellite-dish"></i> Direct Gateway</span>
+        <h2 class="section-title">Initialize Transmission</h2>
+        <p class="section-subtitle">Reach out for enterprise IT consulting, Core Banking architecture, or literary exchange.</p>
+    </div>
+
+    <div class="transmission-matrix-grid reveal-up">
+        <!-- Left: Direct Telemetry & Priority Channels -->
+        <div class="transmission-sidebar">
+            <div class="channel-status-card">
+                <div class="channel-status-header">
+                    <span class="status-indicator-live"></span>
+                    <span class="status-text-live">SYSTEM GATEWAY ACTIVE</span>
+                </div>
+                <div class="nepal-clock-box">
+                    <span class="clock-label"><i class="far fa-clock"></i> Local Time in Nepal (NPT +5:45)</span>
+                    <div class="clock-display" id="nepalLiveClock">--:--:-- --</div>
+                    <span class="clock-sub"><i class="fas fa-map-marker-alt"></i> {{ site_config.location|default:"Kathmandu &bull; Kailali, Nepal" }}</span>
+                </div>
+            </div>
+
+            <div class="priority-channels-list">
+                <div class="channel-item-card" onclick="copyContactText('{{ site_config.email_address|default:'bhojrajupadhayay2001@gmail.com'|escapejs }}', this)">
+                    <div class="ch-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="ch-info">
+                        <span class="ch-title">Direct Priority Email</span>
+                        <span class="ch-val">{{ site_config.email_address|default:"bhojrajupadhayay2001@gmail.com" }}</span>
+                    </div>
+                    <button type="button" class="btn-copy-channel" title="Copy Email">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+
+                <a href="{{ site_config.whatsapp_url|default:'https://wa.me/9779848485292' }}" target="_blank" rel="noopener noreferrer" class="channel-item-card channel-link">
+                    <div class="ch-icon" style="background: rgba(16, 185, 129, 0.15); color: #10B981;"><i class="fab fa-whatsapp"></i></div>
+                    <div class="ch-info">
+                        <span class="ch-title">Instant Messaging / WhatsApp</span>
+                        <span class="ch-val">{{ site_config.whatsapp_number|default:site_config.phone_number|default:"+977 9848485292" }}</span>
+                    </div>
+                    <span class="ch-arrow"><i class="fas fa-external-link-alt"></i></span>
+                </a>
+
+
+                <div class="channel-item-card">
+                    <div class="ch-icon" style="background: rgba(249, 205, 5, 0.15); color: #F9CD05;"><i class="fas fa-bolt"></i></div>
+                    <div class="ch-info">
+                        <span class="ch-title">Response Protocol</span>
+                        <span class="ch-val">Guaranteed review within 6–12 Hours</span>
+                    </div>
+                </div>
+
+                <div class="channel-item-card">
+                    <div class="ch-icon" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;"><i class="fas fa-feather-alt"></i></div>
+                    <div class="ch-info">
+                        <span class="ch-title">Literary &amp; Poetry Exchange</span>
+                        <span class="ch-val">Welcoming literary critique &amp; verse discussions</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Terminal Form Gateway -->
+        <div class="transmission-form-terminal">
+            <div class="terminal-header-bar">
+                <div class="terminal-dots">
+                    <span class="dot dot-red"></span>
+                    <span class="dot dot-yellow"></span>
+                    <span class="dot dot-green"></span>
+                </div>
+                <span class="terminal-title"><i class="fas fa-shield-alt"></i> transmission_gateway.sh --mode=DIRECT_DISPATCH</span>
+                <span class="terminal-status-live">TLS 1.3 ENCRYPTED</span>
+            </div>
+
+            <div class="terminal-body-form">
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="transmission-success-banner">
+                        <i class="fas fa-check-circle"></i> {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <form method="post" action="{% url 'public_portal:home' %}#contact" id="transmissionForm">
+                    {% csrf_token %}
+
+                    <div class="form-inputs-row-3">
+                        <div class="input-field-wrap">
+                            <label for="id_name"><i class="fas fa-user"></i> Full Name / Organization *</label>
+                            <input type="text" id="id_name" name="name" placeholder="e.g. Ramesh Sharma" required class="terminal-input">
+                        </div>
+                        <div class="input-field-wrap">
+                            <label for="id_email"><i class="fas fa-envelope"></i> Return Email Address *</label>
+                            <input type="email" id="id_email" name="email" placeholder="e.g. ramesh@company.com" required class="terminal-input">
+                        </div>
+                        <div class="input-field-wrap">
+                            <label for="id_phone"><i class="fas fa-phone-alt"></i> Contact Number / WhatsApp</label>
+                            <input type="tel" id="id_phone" name="phone" placeholder="e.g. +977 9848485292" class="terminal-input">
+                        </div>
+                    </div>
+
+                    <div class="input-field-wrap" style="margin-top: 1.2rem;">
+                        <label for="id_inquiry"><i class="fas fa-tag"></i> Inquiry Purpose / Classification</label>
+                        <select id="id_inquiry" name="inquiry_type" class="terminal-input" style="cursor: pointer;">
+                            <option value="General Inquiry">General Inquiry / Greeting</option>
+                            <option value="Request Enterprise Demo (IbiSAP / CBS)">🚀 Request Enterprise Demo (IbiSAP / CBS)</option>
+                            <option value="Enterprise IT & CBS Consultation">🛡️ Enterprise IT &amp; Core Banking Consultation</option>
+                            <option value="Software Architecture & Django Development">💻 Python / Django Full-Stack Development</option>
+                            <option value="Literary / Poetry Feedback">✍️ Literary / Poetry Feedback</option>
+                        </select>
+                    </div>
+
+                    <div class="input-field-wrap" style="margin-top: 1.2rem;">
+                        <label for="id_message"><i class="fas fa-code"></i> Transmission Payload (Message / Scope) *</label>
+                        <textarea id="id_message" name="message" placeholder="Describe project requirements, demo request details, architecture questions, or literary words..." required rows="5" class="terminal-input"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-transmit-glow" id="btnTransmit">
+                        <span class="btn-txt"><i class="fas fa-paper-plane"></i> Send Transmission</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Interactive Enterprise Demo Request Modal -->
+<div id="demoRequestModal" class="demo-modal">
+    <div class="demo-modal-backdrop" onclick="closeDemoModal()"></div>
+    <div class="demo-modal-dialog">
+        <div class="terminal-header-bar">
+            <div class="terminal-dots">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+            </div>
+            <span class="terminal-title"><i class="fas fa-desktop"></i> schedule_demo.sh // Enterprise Sandbox</span>
+            <button type="button" class="demo-modal-close" onclick="closeDemoModal()"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="demo-modal-body">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <h2 style="font-size: 1.6rem; color: #ffffff; font-family: 'Outfit', sans-serif; margin-bottom: 0.3rem;">Request Live Enterprise Demo</h2>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">Experience full Core Banking, IbiSAP ERP, and Nepali Miti CBMS workflows live.</p>
+            </div>
+
+            <form method="post" action="{% url 'public_portal:home' %}#contact">
+                {% csrf_token %}
+                <input type="hidden" name="inquiry_type" id="modalInquiryType" value="Request Enterprise Demo (IbiSAP / CBS)">
+
+                <div class="input-field-wrap" style="margin-bottom: 1rem;">
+                    <label><i class="fas fa-cube"></i> System of Interest</label>
+                    <input type="text" id="modalSystemName" readonly value="IbiSAP - Enterprise & Cloud ERP" class="terminal-input" style="background: rgba(249, 205, 5, 0.1); color: #F9CD05; font-weight: 700;">
+                </div>
+
+                <div class="form-inputs-row" style="margin-bottom: 1rem;">
+                    <div class="input-field-wrap">
+                        <label for="id_modal_name"><i class="fas fa-user"></i> Full Name *</label>
+                        <input type="text" id="id_modal_name" name="name" placeholder="Your Name" required class="terminal-input">
+                    </div>
+                    <div class="input-field-wrap">
+                        <label for="id_modal_phone"><i class="fas fa-phone-alt"></i> Contact Phone / WhatsApp *</label>
+                        <input type="tel" id="id_modal_phone" name="phone" placeholder="+977 98XXXXXXXX" required class="terminal-input">
+                    </div>
+                </div>
+
+                <div class="input-field-wrap" style="margin-bottom: 1rem;">
+                    <label for="id_modal_email"><i class="fas fa-envelope"></i> Work / Organization Email *</label>
+                    <input type="email" id="id_modal_email" name="email" placeholder="you@organization.com" required class="terminal-input">
+                </div>
+
+                <div class="input-field-wrap" style="margin-bottom: 1.2rem;">
+                    <label for="id_modal_msg"><i class="fas fa-comment-dots"></i> Specific Modules / Questions</label>
+                    <textarea id="id_modal_msg" name="message" rows="3" placeholder="Tell us which features you'd like to inspect (e.g. Accounting, Loan Ledger, POS, IRD Billing, Multi-branch)..." required class="terminal-input"></textarea>
+                </div>
+
+                <button type="submit" class="btn-transmit-glow" style="margin-top: 0.5rem;">
+                    <i class="fas fa-calendar-check"></i> Confirm &amp; Schedule Demo
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+</section>
+
+
+<script>
+    function toggleExpand(id, btn) {
+        const content = document.getElementById(id);
+        const isExpanded = content.classList.contains('active');
+        
+        if (isExpanded) {
+            content.classList.remove('active');
+            btn.querySelector('span').innerText = 'See More';
+            btn.querySelector('i').classList.replace('fa-chevron-up', 'fa-chevron-down');
+        } else {
+            content.classList.add('active');
+            btn.querySelector('span').innerText = 'See Less';
+            btn.querySelector('i').classList.replace('fa-chevron-down', 'fa-chevron-up');
+        }
+    }
+
+    // 3D Tilt Effect
+    document.querySelectorAll('.pro-card, .stat-card, .pillar-card').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = (y - centerY) / 12;
+            const rotateY = (centerX - x) / 12;
+            
+            gsap.to(card, {
+                rotateX: rotateX,
+                rotateY: rotateY,
+                scale: 1.02,
+                duration: 0.4,
+                ease: 'power2.out',
+                transformPerspective: 1000
+            });
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            gsap.to(card, {
+                rotateX: 0,
+                rotateY: 0,
+                scale: 1,
+                duration: 0.5,
+                ease: 'power2.out'
+            });
+        });
+    });
+
+    // Demo Modal Handlers
+    const demoModal = document.getElementById('demoRequestModal');
+    const modalSystemNameInput = document.getElementById('modalSystemName');
+
+    function openDemoModal(systemName) {
+        if (!demoModal) return;
+        if (modalSystemNameInput && systemName) {
+            modalSystemNameInput.value = systemName;
+        }
+        demoModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDemoModal() {
+        if (!demoModal) return;
+        demoModal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && demoModal && demoModal.classList.contains('active')) {
+            closeDemoModal();
+        }
+    });
+</script>
+{% endblock %}
+

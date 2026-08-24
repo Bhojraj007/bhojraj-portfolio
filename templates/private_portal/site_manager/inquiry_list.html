@@ -1,0 +1,110 @@
+{% extends "private_base.html" %}
+
+{% block title %}Client Inquiries &amp; Demo Requests | Site Manager{% endblock %}
+
+{% block content %}
+<div class="sm-container">
+    <div class="sm-header">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+            <a href="{% url 'private_portal:site_manager' %}" style="color: var(--text-muted); text-decoration: none; font-size: 0.8rem;">
+                <i class="fas fa-arrow-left"></i> Site Manager
+            </a>
+        </div>
+        <h1><i class="fas fa-envelope-open-text"></i> Client Transmissions &amp; Demo Requests</h1>
+    </div>
+
+    <div class="sm-table-wrap">
+        <div class="sm-table-header">
+            <h2><i class="fas fa-inbox"></i> Incoming Messages ({{ inquiries|length }})</h2>
+        </div>
+        
+        {% if inquiries %}
+        <div style="overflow-x: auto;">
+            <table class="sm-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Sender</th>
+                        <th>Contact Channels</th>
+                        <th>Inquiry Classification</th>
+                        <th>Message Payload</th>
+                        <th>Received At</th>
+                        <th style="text-align: right;">Quick Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in inquiries %}
+                    <tr>
+                        <td style="color: var(--text-muted); font-size: 0.8rem;">{{ forloop.counter }}</td>
+                        <td>
+                            <strong style="color: #ffffff; font-size: 0.95rem;">{{ item.name }}</strong>
+                        </td>
+                        <td>
+                            <div style="display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem;">
+                                <a href="mailto:{{ item.email }}" style="color: #38bdf8; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                                    <i class="fas fa-envelope"></i> {{ item.email }}
+                                </a>
+                                {% if item.phone %}
+                                <a href="https://wa.me/{{ item.phone|cut:' '|cut:'+' }}" target="_blank" rel="noopener noreferrer" style="color: #10B981; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                                    <i class="fab fa-whatsapp"></i> {{ item.phone }}
+                                </a>
+                                {% else %}
+                                <span style="color: var(--text-muted); font-size: 0.78rem;">No phone provided</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {% if 'Demo' in item.inquiry_type or 'IbiSAP' in item.inquiry_type %}
+                            <span class="sm-badge gold" style="background: rgba(249, 205, 5, 0.15); color: #F9CD05; border: 1px solid rgba(249, 205, 5, 0.35); padding: 3px 8px; border-radius: 4px; font-size: 0.78rem; font-weight: 700;">
+                                <i class="fas fa-desktop"></i> {{ item.inquiry_type }}
+                            </span>
+                            {% elif 'CBS' in item.inquiry_type or 'Enterprise' in item.inquiry_type %}
+                            <span class="sm-badge emerald" style="background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.35); padding: 3px 8px; border-radius: 4px; font-size: 0.78rem; font-weight: 700;">
+                                <i class="fas fa-shield-alt"></i> {{ item.inquiry_type }}
+                            </span>
+                            {% elif 'Poetry' in item.inquiry_type or 'Literary' in item.inquiry_type %}
+                            <span class="sm-badge purple" style="background: rgba(192, 132, 252, 0.15); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.35); padding: 3px 8px; border-radius: 4px; font-size: 0.78rem; font-weight: 700;">
+                                <i class="fas fa-feather-alt"></i> {{ item.inquiry_type }}
+                            </span>
+                            {% else %}
+                            <span class="sm-badge" style="background: rgba(255, 255, 255, 0.08); color: var(--text-secondary); padding: 3px 8px; border-radius: 4px; font-size: 0.78rem;">
+                                {{ item.inquiry_type|default:"General Inquiry" }}
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="max-width: 320px; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5; white-space: pre-line;">
+                                {{ item.message|truncatewords:25 }}
+                            </div>
+                        </td>
+                        <td style="color: var(--text-muted); font-size: 0.82rem; font-family: 'JetBrains Mono', monospace; white-space: nowrap;">
+                            {{ item.timestamp|date:"M d, Y" }}<br>
+                            <span style="font-size: 0.75rem;">{{ item.timestamp|time:"h:i A" }}</span>
+                        </td>
+                        <td>
+                            <div class="sm-row-actions" style="justify-content: flex-end; gap: 8px;">
+                                <a href="mailto:{{ item.email }}?subject=Re:%20{{ item.inquiry_type|urlencode }}" class="sm-row-btn" title="Reply via Email" style="color: #38bdf8;">
+                                    <i class="fas fa-reply"></i>
+                                </a>
+                                {% if item.phone %}
+                                <a href="https://wa.me/{{ item.phone|cut:' '|cut:'+' }}" target="_blank" rel="noopener noreferrer" class="sm-row-btn" title="Direct WhatsApp Chat" style="color: #10B981;">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="sm-empty-state" style="padding: 3rem; text-align: center;">
+            <i class="fas fa-inbox" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem; opacity: 0.4;"></i>
+            <h3 style="color: var(--text-secondary); font-weight: 600;">No Incoming Inquiries Yet</h3>
+            <p style="color: var(--text-muted); font-size: 0.88rem;">Submissions from the public portfolio transmission form and demo requests will appear here.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

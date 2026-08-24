@@ -1,0 +1,535 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Bhoj Raj Upadhayay — IT Systems Architect, Full Stack Developer, and Creative Writer / Poet. Exploring the synergy between enterprise computing and evocative literature.">
+    <meta name="keywords" content="Bhoj Raj Upadhayay, Rajabhoj, IT Architect, Python, Django, SAP Business One, Core Banking, Nepali Poems, Tech Blog, Nepal">
+    <meta name="author" content="Bhoj Raj Upadhayay">
+    
+    <!-- Open Graph SEO -->
+    <meta property="og:title" content="{% block og_title %}Bhoj Raj Upadhayay | IT Systems Architect & Creative Thinker{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Mastering enterprise computing, systems architecture, and modern full-stack engineering alongside evocative poetry and reflective writing.{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:image" content="{% if site_config.hero_image %}{{ request.scheme }}://{{ request.get_host }}{{ site_config.hero_image.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}/static/gallery/ibisap-dashboard.png{% endif %}">
+    
+    <!-- Twitter Card SEO -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}Bhoj Raj Upadhayay | IT Systems Architect & Creative Thinker{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Mastering enterprise computing, systems architecture, Core Banking and evocative literature.{% endblock %}">
+    <meta name="twitter:image" content="{% if site_config.hero_image %}{{ request.scheme }}://{{ request.get_host }}{{ site_config.hero_image.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}/static/gallery/ibisap-dashboard.png{% endif %}">
+    
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+
+    <!-- Schema.org JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Bhoj Raj Upadhayay",
+      "alternateName": "Rajabhoj",
+      "jobTitle": "IT Systems Architect & Full Stack Engineer",
+      "url": "{{ request.scheme }}://{{ request.get_host }}",
+      "sameAs": [
+        "https://github.com/bhojrajupadhayay",
+        "https://linkedin.com/in/bhojrajupadhayay",
+        "https://prakritiprabhav.com"
+      ],
+      "knowsAbout": [
+        "Core Banking Systems (CBS)",
+        "Python",
+        "Django",
+        "SAP Business One",
+        "SQL HANA",
+        "PostgreSQL",
+        "Disaster Recovery Planning",
+        "Nepali Poetry"
+      ],
+      "nationality": "Nepalese",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Kathmandu",
+        "addressCountry": "NP"
+      }
+    }
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%231A2421'/><rect x='4' y='4' width='92' height='92' rx='20' fill='none' stroke='%23F9CD05' stroke-width='4'/><text x='50%25' y='58%25' font-size='40' font-weight='900' font-family='monospace' fill='%23F9CD05' text-anchor='middle' dominant-baseline='middle'>&lt;B/&gt;</text></svg>">
+
+    <title>{% block title %}Bhoj Raj Upadhayay | IT Architect & Creative Hub{% endblock %}</title>
+    
+    <!-- Google Analytics (GA4) -->
+    {% block analytics %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6B7Z7K9Z0D"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-6B7Z7K9Z0D');
+    </script>
+    {% endblock %}
+    
+    <!-- Google Fonts: Modern sans + Serif for poetry -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=Mukta:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'it_expert.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="loading">
+    <!-- Luxury Preloader -->
+    <div id="preloader">
+        <div class="preloader-content">
+            <div class="loader-logo">&lt;{{ site_config.brand_name|default:"BHOJ RAJ" }} /&gt;</div>
+            <div class="loader-bar-container">
+                <div class="loader-bar"></div>
+            </div>
+            <div class="loader-status">{{ site_config.brand_name|default:"BHOJ RAJ" }} ECOSYSTEM INITIALIZING...</div>
+        </div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="custom-cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <div class="tech-grid"></div>
+    <div class="ambient-light"></div>
+    <div class="ambient-light-2"></div>
+
+    <!-- Navigation -->
+    <nav class="pro-nav">
+        <a href="{% url 'public_portal:home' %}" class="logo magnetic-wrap">
+            <span>&lt;</span>{{ site_config.brand_name|default:"BHOJ RAJ" }}<span> /&gt;</span>
+        </a>
+
+        <!-- Desktop Nav Links -->
+        <div class="nav-links">
+            <a href="{% url 'public_portal:home' %}#about" class="magnetic-wrap">About</a>
+            <a href="{% url 'public_portal:home' %}#skills" class="magnetic-wrap">Competencies</a>
+            <a href="{% url 'public_portal:home' %}#experience" class="magnetic-wrap">Experience</a>
+            <a href="{% url 'public_portal:home' %}#projects" class="magnetic-wrap">Systems</a>
+            <a href="{% url 'public_portal:blog_list' %}" class="btn-blog-nav magnetic-wrap">
+                <i class="fas fa-feather-alt"></i> Blog &amp; Verses
+            </a>
+            <a href="{% url 'public_portal:gallery' %}" class="magnetic-wrap">
+                <i class="fas fa-camera-retro"></i> Visuals
+            </a>
+            
+            {% if site_config.cv_download_url %}
+            <button type="button" class="btn-cv-nav magnetic-wrap" onclick="openCvModal()" title="View Curriculum Vitae">
+                <i class="fas fa-file-pdf"></i> CV
+            </button>
+            {% endif %}
+
+            <!-- Quick Command Palette Trigger -->
+            <button type="button" class="btn-palette-trigger magnetic-wrap" onclick="openCommandPalette()" title="Press Ctrl+K">
+                <i class="fas fa-terminal"></i> <span>Ctrl K</span>
+            </button>
+
+            {% if user.is_authenticated %}
+                <a href="{% url 'private_portal:dashboard' %}" class="btn-hire magnetic-wrap" style="padding: 0.45rem 1.1rem; font-size: 0.82rem;">
+                    <i class="fas fa-shield-alt"></i> Sanctuary
+                </a>
+            {% else %}
+                <a href="{% url 'public_portal:home' %}#contact" class="btn-hire magnetic-wrap" style="padding: 0.45rem 1.1rem; font-size: 0.82rem;">
+                    <i class="fas fa-paper-plane"></i> Connect
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Mobile Menu Hamburger Button -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle Navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
+    <!-- Mobile Drawer Navigation -->
+    <div class="mobile-drawer" id="mobileDrawer">
+        <div class="mobile-drawer-header">
+            <span class="logo">&lt;{{ site_config.brand_name|default:"BHOJ RAJ" }} /&gt;</span>
+            <button class="mobile-drawer-close" id="mobileDrawerClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-nav-links">
+            <a href="{% url 'public_portal:home' %}#about" class="mobile-nav-link"><i class="fas fa-user-astronaut"></i> About Me</a>
+            <a href="{% url 'public_portal:home' %}#skills" class="mobile-nav-link"><i class="fas fa-layer-group"></i> Core Competencies</a>
+            <a href="{% url 'public_portal:home' %}#experience" class="mobile-nav-link"><i class="fas fa-briefcase"></i> Experience</a>
+            <a href="{% url 'public_portal:home' %}#projects" class="mobile-nav-link"><i class="fas fa-laptop-code"></i> Engineering Systems</a>
+            <a href="{% url 'public_portal:blog_list' %}" class="mobile-nav-link highlight"><i class="fas fa-feather-alt"></i> Blog, Poems &amp; Thoughts</a>
+            <a href="{% url 'public_portal:gallery' %}" class="mobile-nav-link"><i class="fas fa-images"></i> Visual Showcase</a>
+            
+            {% if site_config.cv_download_url %}
+            <button type="button" class="mobile-nav-link" onclick="closeDrawer(); openCvModal();" style="color: var(--accent-gold); font-weight: 700; background: none; border: none; width: 100%; text-align: left; cursor: pointer;">
+                <i class="fas fa-file-pdf"></i> View Official CV (PDF)
+            </button>
+            {% endif %}
+            
+            <a href="{% url 'public_portal:home' %}#contact" class="mobile-nav-link"><i class="fas fa-satellite-dish"></i> Initialize Transmission</a>
+            <button type="button" class="mobile-nav-link" onclick="closeDrawer(); openCommandPalette();" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer; color: var(--accent-gold);">
+                <i class="fas fa-search"></i> Command Palette (Ctrl+K)
+            </button>
+
+
+            {% if user.is_authenticated %}
+                <a href="{% url 'private_portal:dashboard' %}" class="mobile-nav-link" style="color: var(--accent);"><i class="fas fa-lock"></i> Private Sanctuary</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="mobile-backdrop" id="mobileBackdrop"></div>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Global Command Palette Modal -->
+    <div id="commandPaletteModal" class="palette-modal">
+        <div class="palette-backdrop" onclick="closeCommandPalette()"></div>
+        <div class="palette-card">
+            <div class="palette-header">
+                <i class="fas fa-search palette-search-icon"></i>
+                <input type="text" id="paletteSearchInput" placeholder="Type a command, section, or poem title..." autocomplete="off">
+                <span class="palette-esc-badge" onclick="closeCommandPalette()">ESC</span>
+            </div>
+            <div class="palette-results" id="paletteResults">
+                <div class="palette-group-title">QUICK NAVIGATION</div>
+                <a href="{% url 'public_portal:home' %}#projects" class="palette-item" onclick="closeCommandPalette()">
+                    <span class="palette-item-icon"><i class="fas fa-laptop-code"></i></span>
+                    <span class="palette-item-text">Explore Engineering Systems &amp; Projects</span>
+                    <span class="palette-item-shortcut">Jump</span>
+                </a>
+                <a href="{% url 'public_portal:blog_list' %}?category=poem" class="palette-item" onclick="closeCommandPalette()">
+                    <span class="palette-item-icon" style="color: #c084fc;"><i class="fas fa-feather-alt"></i></span>
+                    <span class="palette-item-text">Read Nepali &amp; English Poetry Verses</span>
+                    <span class="palette-item-shortcut">Poems</span>
+                </a>
+                <a href="{% url 'public_portal:blog_list' %}?category=tech" class="palette-item" onclick="closeCommandPalette()">
+                    <span class="palette-item-icon" style="color: #38bdf8;"><i class="fas fa-code"></i></span>
+                    <span class="palette-item-text">Core Banking &amp; Django Technical Architecture</span>
+                    <span class="palette-item-shortcut">Tech</span>
+                </a>
+                <a href="{% url 'public_portal:gallery' %}" class="palette-item" onclick="closeCommandPalette()">
+                    <span class="palette-item-icon" style="color: #10B981;"><i class="fas fa-camera-retro"></i></span>
+                    <span class="palette-item-text">Visual Archive &amp; Systems Telemetry</span>
+                    <span class="palette-item-shortcut">Gallery</span>
+                </a>
+                <a href="{% url 'public_portal:home' %}#contact" class="palette-item" onclick="closeCommandPalette()">
+                    <span class="palette-item-icon" style="color: #F9CD05;"><i class="fas fa-satellite-dish"></i></span>
+                    <span class="palette-item-text">Initialize Transmission (Contact {{ site_config.brand_name|default:"Bhojraj" }})</span>
+                    <span class="palette-item-shortcut">Contact</span>
+                </a>
+                <div class="palette-group-title">DIRECT CHANNELS</div>
+                <a href="mailto:{{ site_config.email_address|default:'bhojrajupadhayay2001@gmail.com' }}" class="palette-item">
+                    <span class="palette-item-icon"><i class="fas fa-envelope"></i></span>
+                    <span class="palette-item-text">Send Priority Email ({{ site_config.email_address|default:'bhojrajupadhayay2001@gmail.com' }})</span>
+                    <span class="palette-item-shortcut">Mail</span>
+                </a>
+                {% if site_config.whatsapp_url or site_config.phone_number %}
+                <a href="{{ site_config.whatsapp_url|default:'https://wa.me/9779848485292' }}" target="_blank" rel="noopener noreferrer" class="palette-item">
+                    <span class="palette-item-icon" style="color: #10B981;"><i class="fab fa-whatsapp"></i></span>
+                    <span class="palette-item-text">Instant WhatsApp Consultation ({{ site_config.whatsapp_number|default:site_config.phone_number|default:'+977 9848485292' }})</span>
+                    <span class="palette-item-shortcut">Chat</span>
+                </a>
+                {% endif %}
+            </div>
+            <div class="palette-footer">
+                <span>Navigation: <kbd>&uarr;</kbd> <kbd>&darr;</kbd> to navigate</span>
+                <span>Select: <kbd>&crarr;</kbd></span>
+                <span>Close: <kbd>ESC</kbd></span>
+            </div>
+        </div>
+    </div>
+
+    <footer class="pro-footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <span class="logo">&lt;{{ site_config.brand_name|default:"BHOJ RAJ" }} /&gt;</span>
+                    <p>{{ site_config.hero_subheadline|truncatewords:20|default:"Engineer of high-concurrency systems, Core Banking infrastructure, and architect of poetic expressions." }}</p>
+                </div>
+                <div class="footer-links-grid">
+                    <div>
+                        <h4>Navigation</h4>
+                        <a href="{% url 'public_portal:home' %}#about">About</a>
+                        <a href="{% url 'public_portal:home' %}#skills">Competencies</a>
+                        <a href="{% url 'public_portal:home' %}#projects">Systems</a>
+                        <a href="{% url 'public_portal:blog_list' %}">Poems &amp; Blog</a>
+
+                    </div>
+                    <div>
+                        <h4>Categories</h4>
+                        <a href="{% url 'public_portal:blog_list' %}?category=poem">Poetry &amp; Verses</a>
+                        <a href="{% url 'public_portal:blog_list' %}?category=tech">Tech &amp; Architecture</a>
+                        <a href="{% url 'public_portal:blog_list' %}?category=reflection">Reflections &amp; Life</a>
+                        <a href="{% url 'public_portal:gallery' %}">Visual Gallery</a>
+                    </div>
+                    <div>
+                        <h4>Transmission</h4>
+                        <p class="footer-contact-info"><i class="fas fa-map-marker-alt"></i> {{ site_config.location|default:"Kathmandu / Kailali, Nepal" }}</p>
+                        <p class="footer-contact-info"><i class="fas fa-envelope"></i> {{ site_config.email_address|default:"bhojrajupadhayay2001@gmail.com" }}</p>
+                        <div class="footer-socials">
+                            {% if site_config.github_url %}
+                            <a href="{{ site_config.github_url }}" target="_blank" title="GitHub" class="magnetic-wrap"><i class="fab fa-github"></i></a>
+                            {% endif %}
+                            {% if site_config.linkedin_url %}
+                            <a href="{{ site_config.linkedin_url }}" target="_blank" title="LinkedIn" class="magnetic-wrap"><i class="fab fa-linkedin-in"></i></a>
+                            {% endif %}
+                            {% if site_config.prakriti_prabhav_url %}
+                            <a href="{{ site_config.prakriti_prabhav_url }}" target="_blank" title="Prakriti Prabhav" class="magnetic-wrap"><i class="fas fa-globe"></i></a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; {% now "Y" %} {{ site_config.footer_text|default:"Bhoj Raj Upadhayay. Engineered with Precision &amp; Soul." }}</p>
+                <p style="color: var(--text-muted); font-size: 0.8rem;">Synthesized with Django &amp; Modern UI/UX</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- GSAP for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        // Custom Cursor Logic
+        const cursor = document.querySelector('.custom-cursor');
+        const follower = document.querySelector('.cursor-follower');
+        
+        if (window.matchMedia('(pointer: fine)').matches) {
+            document.addEventListener('mousemove', (e) => {
+                gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1 });
+                gsap.to(follower, { x: e.clientX, y: e.clientY, duration: 0.3 });
+            });
+
+            document.querySelectorAll('a, button, .magnetic-wrap, .pro-card, .edu-pro-card, .blog-card, .channel-item-card, .gallery-item-card').forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    cursor.classList.add('active');
+                    follower.classList.add('active');
+                });
+                el.addEventListener('mouseleave', () => {
+                    cursor.classList.remove('active');
+                    follower.classList.remove('active');
+                });
+            });
+        } else {
+            if (cursor) cursor.style.display = 'none';
+            if (follower) follower.style.display = 'none';
+        }
+
+        // Preloader Logic
+        window.addEventListener('load', () => {
+            gsap.to('.loader-bar', { width: '100%', duration: 1.0, ease: 'power4.inOut', onComplete: () => {
+                gsap.to('#preloader', { 
+                    opacity: 0, 
+                    display: 'none', 
+                    duration: 0.5, 
+                    ease: 'power2.inOut',
+                    onComplete: () => {
+                        document.body.classList.remove('loading');
+                    }
+                });
+            }});
+        });
+
+        // Magnetic Effect
+        document.querySelectorAll('.magnetic-wrap').forEach(wrap => {
+            wrap.addEventListener('mousemove', (e) => {
+                const rect = wrap.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const moveX = (x - rect.width / 2) * 0.35;
+                const moveY = (y - rect.height / 2) * 0.35;
+                gsap.to(wrap, { x: moveX, y: moveY, duration: 0.3 });
+            });
+            wrap.addEventListener('mouseleave', () => {
+                gsap.to(wrap, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.3)' });
+            });
+        });
+
+        // Mobile Drawer Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileDrawer = document.getElementById('mobileDrawer');
+        const mobileDrawerClose = document.getElementById('mobileDrawerClose');
+        const mobileBackdrop = document.getElementById('mobileBackdrop');
+
+        function openDrawer() {
+            mobileDrawer.classList.add('open');
+            mobileBackdrop.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeDrawer() {
+            mobileDrawer.classList.remove('open');
+            mobileBackdrop.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', openDrawer);
+        if (mobileDrawerClose) mobileDrawerClose.addEventListener('click', closeDrawer);
+        if (mobileBackdrop) mobileBackdrop.addEventListener('click', closeDrawer);
+        document.querySelectorAll('.mobile-nav-link').forEach(link => link.addEventListener('click', closeDrawer));
+
+        // Real-Time Nepal Clock (UTC +5:45)
+        function updateNepalClock() {
+            const clockEl = document.getElementById('nepalLiveClock');
+            if (!clockEl) return;
+            const now = new Date();
+            // Nepal is UTC+5:45
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const nepalTime = new Date(utc + (3600000 * 5.75));
+            
+            let hours = nepalTime.getHours();
+            const minutes = String(nepalTime.getMinutes()).padStart(2, '0');
+            const seconds = String(nepalTime.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? String(hours).padStart(2, '0') : '12';
+
+            clockEl.innerHTML = `${hours}:${minutes}:${seconds} <span style="color: #F9CD05; font-size: 0.9rem;">${ampm}</span> <span style="font-size: 0.75rem; color: #10B981; font-weight: normal;">(NPT)</span>`;
+        }
+        setInterval(updateNepalClock, 1000);
+        updateNepalClock();
+
+        // Copy Channel Functionality
+        function copyContactText(text, cardEl) {
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = cardEl.querySelector('.btn-copy-channel');
+                if (btn) {
+                    const orig = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check" style="color: #10B981;"></i>';
+                    setTimeout(() => btn.innerHTML = orig, 2000);
+                }
+            });
+        }
+
+        // Global Command Palette Logic
+        const paletteModal = document.getElementById('commandPaletteModal');
+        const paletteInput = document.getElementById('paletteSearchInput');
+        const paletteResults = document.getElementById('paletteResults');
+
+        function openCommandPalette() {
+            if (!paletteModal) return;
+            paletteModal.classList.add('active');
+            if (paletteInput) {
+                paletteInput.value = '';
+                filterPaletteItems('');
+                setTimeout(() => paletteInput.focus(), 50);
+            }
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCommandPalette() {
+            if (!paletteModal) return;
+            paletteModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Keyboard Shortcut: Ctrl+K or Cmd+K
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+                e.preventDefault();
+                if (paletteModal && paletteModal.classList.contains('active')) {
+                    closeCommandPalette();
+                } else {
+                    openCommandPalette();
+                }
+            } else if (e.key === 'Escape' && paletteModal && paletteModal.classList.contains('active')) {
+                closeCommandPalette();
+            }
+        });
+
+        // Command Palette Filter
+        if (paletteInput) {
+            paletteInput.addEventListener('input', (e) => {
+                filterPaletteItems(e.target.value.toLowerCase().trim());
+            });
+        }
+
+        function filterPaletteItems(term) {
+            if (!paletteResults) return;
+            const items = paletteResults.querySelectorAll('.palette-item');
+            items.forEach(item => {
+                const text = item.innerText.toLowerCase();
+                if (!term || text.includes(term)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Inquiry Pill Selection Handler
+        document.querySelectorAll('.inquiry-pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+                document.querySelectorAll('.inquiry-pill').forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+            });
+        });
+
+        // CV Modal Handlers
+        function openCvModal() {
+            const modal = document.getElementById('cvPreviewModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeCvModal() {
+            const modal = document.getElementById('cvPreviewModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close CV modal on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const cvModal = document.getElementById('cvPreviewModal');
+                if (cvModal && cvModal.style.display === 'flex') {
+                    closeCvModal();
+                }
+            }
+        });
+    </script>
+
+    <!-- Interactive CV Preview Modal Lightbox -->
+    {% if site_config.cv_download_url %}
+    <div id="cvPreviewModal" class="cv-preview-modal" style="display: none;">
+        <div class="cv-modal-backdrop" onclick="closeCvModal()"></div>
+        <div class="cv-modal-content">
+            <div class="cv-modal-header">
+                <div class="cv-modal-title">
+                    <i class="fas fa-file-pdf" style="color: #F9CD05; font-size: 1.1rem;"></i>
+                    <span>{{ site_config.brand_name|default:"BHOJ RAJ" }} • Curriculum Vitae</span>
+                </div>
+                <div class="cv-modal-actions">
+                    <a href="{{ site_config.cv_download_url }}" download class="btn-cv-modal-download">
+                        <i class="fas fa-download"></i> <span>Download PDF</span>
+                    </a>
+                    <a href="{{ site_config.cv_download_url }}" target="_blank" class="btn-cv-modal-tab" title="Open Full PDF in New Tab">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                    <button type="button" class="cv-modal-close" onclick="closeCvModal()" title="Close Viewer">&times;</button>
+                </div>
+            </div>
+            <div class="cv-modal-body">
+                <iframe src="{{ site_config.cv_download_url }}#view=FitH" class="cv-pdf-iframe" title="Curriculum Vitae Document Preview"></iframe>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+
+
+

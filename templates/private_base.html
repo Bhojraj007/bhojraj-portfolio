@@ -1,0 +1,261 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Bhoj Raj | Portal{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'private.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="private-mood">
+
+    {% if user.background_image or dashboard_settings.background_image %}
+    <style>
+        body.private-mood {
+            background-image: url('{% if user.background_image %}{{ user.background_image.url }}{% elif dashboard_settings and dashboard_settings.background_image %}{{ dashboard_settings.background_image.url }}{% endif %}');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        body.private-mood::before { display: none; }
+    </style>
+    {% endif %}
+
+    <!-- Mobile Navbar -->
+    <div class="mobile-nav">
+        <button id="sidebar-toggle" class="sidebar-toggle"><i class="fas fa-bars"></i></button>
+        <span class="brand"><span>BHOJ</span> RAJ</span>
+        <a href="{% url 'private_portal:profile_edit' %}" class="mobile-avatar">
+            {% if user.profile_picture %}
+                <img src="{{ user.profile_picture.url }}">
+            {% else %}
+                <div class="avatar-placeholder">{{ user.username|slice:":1"|upper }}</div>
+            {% endif %}
+        </a>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'private_portal:dashboard' %}" class="brand">
+                <span>BHOJ</span> RAJ
+            </a>
+            <button id="sidebar-close" class="sidebar-close"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <div class="nav-links">
+            <a href="{% url 'private_portal:dashboard' %}" class="nav-btn {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <i class="fas fa-home"></i> <span>Home</span>
+            </a>
+            <div class="nav-btn" id="notification-trigger" style="cursor: pointer; position: relative;">
+                <i class="fas fa-bell"></i> <span>Notifications</span>
+                <span id="notif-badge" class="badge pulse-badge" style="display: none;"></span>
+            </div>
+            <a href="{% url 'private_portal:photo_list' %}" class="nav-btn {% if 'photo' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-images"></i> <span>Photos</span>
+            </a>
+            <a href="{% url 'private_portal:video_list' %}" class="nav-btn {% if 'video' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-film"></i> <span>Videos</span>
+            </a>
+            
+            <a href="{% url 'private_portal:cashbook_dashboard' %}" class="nav-btn {% if 'cashbook' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-wallet"></i> <span>Cash Book</span>
+            </a>
+
+            <div class="nav-label">Social</div>
+            <a href="{% url 'private_portal:inbox' %}" class="nav-btn {% if unread_count > 0 %}pulse-unread{% endif %} {% if request.resolver_match.url_name == 'inbox' or request.resolver_match.url_name == 'chat_detail' %}active{% endif %}">
+                <i class="fas fa-comments"></i>
+                <span>Messages</span>
+                {% if unread_count > 0 %}
+                <span class="unread-badge">{{ unread_count }}</span>
+                {% endif %}
+            </a>
+            
+            <a href="{% url 'private_portal:bookmark_list' %}" class="nav-btn {% if request.resolver_match.url_name == 'bookmark_list' %}active{% endif %}">
+                <i class="fas fa-bookmark"></i>
+                <span>Saved</span>
+            </a>
+            
+            <a href="{% url 'private_portal:guardian_profile' user.username %}" class="nav-btn {% if request.resolver_match.url_name == 'guardian_profile' and target_user == user %}active{% endif %}">
+                <i class="fas fa-user-circle"></i> <span>My Profile</span>
+            </a>
+
+            {% if user.is_staff %}
+            <div class="nav-label">Site Management CMS</div>
+            <a href="{% url 'private_portal:site_manager' %}" class="nav-btn {% if request.resolver_match.url_name == 'site_manager' %}active{% endif %}">
+                <i class="fas fa-th-large"></i> <span>Overview</span>
+            </a>
+            <a href="{% url 'private_portal:blog_list' %}" class="nav-btn {% if 'blog' in request.resolver_match.url_name %}active{% endif %}" style="color: #c084fc;">
+                <i class="fas fa-feather-alt"></i> <span>Blogs &amp; Poems</span>
+            </a>
+            <a href="{% url 'private_portal:site_config_edit' %}" class="nav-btn {% if request.resolver_match.url_name == 'site_config_edit' %}active{% endif %}">
+                <i class="fas fa-sliders-h"></i> <span>Site Config</span>
+            </a>
+            <a href="{% url 'private_portal:sm_skill_list' %}" class="nav-btn {% if 'skill' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-code"></i> <span>Skills</span>
+            </a>
+            <a href="{% url 'private_portal:sm_experience_list' %}" class="nav-btn {% if 'experience' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-briefcase"></i> <span>Experience</span>
+            </a>
+            <a href="{% url 'private_portal:sm_education_list' %}" class="nav-btn {% if 'education' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-graduation-cap"></i> <span>Education</span>
+            </a>
+            <a href="{% url 'private_portal:sm_project_list' %}" class="nav-btn {% if 'project' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-rocket"></i> <span>Projects</span>
+            </a>
+            <a href="{% url 'private_portal:sm_gallery_list' %}" class="nav-btn {% if 'gallery' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-photo-video"></i> <span>Gallery</span>
+            </a>
+            <a href="{% url 'private_portal:sm_ibisap_module_list' %}" class="nav-btn {% if 'ibisap_module' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-cubes"></i> <span>IbiSAP Modules</span>
+            </a>
+            <a href="{% url 'private_portal:sm_inquiry_list' %}" class="nav-btn {% if 'inquiry' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-envelope-open-text"></i> <span>Inquiries &amp; Demos</span>
+            </a>
+            {% endif %}
+
+
+            <div class="sidebar-user-card" style="padding: 0.85rem 1rem; margin: 1.5rem 0 0.75rem; background: rgba(18, 26, 23, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-sm); display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 38px; height: 38px; border-radius: 50%; overflow: hidden; background: linear-gradient(135deg, #F9CD05, #10B981); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #121A17; flex-shrink: 0;">
+                    {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                    {{ user.username|slice:":1"|upper }}
+                    {% endif %}
+                </div>
+                <div style="overflow: hidden; flex: 1;">
+                    <strong style="color: #ffffff; font-size: 0.88rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ user.username|title }}</strong>
+                    <span style="color: #10B981; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace;">● GUARDIAN ACTIVE</span>
+                </div>
+            </div>
+
+            <a href="{% url 'private_portal:profile_edit' %}" class="nav-btn {% if request.resolver_match.url_name == 'profile_edit' %}active{% endif %}">
+                <i class="fas fa-cog"></i> <span>Settings</span>
+            </a>
+
+            <a href="{% url 'public_portal:home' %}" class="nav-btn">
+                <i class="fas fa-external-link-alt"></i> <span>Public Site</span>
+            </a>
+            
+            <a href="/admin/" class="nav-btn" target="_blank">
+                <i class="fas fa-user-shield"></i> <span>Django Admin</span>
+            </a>
+            
+            {% if user.is_authenticated %}
+            <div class="logout-container">
+                <form action="{% url 'logout' %}" method="post" style="width: 100%;">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-btn" style="width: 100%; text-align: left; cursor: pointer; background: transparent; border: none; font-family: inherit; color: #f43f5e;">
+                        <i class="fas fa-power-off"></i> <span>Sign Out</span>
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+
+    {% include "private_portal/partials/notification_drawer.html" %}
+
+    <script>
+        // Global Handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            // Notifications
+            const notifTrigger = document.getElementById('notification-trigger');
+            const notifDrawer = document.getElementById('notification-drawer');
+            const notifBadge = document.getElementById('notif-badge');
+
+            function updateNotifications() {
+                fetch('{% url "private_portal:get_notifications" %}')
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.unread_count > 0) {
+                            if (notifBadge) {
+                                notifBadge.innerText = data.unread_count > 9 ? '9+' : data.unread_count;
+                                notifBadge.style.display = 'block';
+                            }
+                        } else if (notifBadge) {
+                            notifBadge.style.display = 'none';
+                        }
+                        
+                        const list = document.getElementById('notif-list');
+                        if (list && data.notifications.length > 0) {
+                            list.innerHTML = data.notifications.map(n => `
+                                <div class="notif-item ${n.is_read ? '' : 'unread'}">
+                                    <div style="display: flex; gap: 1rem; align-items: start;">
+                                        <div style="width: 35px; height: 35px; background: var(--accent-glow); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--accent); flex-shrink: 0;">
+                                            <i class="fas ${n.verb === 'followed' ? 'fa-user-plus' : 'fa-heart'}"></i>
+                                        </div>
+                                        <div>
+                                            <strong>${n.actor}</strong> ${n.verb} your resonance.
+                                            <div style="font-size: 0.75rem; opacity: 0.5; margin-top: 0.3rem;">${n.timestamp}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('');
+                        }
+                    }).catch(e => console.log('Resonance polling skip...'));
+            }
+
+            if (notifTrigger) {
+                notifTrigger.onclick = () => {
+                    notifDrawer.classList.toggle('active');
+                    if (notifDrawer.classList.contains('active')) {
+                        fetch('{% url "private_portal:mark_notifications_read" %}')
+                            .then(() => { if (notifBadge) notifBadge.style.display = 'none'; });
+                    }
+                };
+            }
+
+            setInterval(updateNotifications, 45000);
+            updateNotifications();
+
+            // Sidebar Toggle for Mobile
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebarClose = document.getElementById('sidebar-close');
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', () => {
+                    sidebar.classList.add('mobile-active');
+                });
+            }
+
+            if (sidebarClose) {
+                sidebarClose.addEventListener('click', () => {
+                    sidebar.classList.remove('mobile-active');
+                });
+            }
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 1024) {
+                    if (sidebar && !sidebar.contains(e.target) && sidebarToggle && !sidebarToggle.contains(e.target) && sidebar.classList.contains('mobile-active')) {
+                        sidebar.classList.remove('mobile-active');
+                    }
+                }
+            });
+
+            // Intersection Observer for reveal animations
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

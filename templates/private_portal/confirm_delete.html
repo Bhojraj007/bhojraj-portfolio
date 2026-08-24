@@ -1,0 +1,16 @@
+{% extends "private_base.html" %}
+
+{% block title %}Confirm Delete | Private Portal{% endblock %}
+
+{% block content %}
+<div class="glass-container" style="max-width: 600px; margin: 4rem auto; text-align:center;">
+    <h2 style="color: #ef4444; margin-bottom: 1rem;">Confirm Deletion</h2>
+    <p style="margin-bottom: 2rem;">Are you sure you want to delete "{{ object }}"?</p>
+    
+    <form method="post" style="display:flex; justify-content:center; gap:1rem;">
+        {% csrf_token %}
+        <button type="submit" class="btn" style="background:#ef4444; color:white; border:none; cursor:pointer;">Yes, delete it</button>
+        <button type="button" class="btn" style="background:transparent; border:1px solid var(--glass-border); color:var(--text-color);" onclick="window.history.back()">Cancel</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "private_base.html" %}
+
+{% block title %}Delete {{ content_title }} | Site Manager{% endblock %}
+
+{% block content %}
+<div class="sm-container">
+    <div class="sm-header">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+            <a href="{% url back_url %}" style="color: var(--text-muted); text-decoration: none; font-size: 0.8rem;">
+                <i class="fas fa-arrow-left"></i> Back to list
+            </a>
+        </div>
+        <h1 style="color: var(--accent-rose);"><i class="fas fa-exclamation-triangle"></i> Delete {{ content_title }}</h1>
+    </div>
+
+    <div class="sm-form-card" style="border-color: var(--accent-rose); max-width: 600px;">
+        <div style="text-align: center; padding: 2rem 1rem;">
+            <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--accent-rose-glow); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.5rem; color: var(--accent-rose);">
+                <i class="fas fa-trash-alt"></i>
+            </div>
+            <h3 style="margin-bottom: 0.5rem;">Are you sure?</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 2rem;">
+                You are about to delete <strong style="color: var(--text-primary);">"{{ object }}"</strong>. This action cannot be undone.
+            </p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div style="display: flex; gap: 0.75rem; justify-content: center;">
+                    <button type="submit" class="sm-submit-btn" style="background: linear-gradient(135deg, var(--accent-rose), #fb7185);">
+                        <i class="fas fa-trash-alt"></i> Yes, Delete
+                    </button>
+                    <a href="{% url back_url %}" class="sm-cancel-btn">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

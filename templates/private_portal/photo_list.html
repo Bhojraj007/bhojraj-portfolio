@@ -1,0 +1,885 @@
+{% extends "private_base.html" %}
+
+{% block title %}Gallery | Bhojraj Private Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ===== GALLERY LAYOUT ===== */
+  .gallery-wrapper {
+    max-width: 614px;
+    margin: 0 auto;
+  }
+
+  .gallery-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.75rem;
+    padding: 0 0.25rem;
+  }
+
+  .gallery-header h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .gallery-header h1 i {
+    color: var(--green);
+    margin-right: 0.3rem;
+  }
+
+  .gallery-header p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-top: 0.2rem;
+  }
+
+  .upload-btn {
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--radius-full);
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s;
+  }
+  .upload-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+  }
+
+  /* ===== PHOTO FEED (Instagram-style cards) ===== */
+  .photo-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .photo-card {
+    background: var(--bg-card);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.2s;
+    animation: cardFadeIn 0.5s ease both;
+  }
+  .photo-card:hover {
+    border-color: var(--divider-light);
+  }
+
+  @keyframes cardFadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Card Header — user info row */
+  .photo-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1rem;
+  }
+
+  .photo-user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .photo-user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid transparent;
+    background: linear-gradient(135deg, #f09433, #dc2743, #bc1888) border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .photo-user-avatar .avatar-ring {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid var(--bg-card);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-hover);
+  }
+
+  .photo-user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .photo-user-avatar .avatar-initial {
+    font-weight: 800;
+    font-size: 0.8rem;
+    color: var(--text-primary);
+  }
+
+  .photo-user-meta h3 {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .photo-user-meta .photo-location {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin: 0;
+    margin-top: 1px;
+  }
+
+  .photo-card-menu {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0.4rem;
+    border-radius: 50%;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .photo-card-menu:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+
+  /* Photo Image — large display */
+  .photo-card-image {
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    background: #0a0a0a;
+  }
+
+  .photo-card-image img {
+    width: 100%;
+    display: block;
+    max-height: 700px;
+    object-fit: contain;
+    transition: filter 0.3s;
+  }
+
+  .photo-card-image:hover img {
+    filter: brightness(0.95);
+  }
+
+  .photo-card-image .view-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.85);
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(8px);
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s, transform 0.25s;
+    pointer-events: none;
+  }
+
+  .photo-card-image:hover .view-hint {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .view-hint i {
+    color: #fff;
+    font-size: 1.2rem;
+  }
+
+  .photo-placeholder-large {
+    width: 100%;
+    height: 300px;
+    background: var(--bg-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .photo-placeholder-large i {
+    font-size: 3rem;
+    color: var(--text-muted);
+    opacity: 0.15;
+  }
+
+  /* Card Footer — details section */
+  .photo-card-footer {
+    padding: 0.875rem 1rem 1rem;
+  }
+
+  .photo-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .photo-action-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.3rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+  }
+  .photo-action-btn:hover {
+    color: var(--text-primary);
+    transform: scale(1.12);
+  }
+  .photo-action-btn.delete-action:hover {
+    color: var(--red);
+  }
+
+  .photo-action-spacer {
+    margin-left: auto;
+  }
+
+  .photo-card-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.2rem;
+    line-height: 1.4;
+  }
+
+  .photo-card-title .card-username {
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-right: 0.35rem;
+  }
+
+  .photo-card-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0 0 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .photo-card-timestamp {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Card dropdown menu */
+  .card-dropdown {
+    position: relative;
+  }
+
+  .card-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-xs);
+    box-shadow: var(--shadow-lg);
+    min-width: 160px;
+    z-index: 50;
+    overflow: hidden;
+  }
+
+  .card-dropdown-menu.active {
+    display: block;
+    animation: dropdownSlide 0.2s ease;
+  }
+
+  @keyframes dropdownSlide {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-dropdown-menu a {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.7rem 1rem;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: background 0.15s;
+  }
+  .card-dropdown-menu a:hover { background: var(--bg-hover); }
+  .card-dropdown-menu a.danger { color: var(--red); }
+  .card-dropdown-menu a.danger:hover { background: rgba(255,59,92,0.08); }
+
+  /* Empty state */
+  .gallery-empty {
+    text-align: center;
+    padding: 5rem 2rem;
+    background: var(--bg-card);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius);
+  }
+  .gallery-empty i {
+    font-size: 3.5rem;
+    color: var(--text-muted);
+    opacity: 0.15;
+    display: block;
+    margin-bottom: 1.5rem;
+  }
+  .gallery-empty h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .gallery-empty p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+  }
+  .gallery-empty .empty-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: var(--radius-full);
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .gallery-empty .empty-cta:hover { background: var(--accent-hover); }
+
+  /* ===== LIGHTBOX VIEWER ===== */
+  .lightbox-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    z-index: 9999;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+
+  .lightbox-overlay.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  .lightbox-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .lb-close {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.5rem;
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 20;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+  }
+  .lb-close:hover {
+    background: rgba(255,255,255,0.15);
+  }
+
+  .lb-counter {
+    position: absolute;
+    top: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.6);
+    font-size: 0.85rem;
+    font-weight: 600;
+    z-index: 20;
+    letter-spacing: 1px;
+  }
+
+  .lb-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.25s;
+    z-index: 15;
+    backdrop-filter: blur(10px);
+  }
+  .lb-nav:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-50%) scale(1.08);
+  }
+  .lb-prev { left: 1.25rem; }
+  .lb-next { right: 1.25rem; }
+
+  .lb-content-area {
+    max-width: 900px;
+    width: 90%;
+    max-height: 92vh;
+    display: flex;
+    background: var(--bg-card);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.6);
+    animation: lbZoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes lbZoomIn {
+    from { transform: scale(0.88); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .lb-image-side {
+    flex: 1;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    max-height: 90vh;
+  }
+
+  .lb-image-side img {
+    width: 100%;
+    height: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+    display: block;
+  }
+
+  .lb-detail-side {
+    width: 340px;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-card);
+    border-left: 1px solid var(--divider);
+  }
+
+  .lb-detail-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-bottom: 1px solid var(--divider);
+  }
+
+  .lb-detail-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--bg-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 2px solid var(--accent);
+  }
+
+  .lb-detail-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .lb-detail-avatar-text {
+    font-weight: 800;
+    font-size: 0.8rem;
+    color: var(--text-primary);
+  }
+
+  .lb-detail-username {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .lb-detail-body {
+    flex: 1;
+    padding: 1.25rem;
+    overflow-y: auto;
+  }
+
+  .lb-detail-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+
+  .lb-detail-desc {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .lb-detail-date {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding-top: 1rem;
+    border-top: 1px solid var(--divider);
+  }
+
+  .lb-detail-actions {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--divider);
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .lb-detail-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .lb-detail-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+  .lb-detail-btn.danger:hover {
+    background: rgba(255,59,92,0.1);
+    color: var(--red);
+  }
+
+  @media (max-width: 768px) {
+    .lb-nav { display: none; }
+    .lb-content-area {
+      flex-direction: column;
+      width: 100%;
+      max-width: 100%;
+      max-height: 100vh;
+      border-radius: 0;
+    }
+    .lb-image-side {
+      max-height: 55vh;
+      min-height: 250px;
+    }
+    .lb-detail-side {
+      width: 100%;
+      border-left: none;
+      border-top: 1px solid var(--divider);
+    }
+    .photo-card {
+      border-radius: var(--radius-sm);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .gallery-wrapper {
+      padding: 0 0.25rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="gallery-wrapper">
+  <div class="gallery-header reveal">
+    <div>
+      <h1><i class="fas fa-images"></i> Gallery</h1>
+      <p>Captured Moments & Personal Shots</p>
+    </div>
+    <a href="{% url 'private_portal:photo_add' %}" class="upload-btn">
+      <i class="fas fa-plus"></i> Upload
+    </a>
+  </div>
+
+  <div class="photo-feed">
+    {% for photo in object_list %}
+    <article class="photo-card reveal"
+             data-index="{{ forloop.counter0 }}"
+             data-src="{% if photo.image %}{{ photo.image.url }}{% endif %}"
+             data-title="{{ photo.title }}"
+             data-desc="{{ photo.description|default:'' }}"
+             data-date="{{ photo.upload_timestamp|date:'M d, Y' }}"
+             data-delete-url="{% url 'private_portal:photo_delete' photo.pk %}"
+             style="animation-delay: {{ forloop.counter0 }}00ms;">
+
+      <!-- Card Header: User Info -->
+      <div class="photo-card-header">
+        <div class="photo-user-info">
+          <div class="photo-user-avatar">
+            <div class="avatar-ring">
+              {% if user.profile_picture %}
+              <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}">
+              {% else %}
+              <span class="avatar-initial">{{ user.username|slice:":1"|upper }}</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="photo-user-meta">
+            <h3>{{ user.username }}</h3>
+            <p class="photo-location"><i class="fas fa-images" style="font-size: 0.65rem; margin-right: 2px;"></i> {{ photo.title|truncatewords:5 }}</p>
+          </div>
+        </div>
+        <div class="card-dropdown">
+          <button class="photo-card-menu" onclick="toggleDropdown(this)" aria-label="More options">
+            <i class="fas fa-ellipsis-h"></i>
+          </button>
+          <div class="card-dropdown-menu">
+            <a href="#" onclick="openLightbox({{ forloop.counter0 }}); return false;">
+              <i class="fas fa-expand"></i> View Full
+            </a>
+            <a href="{% url 'private_portal:photo_delete' photo.pk %}" class="danger">
+              <i class="fas fa-trash"></i> Delete
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Image: Large photo display -->
+      <div class="photo-card-image" onclick="openLightbox({{ forloop.counter0 }})">
+        {% if photo.image %}
+        <img src="{{ photo.image.url }}" alt="{{ photo.title }}" loading="lazy">
+        {% else %}
+        <div class="photo-placeholder-large">
+          <i class="fas fa-image"></i>
+        </div>
+        {% endif %}
+        <div class="view-hint"><i class="fas fa-expand"></i></div>
+      </div>
+
+      <!-- Card Footer: Details & Actions -->
+      <div class="photo-card-footer">
+        <div class="photo-card-actions">
+          <button class="photo-action-btn" title="Love"><i class="far fa-heart"></i></button>
+          <button class="photo-action-btn" title="Comment"><i class="far fa-comment"></i></button>
+          <button class="photo-action-btn" title="Share"><i class="far fa-paper-plane"></i></button>
+          <span class="photo-action-spacer"></span>
+          <button class="photo-action-btn" title="Save"><i class="far fa-bookmark"></i></button>
+        </div>
+        <p class="photo-card-title">
+          <span class="card-username">{{ user.username }}</span>{{ photo.title }}
+        </p>
+        {% if photo.description %}
+        <p class="photo-card-description">{{ photo.description }}</p>
+        {% endif %}
+        <span class="photo-card-timestamp">{{ photo.upload_timestamp|date:"M d, Y" }} · {{ photo.upload_timestamp|timesince }} ago</span>
+      </div>
+    </article>
+    {% empty %}
+    <div class="gallery-empty reveal">
+      <i class="fas fa-camera"></i>
+      <h3>No Photos Yet</h3>
+      <p>Share your first photo to start building your gallery.</p>
+      <a href="{% url 'private_portal:photo_add' %}" class="empty-cta">
+        <i class="fas fa-plus"></i> Upload Photo
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% include "private_portal/pagination.html" with page_obj=page_obj %}
+
+<!-- ===== INSTAGRAM-STYLE LIGHTBOX VIEWER ===== -->
+<div id="photo-lightbox" class="lightbox-overlay" onclick="if(event.target===this) closeLightbox()">
+  <div class="lightbox-container">
+    <button class="lb-close" onclick="closeLightbox()" aria-label="Close"><i class="fas fa-times"></i></button>
+    <span class="lb-counter" id="lb-counter"></span>
+    <button class="lb-nav lb-prev" onclick="navigateLightbox(-1)" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+    <button class="lb-nav lb-next" onclick="navigateLightbox(1)" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+
+    <div class="lb-content-area" id="lb-content">
+      <!-- Image side -->
+      <div class="lb-image-side">
+        <img id="lb-img" src="" alt="">
+      </div>
+      <!-- Detail side panel -->
+      <div class="lb-detail-side">
+        <div class="lb-detail-header">
+          <div class="lb-detail-avatar">
+            {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}" alt="">
+            {% else %}
+            <span class="lb-detail-avatar-text">{{ user.username|slice:":1"|upper }}</span>
+            {% endif %}
+          </div>
+          <span class="lb-detail-username">{{ user.username }}</span>
+        </div>
+        <div class="lb-detail-body">
+          <div class="lb-detail-title" id="lb-title"></div>
+          <div class="lb-detail-desc" id="lb-desc"></div>
+          <div class="lb-detail-date" id="lb-date"><i class="far fa-clock"></i> <span id="lb-date-text"></span></div>
+        </div>
+        <div class="lb-detail-actions">
+          <button class="lb-detail-btn"><i class="far fa-heart"></i> Love</button>
+          <button class="lb-detail-btn"><i class="far fa-bookmark"></i> Save</button>
+          <a id="lb-delete" href="#" class="lb-detail-btn danger"><i class="fas fa-trash"></i> Delete</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Dropdown menu toggle
+  function toggleDropdown(btn) {
+    const menu = btn.nextElementSibling;
+    // Close all other dropdowns first
+    document.querySelectorAll('.card-dropdown-menu.active').forEach(m => {
+      if (m !== menu) m.classList.remove('active');
+    });
+    menu.classList.toggle('active');
+  }
+
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.card-dropdown')) {
+      document.querySelectorAll('.card-dropdown-menu.active').forEach(m => m.classList.remove('active'));
+    }
+  });
+
+  // ===== Lightbox =====
+  const photoCards = Array.from(document.querySelectorAll('.photo-card[data-src]'));
+  let currentIndex = 0;
+  let touchStartX = 0;
+  let touchStartY = 0;
+
+  function openLightbox(index) {
+    currentIndex = index;
+    const card = photoCards[index];
+    if (!card) return;
+
+    const overlay = document.getElementById('photo-lightbox');
+    overlay.style.display = 'flex';
+    requestAnimationFrame(() => overlay.classList.add('active'));
+    document.body.style.overflow = 'hidden';
+    renderLightbox();
+  }
+
+  function closeLightbox() {
+    const overlay = document.getElementById('photo-lightbox');
+    overlay.classList.remove('active');
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      document.body.style.overflow = '';
+    }, 350);
+  }
+
+  function navigateLightbox(dir) {
+    const newIndex = currentIndex + dir;
+    if (newIndex < 0 || newIndex >= photoCards.length) return;
+    currentIndex = newIndex;
+
+    const content = document.getElementById('lb-content');
+    content.style.opacity = '0';
+    content.style.transform = dir > 0 ? 'translateX(30px)' : 'translateX(-30px)';
+
+    setTimeout(() => {
+      renderLightbox();
+      content.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s';
+      content.style.transform = 'translateX(0)';
+      content.style.opacity = '1';
+    }, 150);
+  }
+
+  function renderLightbox() {
+    const card = photoCards[currentIndex];
+    document.getElementById('lb-img').src = card.dataset.src;
+    document.getElementById('lb-title').textContent = card.dataset.title;
+    document.getElementById('lb-desc').textContent = card.dataset.desc || '';
+    document.getElementById('lb-date-text').textContent = card.dataset.date;
+    document.getElementById('lb-delete').href = card.dataset.deleteUrl;
+    document.getElementById('lb-counter').textContent = `${currentIndex + 1} / ${photoCards.length}`;
+
+    // Show/hide description
+    const descEl = document.getElementById('lb-desc');
+    descEl.style.display = card.dataset.desc ? 'block' : 'none';
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    const overlay = document.getElementById('photo-lightbox');
+    if (!overlay.classList.contains('active')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') navigateLightbox(-1);
+    if (e.key === 'ArrowRight') navigateLightbox(1);
+  });
+
+  // Touch/swipe support
+  document.getElementById('photo-lightbox').addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, { passive: true });
+
+  document.getElementById('photo-lightbox').addEventListener('touchend', (e) => {
+    const deltaX = e.changedTouches[0].screenX - touchStartX;
+    const deltaY = e.changedTouches[0].screenY - touchStartY;
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 60) {
+      navigateLightbox(deltaX > 0 ? -1 : 1);
+    }
+    if (Math.abs(deltaY) > 120 && Math.abs(deltaY) > Math.abs(deltaX)) {
+      closeLightbox();
+    }
+  }, { passive: true });
+</script>
+{% endblock %}

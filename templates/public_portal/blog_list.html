@@ -1,0 +1,247 @@
+{% extends "public_portal/base.html" %}
+{% load static %}
+
+{% block title %}Creative Journal, Poems & Systems Blog | Rajabhoj{% endblock %}
+{% block og_title %}Words, Verses & Technical Insights by Bhoj Raj Upadhayay{% endblock %}
+{% block og_description %}A curated anthology of Nepali & English poetry, deep technical essays, systems architecture reflections, and creative thoughts.{% endblock %}
+
+{% block content %}
+<div class="blog-hub-wrapper">
+    <!-- Blog Hero Section -->
+    <section class="blog-hero">
+        <div class="tech-grid"></div>
+        <div class="ambient-light" style="background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, transparent 70%);"></div>
+        <div class="ambient-light-2" style="background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%);"></div>
+
+        <span class="badge" style="background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.4); color: #c084fc;">
+            <i class="fas fa-feather-alt"></i> Words &bull; Verses &bull; Architecture
+        </span>
+
+        <h1 class="reveal-text">
+            Creative Journal & <br>
+            <span class="gradient-text-alt">Poetic Echoes</span>
+        </h1>
+
+        <p class="blog-hero-sub">
+            Where enterprise software engineering converges with heartfelt poetry, philosophical reflections, and lived experiences.
+        </p>
+
+        <!-- Search Bar -->
+        <div class="blog-search-bar reveal-up">
+            <form method="get" action="{% url 'public_portal:blog_list' %}" class="search-form">
+                {% if active_category %}
+                <input type="hidden" name="category" value="{{ active_category }}">
+                {% endif %}
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" name="q" value="{{ search_query }}" placeholder="Search poems, tech articles, thoughts, or tags..." autocomplete="off">
+                {% if search_query %}
+                <a href="{% url 'public_portal:blog_list' %}{% if active_category %}?category={{ active_category }}{% endif %}" class="clear-search" title="Clear Search">
+                    <i class="fas fa-times"></i>
+                </a>
+                {% endif %}
+                <button type="submit" class="search-submit-btn">Search</button>
+            </form>
+        </div>
+
+        <!-- Category Filter Tabs -->
+        <div class="category-tabs-container reveal-up">
+            <a href="{% url 'public_portal:blog_list' %}{% if search_query %}?q={{ search_query }}{% endif %}" class="cat-pill {% if not active_category %}active{% endif %}">
+                <span>All Writings</span>
+                <span class="cat-count">{{ category_counts.all }}</span>
+            </a>
+            <a href="{% url 'public_portal:blog_list' %}?category=poem{% if search_query %}&q={{ search_query }}{% endif %}" class="cat-pill {% if active_category == 'poem' %}active{% endif %}">
+                <span>✍️ Poems &amp; Verses</span>
+                <span class="cat-count">{{ category_counts.poem }}</span>
+            </a>
+            <a href="{% url 'public_portal:blog_list' %}?category=tech{% if search_query %}&q={{ search_query }}{% endif %}" class="cat-pill {% if active_category == 'tech' %}active{% endif %}">
+                <span>💻 Tech &amp; Systems</span>
+                <span class="cat-count">{{ category_counts.tech }}</span>
+            </a>
+            <a href="{% url 'public_portal:blog_list' %}?category=reflection{% if search_query %}&q={{ search_query }}{% endif %}" class="cat-pill {% if active_category == 'reflection' %}active{% endif %}">
+                <span>🌿 Reflections &amp; Life</span>
+                <span class="cat-count">{{ category_counts.reflection }}</span>
+            </a>
+            <a href="{% url 'public_portal:blog_list' %}?category=story{% if search_query %}&q={{ search_query }}{% endif %}" class="cat-pill {% if active_category == 'story' %}active{% endif %}">
+                <span>📖 Stories &amp; Essays</span>
+                <span class="cat-count">{{ category_counts.story }}</span>
+            </a>
+            <a href="{% url 'public_portal:blog_list' %}?category=thoughts{% if search_query %}&q={{ search_query }}{% endif %}" class="cat-pill {% if active_category == 'thoughts' %}active{% endif %}">
+                <span>💡 Ideas &amp; Thoughts</span>
+                <span class="cat-count">{{ category_counts.thoughts }}</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Main Content Stream -->
+    <section class="blog-stream-section">
+        {% if featured_blog and not active_category and not search_query and not active_tag %}
+        <!-- Spotlight Featured Post -->
+        <div class="featured-spotlight-card reveal-up">
+            <div class="spotlight-badge">★ Featured Highlight</div>
+            <div class="spotlight-grid">
+                {% if featured_blog.cover_image %}
+                <div class="spotlight-image-wrap">
+                    <img src="{{ featured_blog.cover_image.url }}" alt="{{ featured_blog.title }}">
+                </div>
+                {% endif %}
+                <div class="spotlight-info">
+                    <div class="spotlight-meta">
+                        <span class="cat-tag">{{ featured_blog.get_category_display }}</span>
+                        <span><i class="far fa-clock"></i> {{ featured_blog.read_time }}</span>
+                        <span><i class="far fa-calendar-alt"></i> {{ featured_blog.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <h2><a href="{% url 'public_portal:blog_detail' featured_blog.slug %}">{{ featured_blog.title }}</a></h2>
+                    {% if featured_blog.subtitle %}
+                    <p class="spotlight-sub">{{ featured_blog.subtitle }}</p>
+                    {% endif %}
+                    <p class="spotlight-excerpt">{{ featured_blog.excerpt|default:featured_blog.content|truncatewords:35 }}</p>
+                    
+                    <div class="spotlight-footer">
+                        <a href="{% url 'public_portal:blog_detail' featured_blog.slug %}" class="btn-read-spotlight">
+                            Read Full Piece <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <div class="spotlight-stats">
+                            <span><i class="far fa-heart" style="color: #f43f5e;"></i> {{ featured_blog.likes_count }}</span>
+                            <span><i class="far fa-eye"></i> {{ featured_blog.views_count }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Active Filter Alert -->
+        {% if active_category or search_query or active_tag %}
+        <div class="filter-status-bar reveal-up">
+            <span>Showing results for: 
+                {% if active_category %}<strong>Category: {{ active_category|title }}</strong>{% endif %}
+                {% if search_query %}<strong>Search: "{{ search_query }}"</strong>{% endif %}
+                {% if active_tag %}<strong>Tag: #{{ active_tag }}</strong>{% endif %}
+                ({{ blogs.count }} pieces found)
+            </span>
+            <a href="{% url 'public_portal:blog_list' %}" class="reset-filter-link"><i class="fas fa-times"></i> Reset filters</a>
+        </div>
+        {% endif %}
+
+        <!-- Articles & Poems Grid -->
+        <div class="blog-cards-grid">
+            {% for blog in blogs %}
+            <article class="blog-card reveal-up {% if blog.category == 'poem' %}poem-card-style{% endif %}">
+                {% if blog.cover_image %}
+                <div class="blog-card-cover">
+                    <img src="{{ blog.cover_image.url }}" alt="{{ blog.title }}" loading="lazy">
+                    <span class="card-cat-badge">{{ blog.get_category_display }}</span>
+                </div>
+                {% else %}
+                <div class="blog-card-pattern">
+                    <span class="card-cat-badge">{{ blog.get_category_display }}</span>
+                    {% if blog.category == 'poem' %}
+                    <i class="fas fa-feather-alt pattern-icon"></i>
+                    {% else %}
+                    <i class="fas fa-code pattern-icon"></i>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <div class="blog-card-body">
+                    <div class="blog-card-meta">
+                        <span><i class="far fa-calendar-alt"></i> {{ blog.created_at|date:"M d, Y" }}</span>
+                        <span><i class="far fa-clock"></i> {{ blog.read_time }}</span>
+                    </div>
+
+                    <h3 class="blog-card-title">
+                        <a href="{% url 'public_portal:blog_detail' blog.slug %}">{{ blog.title }}</a>
+                    </h3>
+
+                    {% if blog.subtitle %}
+                    <p class="blog-card-subtitle">{{ blog.subtitle }}</p>
+                    {% endif %}
+
+                    {% if blog.category == 'poem' %}
+                    <div class="poem-preview-snippet">
+                        <p>{{ blog.content|truncatewords:24 }}</p>
+                    </div>
+                    {% else %}
+                    <p class="blog-card-excerpt">
+                        {{ blog.excerpt|default:blog.content|truncatewords:24 }}
+                    </p>
+                    {% endif %}
+
+                    {% if blog.tag_list %}
+                    <div class="card-tag-cloud">
+                        {% for tag in blog.tag_list|slice:":3" %}
+                        <a href="{% url 'public_portal:blog_list' %}?tag={{ tag }}" class="tag-chip">#{{ tag }}</a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="blog-card-footer">
+                        <a href="{% url 'public_portal:blog_detail' blog.slug %}" class="read-more-link">
+                            {% if blog.category == 'poem' %}Read Poem{% else %}Read Article{% endif %} <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <div class="card-reactions">
+                            <span><i class="far fa-heart" style="color: #f43f5e;"></i> {{ blog.likes_count }}</span>
+                            <span><i class="far fa-eye"></i> {{ blog.views_count }}</span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            {% empty %}
+            <div class="empty-blog-state reveal-up">
+                <div class="empty-icon"><i class="fas fa-feather-alt"></i></div>
+                <h3>No Pieces Found</h3>
+                <p>No writings or poems matched your current filter criteria.</p>
+                <a href="{% url 'public_portal:blog_list' %}" class="btn-hire" style="margin-top: 1rem;">View All Writings</a>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Author Callout -->
+    <section class="author-banner-section reveal-up">
+        <div class="author-banner-card">
+            <div class="author-avatar-col">
+                <div class="author-img-ring">
+                    <span>RB</span>
+                </div>
+            </div>
+            <div class="author-text-col">
+                <span class="badge" style="margin-bottom: 0.5rem;"><i class="fas fa-pen-nib"></i> The Author's Pen</span>
+                <h3>Bhoj Raj Upadhayay</h3>
+                <p>Writing at the crossroads of enterprise technology, Core Banking logic, and evocative Nepali/English poetry. I believe code shapes the digital reality, while verses give meaning to human contemplation.</p>
+                <div class="author-actions">
+                    <a href="{% url 'public_portal:home' %}#about" class="btn-hire" style="font-size: 0.85rem; padding: 0.5rem 1.2rem;">About Me</a>
+                    <a href="{% url 'public_portal:home' %}#contact" class="skill-pill" style="text-decoration: none; font-size: 0.85rem;">Send a Note</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    // Real-Time Client Side Instant Filter on Blog Cards
+    document.addEventListener('DOMContentLoaded', () => {
+        const searchInput = document.querySelector('.search-form input[name="q"]');
+        const blogCards = document.querySelectorAll('.blog-article-card');
+        
+        if (searchInput && blogCards.length > 0) {
+            searchInput.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase().trim();
+                if (!term) {
+                    blogCards.forEach(card => card.style.display = '');
+                    return;
+                }
+                blogCards.forEach(card => {
+                    const text = card.textContent.toLowerCase();
+                    if (text.includes(term)) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}
+
