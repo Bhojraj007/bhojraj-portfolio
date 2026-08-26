@@ -3,7 +3,7 @@
 
 {% block title %}{{ ibisap_config.hero_title|default:"IbiSAP ERP — Nepal's Compliant SAP Business One Alternative" }} | Bhoj Raj Upadhayay{% endblock %}
 {% block og_title %}IbiSAP ERP — High-Performance Enterprise ERP for Nepal{% endblock %}
-{% block og_description %}{{ ibisap_config.hero_description|truncatechars:180 }}{% endblock %}
+{% block og_description %}{{ ibisap_config.hero_description|default:"On-premises & Multi-Tenant Cloud ERP engineered with native Nepali Miti, IRD CBMS sync, and NRB IT security compliance."|truncatechars:180 }}{% endblock %}
 
 {% block content %}
 <div class="ibisap-luxury-page">
@@ -22,7 +22,7 @@
         </h1>
 
         <p class="ibisap-hero-p">
-            {{ ibisap_config.hero_description }}
+            {{ ibisap_config.hero_description|default:"A high-performance, cost-effective alternative to SAP Business One. Built specifically for regulated Microfinance Institutions (MFIs), Cooperatives, Manufacturers, and Multi-Branch Retail Chains across Nepal." }}
         </p>
 
         <div class="ibisap-hero-cta-group">
@@ -40,7 +40,7 @@
             {% endif %}
             <div class="magnetic-wrap">
                 <a href="#comparison" class="skill-pill" style="text-decoration: none;">
-                    <i class="fas fa-balance-scale"></i> Compare vs SAP B1
+                    <i class="fas fa-balance-scale"></i> Enterprise ibiSAP vs Retail ibiSAP
                 </a>
             </div>
         </div>
@@ -69,43 +69,84 @@
     <!-- Visual Architecture & Interfaces Showcase -->
     <section class="section-container" style="padding-top: 2rem;">
         <div class="section-header-wrap text-center">
-            <span class="section-kicker"><i class="fas fa-laptop-code"></i> Live Interface Showcase</span>
             <h2 class="section-title">Engineered for Operational Speed</h2>
             <p class="section-subtitle">Inspect the actual dashboards, point-of-sale terminals, and compliance engines powering daily transactions.</p>
         </div>
 
         <div class="ibisap-screenshots-grid reveal-up">
-            {% for ss in screenshots %}
-            <div class="screenshot-card" onclick="openDemoLightbox('{{ ss.image_url }}', '{{ ss.title|escapejs }}', '{{ ss.description|escapejs }}')">
-                <div class="item-terminal-header">
-                    <div class="terminal-dots">
-                        <span class="dot dot-red"></span>
-                        <span class="dot dot-yellow"></span>
-                        <span class="dot dot-green"></span>
+            {% if screenshots %}
+                {% for ss in screenshots %}
+                <div class="screenshot-card" onclick="openDemoLightbox('{{ ss.image_url }}', '{{ ss.title|escapejs }}', '{{ ss.description|escapejs }}')">
+                    <div class="item-terminal-header">
+                        <div class="terminal-dots">
+                            <span class="dot dot-red"></span>
+                            <span class="dot dot-yellow"></span>
+                            <span class="dot dot-green"></span>
+                        </div>
+                        <span class="item-category-pill">{{ ss.category_tag|default:"Showcase" }}</span>
                     </div>
-                    <span class="item-category-pill">{{ ss.category_tag|default:"Showcase" }}</span>
+                    <div class="ss-img-wrap">
+                        <img src="{{ ss.image_url }}" alt="{{ ss.title }}" loading="lazy">
+                        <div class="ss-overlay"><i class="fas fa-search-plus"></i> Inspect Interface</div>
+                    </div>
+                    <div class="ss-footer">
+                        <h4>{{ ss.title }}</h4>
+                        <p>{{ ss.description|truncatechars:120 }}</p>
+                    </div>
                 </div>
-                <div class="ss-img-wrap">
-                    <img src="{{ ss.image_url }}" alt="{{ ss.title }}" loading="lazy">
-                    <div class="ss-overlay"><i class="fas fa-search-plus"></i> Inspect Interface</div>
+                {% endfor %}
+            {% else %}
+                <div class="screenshot-card" onclick="openDemoLightbox('/static/gallery/ibisap-dashboard.png', 'Executive Analytics Dashboard', 'Real-time liquidity monitoring, GL summaries, and branch performance indicators.')">
+                    <div class="item-terminal-header">
+                        <div class="terminal-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+                        <span class="item-category-pill">Executive Analytics</span>
+                    </div>
+                    <div class="ss-img-wrap">
+                        <img src="/static/gallery/ibisap-dashboard.png" alt="IbiSAP Analytics Dashboard" loading="lazy">
+                        <div class="ss-overlay"><i class="fas fa-search-plus"></i> Inspect Dashboard</div>
+                    </div>
+                    <div class="ss-footer">
+                        <h4>Executive Analytics Dashboard</h4>
+                        <p>Real-time liquidity, general ledger balance, and multi-branch transaction feed.</p>
+                    </div>
                 </div>
-                <div class="ss-footer">
-                    <h4>{{ ss.title }}</h4>
-                    <p>{{ ss.description|truncatechars:120 }}</p>
+
+                <div class="screenshot-card" onclick="openDemoLightbox('/static/gallery/ibisap-pos.png', 'Retail Cloud POS & High-Speed Billing', 'Fast thermal receipt printing, barcode scanning, and Fonepay QR integration.')">
+                    <div class="item-terminal-header">
+                        <div class="terminal-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+                        <span class="item-category-pill">Retail Cloud POS</span>
+                    </div>
+                    <div class="ss-img-wrap">
+                        <img src="/static/gallery/ibisap-pos.png" alt="IbiSAP Cloud POS" loading="lazy">
+                        <div class="ss-overlay"><i class="fas fa-search-plus"></i> Inspect POS Terminal</div>
+                    </div>
+                    <div class="ss-footer">
+                        <h4>Retail Cloud POS &amp; Billing</h4>
+                        <p>Sub-second barcode scanning, dual currency, discounts, and instant receipt generation.</p>
+                    </div>
                 </div>
-            </div>
-            {% empty %}
-            <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 2rem;">
-                <p>No screenshots uploaded yet. Add them in <a href="{% url 'private_portal:sm_ibisap_screenshot_list' %}" style="color: #F9CD05;">Site Manager</a>.</p>
-            </div>
-            {% endfor %}
+
+                <div class="screenshot-card" onclick="openDemoLightbox('/static/gallery/ibisap-nepali-miti.png', 'Nepali Miti & IRD CBMS Module', 'Bi-directional Bikram Sambat calendar and real-time VAT billing synchronization.')">
+                    <div class="item-terminal-header">
+                        <div class="terminal-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+                        <span class="item-category-pill">IRD Compliance</span>
+                    </div>
+                    <div class="ss-img-wrap">
+                        <img src="/static/gallery/ibisap-nepali-miti.png" alt="Nepali Miti & CBMS" loading="lazy">
+                        <div class="ss-overlay"><i class="fas fa-search-plus"></i> Inspect Compliance</div>
+                    </div>
+                    <div class="ss-footer">
+                        <h4>Nepali Miti &amp; IRD CBMS Engine</h4>
+                        <p>Shrawan 1 to Ashadh 31 fiscal periods with automated IRD API retry queues.</p>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </section>
 
     <!-- Dual Editions Section -->
     <section id="editions" class="section-container">
         <div class="section-header-wrap text-center">
-            <span class="section-kicker"><i class="fas fa-layer-group"></i> Architecture Topologies</span>
             <h2 class="section-title">Two Tailored Editions for Your Business Stage</h2>
             <p class="section-subtitle">Choose between on-premises deployment for regulated institutions or managed cloud SaaS for retail SMEs.</p>
         </div>
@@ -124,22 +165,30 @@
 
                 <div class="edition-content-box">
                     <h3 class="edition-title">{{ ibisap_config.enterprise_title|default:"Enterprise IbiSAP" }}</h3>
-                    <span class="edition-tagline">{{ ibisap_config.enterprise_tagline }}</span>
+                    <span class="edition-tagline">{{ ibisap_config.enterprise_tagline|default:"Engineered for Institutions Requiring Strict Data Sovereignty" }}</span>
                     
                     <p class="edition-desc">
-                        {{ ibisap_config.enterprise_desc }}
+                        {{ ibisap_config.enterprise_desc|default:"Designed for regulated microfinance institutions (MFIs), cooperatives, hospitals, and large enterprises requiring NRB IT compliance, dedicated PostgreSQL/SQL HANA database servers, and maker-checker workflows." }}
                     </p>
 
                     <ul class="edition-checklist">
-                        {% for f in ent_features %}
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            <div>
-                                <strong>{{ f.title }}</strong>
-                                {% if f.desc %}<span>{{ f.desc }}</span>{% endif %}
-                            </div>
-                        </li>
-                        {% endfor %}
+                        {% if ent_features %}
+                            {% for f in ent_features %}
+                            <li>
+                                <i class="fas fa-check-circle"></i>
+                                <div>
+                                    <strong>{{ f.title }}</strong>
+                                    {% if f.desc %}<span>{{ f.desc }}</span>{% endif %}
+                                </div>
+                            </li>
+                            {% endfor %}
+                        {% else %}
+                            <li><i class="fas fa-check-circle"></i><div><strong>On-Premises &amp; Private Cloud Deployment</strong><span>Complete data sovereignty on your physical hardware or dedicated private virtual cluster.</span></div></li>
+                            <li><i class="fas fa-check-circle"></i><div><strong>NRB IT Security Guidelines Compliant</strong><span>Granular RBAC, dual-authorization (maker-checker), automated DRP backups, and immutable audit logs.</span></div></li>
+                            <li><i class="fas fa-check-circle"></i><div><strong>Native Nepali Miti (Bikram Sambat) Engine</strong><span>Dual-calendar fiscal accounting (Shrawan 1 to Ashadh 31) with bi-directional AD/BS conversion.</span></div></li>
+                            <li><i class="fas fa-check-circle"></i><div><strong>Certified IRD CBMS Real-Time Invoicing</strong><span>Direct REST API synchronization with the Inland Revenue Department with offline failover queues.</span></div></li>
+                            <li><i class="fas fa-check-circle"></i><div><strong>Dedicated PostgreSQL / SQL HANA Instance</strong><span>Pessimistic row-level locking guaranteeing ledger transaction consistency.</span></div></li>
+                        {% endif %}
                     </ul>
 
                     <div class="edition-footer-action">
@@ -163,22 +212,30 @@
 
                 <div class="edition-content-box">
                     <h3 class="edition-title">{{ ibisap_config.retail_title|default:"Retail IbiSAP SaaS" }}</h3>
-                    <span class="edition-tagline">{{ ibisap_config.retail_tagline }}</span>
+                    <span class="edition-tagline">{{ ibisap_config.retail_tagline|default:"Zero DevOps Overhead for Retail Chains & Distributors" }}</span>
                     
                     <p class="edition-desc">
-                        {{ ibisap_config.retail_desc }}
+                        {{ ibisap_config.retail_desc|default:"Built for retail stores, supermarkets, pharmacies, and distributors who want enterprise-grade billing, inventory, and accounting with instant 60-second onboarding and zero hardware maintenance." }}
                     </p>
 
                     <ul class="edition-checklist">
-                        {% for f in ret_features %}
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            <div>
-                                <strong>{{ f.title }}</strong>
-                                {% if f.desc %}<span>{{ f.desc }}</span>{% endif %}
-                            </div>
-                        </li>
-                        {% endfor %}
+                        {% if ret_features %}
+                            {% for f in ret_features %}
+                            <li>
+                                <i class="fas fa-check-circle"></i>
+                                <div>
+                                    <strong>{{ f.title }}</strong>
+                                    {% if f.desc %}<span>{{ f.desc }}</span>{% endif %}
+                                </div>
+                            </li>
+                            {% endfor %}
+                        {% else %}
+                            <li><i class="fas fa-check-circle"></i><div><strong>Isolated Multi-Tenant Architecture</strong><span>Centralized application master with isolated schema/database segregation for every registered tenant.</span></div></li>
+                            <li><i class="fas fa-check-circle"></i><div><strong>High-Speed Point of Sale (POS) &amp; Barcode</strong><span>Sub-second barcode scanning, thermal slip printing, loyalty discounts, and integrated Fonepay QR.</span></div></li>
+                            <li><i class="fas fa-check-circle"></i><div><strong>Multi-Branch Inventory &amp; Expiry Alerts</strong><span>Real-time stock valuation across warehouses with batch-level expiry monitoring and automated reorders.</span></div></li>
+                            <li><i class="fas fa-check-circle"></i><div><strong>Zero DevOps Maintenance &amp; Automated Backups</strong><span>Continuous encrypted cloud snapshots, 99.9% availability, and automatic seamless version upgrades.</span></div></li>
+                            <li><i class="fas fa-check-circle"></i><div><strong>Instant 60-Second Onboarding</strong><span>Sign up and start generating invoices immediately on any browser, tablet, or POS terminal.</span></div></li>
+                        {% endif %}
                     </ul>
 
                     <div class="edition-footer-action">
@@ -194,7 +251,6 @@
     <!-- Comparison Matrix Table -->
     <section id="comparison" class="section-container">
         <div class="section-header-wrap text-center">
-            <span class="section-kicker"><i class="fas fa-table"></i> Side-by-Side Analysis</span>
             <h2 class="section-title">Enterprise vs. Retail Comparison Matrix</h2>
             <p class="section-subtitle">Review deployment models, database isolation, and compliance capabilities side-by-side.</p>
         </div>
@@ -209,17 +265,23 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for row in comparison_rows %}
-                    <tr>
-                        <td><strong>{{ row.feature_name }}</strong></td>
-                        <td>{{ row.enterprise_value }}</td>
-                        <td>{{ row.retail_value }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 2rem;">No comparison matrix rows added yet.</td>
-                    </tr>
-                    {% endfor %}
+                    {% if comparison_rows %}
+                        {% for row in comparison_rows %}
+                        <tr>
+                            <td><strong>{{ row.feature_name }}</strong></td>
+                            <td>{{ row.enterprise_value }}</td>
+                            <td>{{ row.retail_value }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td><strong>Hosting &amp; Topology</strong></td><td>On-Premises Server or Dedicated Private Cloud</td><td>100% Fully Managed Multi-Tenant Cloud SaaS</td></tr>
+                        <tr><td><strong>Pricing &amp; License Model</strong></td><td>One-Time Perpetual License + Custom Annual SLA (Fraction of SAP B1)</td><td>Predictable Monthly / Annual Subscription per Branch</td></tr>
+                        <tr><td><strong>Regulatory Compliance</strong></td><td>Full NRB Unified Directives + Real-Time IRD CBMS Sync</td><td>Native Nepali Miti + IRD Approved Sales Invoicing</td></tr>
+                        <tr><td><strong>Bespoke Customization</strong></td><td>100% Tailored Modules, Custom APIs &amp; Legacy Migrations</td><td>Pre-configured modular settings with instant activation</td></tr>
+                        <tr><td><strong>Database Engine</strong></td><td>Dedicated PostgreSQL / SQL HANA instance with Row-Level Locking</td><td>Isolated Schema per Tenant (Automated Provisioning)</td></tr>
+                        <tr><td><strong>Infrastructure Maintenance</strong></td><td>Managed internally or via dedicated 24/7 SLA</td><td>Zero maintenance required; automatic rolling cloud updates</td></tr>
+                        <tr><td><strong>Ideal Implementation</strong></td><td><strong>Regulated MFIs, Cooperatives, Hospitals, Mid-Enterprises</strong></td><td><strong>Retail Chains, Wholesalers, Distributors, Supermarkets</strong></td></tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
@@ -228,7 +290,6 @@
     <!-- Built-in Enterprise Modules Grid -->
     <section id="modules" class="section-container">
         <div class="section-header-wrap text-center">
-            <span class="section-kicker"><i class="fas fa-cubes"></i> Modular Architecture</span>
             <h2 class="section-title">Built-In Enterprise Modules</h2>
             <p class="section-subtitle">Fully integrated functional components ready to activate for your organization.</p>
         </div>
