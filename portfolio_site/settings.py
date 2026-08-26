@@ -30,7 +30,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback-key-do-not-u
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+raw_hosts = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+ALLOWED_HOSTS = list({h.strip() for h in raw_hosts if h.strip()} | {'localhost', '127.0.0.1', 'testserver', 'rajabhoj.com.np', 'www.rajabhoj.com.np'})
+
 
 
 # Application definition
