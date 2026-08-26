@@ -161,10 +161,11 @@ EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.
 EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'noreply@rajabhoj.com.np')
-NOTIFICATION_RECIPIENT_EMAIL = os.environ.get('NOTIFICATION_RECIPIENT_EMAIL', 'upadhayaybhojraj@gmail.com')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '').strip()
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '').replace(' ', '').strip()
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'bhojrajupadhayay7@gmail.com')
+NOTIFICATION_RECIPIENT_EMAIL = os.environ.get('NOTIFICATION_RECIPIENT_EMAIL', 'bhojrajupadhayay7@gmail.com')
+
 
 # Production Security Settings (SSL handled cleanly by cPanel / Cloudflare / Apache)
 
