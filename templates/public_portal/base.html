@@ -94,14 +94,15 @@
     
     <!-- Google Analytics (GA4) -->
     {% block analytics %}
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6B7Z7K9Z0D"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1NR3PDB369"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-6B7Z7K9Z0D');
+      gtag('config', 'G-1NR3PDB369');
     </script>
     {% endblock %}
+
     
     <!-- Google Fonts: Modern sans + Serif for poetry -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -307,7 +308,7 @@
                     <div>
                         <h4>Transmission</h4>
                         <p class="footer-contact-info"><i class="fas fa-map-marker-alt"></i> {{ site_config.location|default:"Kathmandu / Kailali, Nepal" }}</p>
-                        <p class="footer-contact-info"><i class="fas fa-envelope"></i> {{ site_config.email_address|default:"bhojrajupadhayay2001@gmail.com" }}</p>
+                        <p class="footer-contact-info"><i class="fas fa-envelope"></i> {{ site_config.email_address|default:"upadhayaybhojraj@gmail.com" }}</p>
                         <div class="footer-socials">
                             {% if site_config.github_url %}
                             <a href="{{ site_config.github_url }}" target="_blank" title="GitHub" class="magnetic-wrap"><i class="fab fa-github"></i></a>
@@ -323,9 +324,10 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; {% now "Y" %} {{ site_config.footer_text|default:"Bhoj Raj Upadhayay. Engineered with Precision &amp; Soul." }}</p>
+                <p>&copy; {% now "Y" %} {{ site_config.footer_text|default:"Bhoj Raj Upadhayay. Engineered for Excellence. My elder father call me Rajabhoj" }}</p>
                 <p style="color: var(--text-muted); font-size: 0.8rem;">Synthesized with Django &amp; Modern UI/UX</p>
             </div>
+
         </div>
     </footer>
 
