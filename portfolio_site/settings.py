@@ -156,17 +156,15 @@ LOGOUT_REDIRECT_URL = 'public_portal:home'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Production Security (activated when DEBUG=False and DISABLE_SSL_REDIRECT is not True)
+# Production Security Settings (SSL handled cleanly by cPanel / Cloudflare / Apache)
 if not DEBUG and os.environ.get('DISABLE_SSL_REDIRECT', 'False') != 'True':
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_HSTS_SECONDS = 31536000  # 1 year
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
-    X_FRAME_OPTIONS = 'DENY'
+    X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 
 # Jazzmin Admin Theme Configuration
 JAZZMIN_SETTINGS = {
