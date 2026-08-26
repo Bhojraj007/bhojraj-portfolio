@@ -124,6 +124,26 @@
                 <p>IbiSAP Modules</p>
             </div>
         </a>
+
+        <a href="{% url 'private_portal:sm_ibisap_screenshot_list' %}" class="sm-stat-card reveal">
+            <div class="sm-stat-icon" style="background: rgba(249, 205, 5, 0.15); color: #F9CD05;">
+                <i class="fas fa-desktop"></i>
+            </div>
+            <div class="sm-stat-info">
+                <h3>{{ screenshot_count }}</h3>
+                <p>IbiSAP Interfaces</p>
+            </div>
+        </a>
+
+        <a href="{% url 'private_portal:sm_ibisap_comparison_list' %}" class="sm-stat-card reveal">
+            <div class="sm-stat-icon" style="background: rgba(16, 185, 129, 0.15); color: #10B981;">
+                <i class="fas fa-table"></i>
+            </div>
+            <div class="sm-stat-info">
+                <h3>{{ comparison_count }}</h3>
+                <p>Comparison Specs</p>
+            </div>
+        </a>
     </div>
 
     <!-- Quick Actions Panel -->
@@ -132,33 +152,36 @@
             <h2><i class="fas fa-bolt" style="color: #F9CD05;"></i> Quick CMS Actions</h2>
         </div>
         <div style="padding: 1.5rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.9rem;">
+            <a href="{% url 'private_portal:sm_ibisap_config_edit' %}" class="sm-add-btn" style="justify-content: center; background: linear-gradient(135deg, #F9CD05, #eab308); color: #121A17; font-weight: 800;">
+                <i class="fas fa-layer-group"></i> Edit IbiSAP Content &amp; Pricing
+            </a>
             <a href="{% url 'private_portal:blog_add' %}" class="sm-add-btn" style="justify-content: center; background: linear-gradient(135deg, #c084fc, #a855f7);">
                 <i class="fas fa-pen-nib"></i> Publish Poem / Article
             </a>
-
             <a href="{% url 'private_portal:sm_project_add' %}" class="sm-add-btn" style="justify-content: center; background: linear-gradient(135deg, #38bdf8, #0284c7);">
                 <i class="fas fa-plus"></i> Add Engineered Project
             </a>
             <a href="{% url 'private_portal:site_config_edit' %}" class="sm-add-btn" style="justify-content: center; background: linear-gradient(135deg, #10B981, #059669);">
                 <i class="fas fa-sliders-h"></i> Edit Global Config
             </a>
-            <a href="{% url 'private_portal:sm_skill_add' %}" class="sm-add-btn" style="justify-content: center; background: rgba(249, 205, 5, 0.15); border: 1px solid rgba(249, 205, 5, 0.4); color: #F9CD05;">
-                <i class="fas fa-plus"></i> Add Skill
+            <a href="{% url 'private_portal:sm_ibisap_screenshot_add' %}" class="sm-add-btn" style="justify-content: center; background: rgba(249, 205, 5, 0.15); border: 1px solid rgba(249, 205, 5, 0.4); color: #F9CD05;">
+                <i class="fas fa-plus"></i> Add IbiSAP Interface
             </a>
-            <a href="{% url 'private_portal:sm_experience_add' %}" class="sm-add-btn" style="justify-content: center; background: rgba(255, 255, 255, 0.06); color: #ffffff;">
-                <i class="fas fa-plus"></i> Add Experience
-            </a>
-            <a href="{% url 'private_portal:sm_gallery_add' %}" class="sm-add-btn" style="justify-content: center; background: rgba(236, 72, 153, 0.15); border: 1px solid rgba(236, 72, 153, 0.4); color: #ec4899;">
-                <i class="fas fa-plus"></i> Add Gallery Item
+            <a href="{% url 'private_portal:sm_ibisap_comparison_add' %}" class="sm-add-btn" style="justify-content: center; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #10B981;">
+                <i class="fas fa-plus"></i> Add Comparison Row
             </a>
             <a href="{% url 'private_portal:sm_ibisap_module_add' %}" class="sm-add-btn" style="justify-content: center; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8;">
                 <i class="fas fa-plus"></i> Add IbiSAP Module
+            </a>
+            <a href="{% url 'private_portal:sm_skill_add' %}" class="sm-add-btn" style="justify-content: center; background: rgba(255, 255, 255, 0.06); color: #ffffff;">
+                <i class="fas fa-plus"></i> Add Skill
             </a>
             <a href="{% url 'private_portal:sm_inquiry_list' %}" class="sm-cancel-btn" style="justify-content: center; border-color: rgba(249, 205, 5, 0.4); color: #F9CD05;">
                 <i class="fas fa-inbox"></i> View All Inquiries
             </a>
         </div>
     </div>
+
 
     <!-- Recent Inquiries & Demo Requests Stream -->
     <div class="sm-table-wrap reveal">

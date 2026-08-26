@@ -11,9 +11,13 @@ from .models import (
     ContactMessage, 
     GalleryItem, 
     IbiSAPModule,
+    IbiSAPConfiguration,
+    IbiSAPScreenshot,
+    IbiSAPComparisonRow,
     SiteConfiguration,
     VisitorLog
 )
+
 
 def record_identified_lead(request, name, email, phone, inquiry_type, path):
     try:
@@ -264,11 +268,41 @@ def ibisap(request):
 
 
     modules = IbiSAPModule.objects.all().order_by('order', 'id')
+    ibisap_config = IbiSAPConfiguration.objects.first()
+    if not ibisap_config:
+        ibisap_config = IbiSAPConfiguration.objects.create()
+
+    # Parse features into title/desc pairs
+    ent_features = []
+    for line in (ibisap_config.enterprise_features or '').splitlines():
+        if ':' in line:
+            title, desc = line.split(':', 1)
+            ent_features.append({'title': title.strip(), 'desc': desc.strip()})
+        elif line.strip():
+            ent_features.append({'title': line.strip(), 'desc': ''})
+
+    ret_features = []
+    for line in (ibisap_config.retail_features or '').splitlines():
+        if ':' in line:
+            title, desc = line.split(':', 1)
+            ret_features.append({'title': title.strip(), 'desc': desc.strip()})
+        elif line.strip():
+            ret_features.append({'title': line.strip(), 'desc': ''})
+
+    screenshots = IbiSAPScreenshot.objects.filter(is_active=True).order_by('order', 'id')
+    comparison_rows = IbiSAPComparisonRow.objects.all().order_by('order', 'id')
     config = SiteConfiguration.objects.first()
+
     return render(request, 'public_portal/ibisap.html', {
         'modules': modules,
+        'ibisap_config': ibisap_config,
+        'ent_features': ent_features,
+        'ret_features': ret_features,
+        'screenshots': screenshots,
+        'comparison_rows': comparison_rows,
         'site_config': config,
     })
+
 
 
 

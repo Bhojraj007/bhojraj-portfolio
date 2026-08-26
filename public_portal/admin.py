@@ -1,8 +1,63 @@
 from django.contrib import admin
-from .models import Skill, Experience, Education, Project, ContactMessage, GalleryItem, IbiSAPModule, SiteConfiguration
+from .models import (
+    Skill, Experience, Education, Project, ContactMessage, GalleryItem, 
+    IbiSAPModule, IbiSAPConfiguration, IbiSAPScreenshot, IbiSAPComparisonRow, SiteConfiguration, VisitorLog
+)
+
+@admin.register(IbiSAPConfiguration)
+class IbiSAPConfigurationAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ("Hero Showcase", {
+            "fields": ("hero_badge", "hero_title", "hero_description", "live_sandbox_url", "live_sandbox_btn_text")
+        }),
+        ("4 Telemetry Metric Highlights", {
+            "fields": (
+                ("metric_1_val", "metric_1_lbl"),
+                ("metric_2_val", "metric_2_lbl"),
+                ("metric_3_val", "metric_3_lbl"),
+                ("metric_4_val", "metric_4_lbl"),
+            )
+        }),
+        ("Enterprise Edition Topologies", {
+            "fields": ("enterprise_title", "enterprise_tagline", "enterprise_desc", "enterprise_features")
+        }),
+        ("Retail Cloud SaaS Topologies", {
+            "fields": ("retail_title", "retail_tagline", "retail_desc", "retail_features")
+        }),
+        ("Call To Action Section", {
+            "fields": ("cta_headline", "cta_subheadline")
+        }),
+    )
+
+    def has_add_permission(self, request):
+        return not IbiSAPConfiguration.objects.exists()
+
+
+@admin.register(IbiSAPScreenshot)
+class IbiSAPScreenshotAdmin(admin.ModelAdmin):
+    list_display = ('title', 'category_tag', 'order', 'is_active')
+    list_editable = ('order', 'is_active')
+    search_fields = ('title', 'category_tag', 'description')
+
+
+@admin.register(IbiSAPComparisonRow)
+class IbiSAPComparisonRowAdmin(admin.ModelAdmin):
+    list_display = ('feature_name', 'order')
+    list_editable = ('order',)
+    search_fields = ('feature_name', 'enterprise_value', 'retail_value')
+
+
+@admin.register(VisitorLog)
+class VisitorLogAdmin(admin.ModelAdmin):
+    list_display = ('ip_address', 'visitor_name', 'visitor_email', 'path', 'device_type', 'country', 'is_lead', 'created_at')
+    list_filter = ('is_lead', 'device_type', 'country', 'created_at')
+    search_fields = ('ip_address', 'visitor_name', 'visitor_email', 'path', 'city', 'country')
+    readonly_fields = ('ip_address', 'session_key', 'user_agent', 'path', 'referrer_domain', 'device_type', 'browser', 'os', 'country', 'city', 'created_at')
+
 
 @admin.register(SiteConfiguration)
 class SiteConfigurationAdmin(admin.ModelAdmin):
+
     fieldsets = (
         ("Brand Identity", {
             "fields": ("brand_name",)

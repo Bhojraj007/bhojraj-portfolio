@@ -107,11 +107,27 @@ urlpatterns = [
     path('site-manager/gallery/<int:pk>/edit/', views.SmGalleryUpdateView.as_view(), name='sm_gallery_edit'),
     path('site-manager/gallery/<int:pk>/delete/', views.SmGalleryDeleteView.as_view(), name='sm_gallery_delete'),
 
+    # IbiSAP Dynamic Ecosystem CRUD
+    path('site-manager/ibisap-config/', views.SmIbiSAPConfigEditView.as_view(), name='sm_ibisap_config_edit'),
+
     # IbiSAP Modules CRUD
     path('site-manager/ibisap-modules/', views.SmIbiSAPModuleListView.as_view(), name='sm_ibisap_module_list'),
     path('site-manager/ibisap-modules/add/', views.SmIbiSAPModuleCreateView.as_view(), name='sm_ibisap_module_add'),
     path('site-manager/ibisap-modules/<int:pk>/edit/', views.SmIbiSAPModuleUpdateView.as_view(), name='sm_ibisap_module_edit'),
     path('site-manager/ibisap-modules/<int:pk>/delete/', views.SmIbiSAPModuleDeleteView.as_view(), name='sm_ibisap_module_delete'),
+
+    # IbiSAP Screenshots Showcase CRUD
+    path('site-manager/ibisap-screenshots/', views.SmIbiSAPScreenshotListView.as_view(), name='sm_ibisap_screenshot_list'),
+    path('site-manager/ibisap-screenshots/add/', views.SmIbiSAPScreenshotCreateView.as_view(), name='sm_ibisap_screenshot_add'),
+    path('site-manager/ibisap-screenshots/<int:pk>/edit/', views.SmIbiSAPScreenshotUpdateView.as_view(), name='sm_ibisap_screenshot_edit'),
+    path('site-manager/ibisap-screenshots/<int:pk>/delete/', views.SmIbiSAPScreenshotDeleteView.as_view(), name='sm_ibisap_screenshot_delete'),
+
+    # IbiSAP Comparison Matrix CRUD
+    path('site-manager/ibisap-comparison/', views.SmIbiSAPComparisonListView.as_view(), name='sm_ibisap_comparison_list'),
+    path('site-manager/ibisap-comparison/add/', views.SmIbiSAPComparisonCreateView.as_view(), name='sm_ibisap_comparison_add'),
+    path('site-manager/ibisap-comparison/<int:pk>/edit/', views.SmIbiSAPComparisonUpdateView.as_view(), name='sm_ibisap_comparison_edit'),
+    path('site-manager/ibisap-comparison/<int:pk>/delete/', views.SmIbiSAPComparisonDeleteView.as_view(), name='sm_ibisap_comparison_delete'),
+
 
     # Inquiries (Read-only)
     path('site-manager/inquiries/', views.SmInquiryListView.as_view(), name='sm_inquiry_list'),

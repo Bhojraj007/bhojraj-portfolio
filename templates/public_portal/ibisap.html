@@ -1,9 +1,9 @@
 {% extends "public_portal/base.html" %}
 {% load static %}
 
-{% block title %}IbiSAP ERP — Nepal's Compliant SAP Business One Alternative | Bhoj Raj Upadhayay{% endblock %}
+{% block title %}{{ ibisap_config.hero_title|default:"IbiSAP ERP — Nepal's Compliant SAP Business One Alternative" }} | Bhoj Raj Upadhayay{% endblock %}
 {% block og_title %}IbiSAP ERP — High-Performance Enterprise ERP for Nepal{% endblock %}
-{% block og_description %}On-premises & Multi-Tenant Cloud ERP engineered with native Nepali Miti, IRD CBMS sync, and NRB IT security compliance.{% endblock %}
+{% block og_description %}{{ ibisap_config.hero_description|truncatechars:180 }}{% endblock %}
 
 {% block content %}
 <div class="ibisap-luxury-page">
@@ -14,16 +14,15 @@
         <div class="ambient-light-2" style="background: radial-gradient(circle, rgba(249, 205, 5, 0.15) 0%, transparent 70%);"></div>
 
         <span class="badge" style="background: rgba(249, 205, 5, 0.1); border-color: rgba(249, 205, 5, 0.35); color: #F9CD05;">
-            <i class="fas fa-certificate"></i> Certified Nepal ERP &bull; NRB &amp; IRD CBMS Ready
+            <i class="fas fa-certificate"></i> {{ ibisap_config.hero_badge|default:"Certified Nepal ERP • NRB & IRD CBMS Ready" }}
         </span>
 
         <h1 class="reveal-text" style="font-size: 3.8rem; font-family: 'Outfit', sans-serif; font-weight: 900; line-height: 1.15; margin: 1rem 0;">
-            The Intelligent ERP for <br>
-            <span class="gradient-text-alt">Nepal's Regulated Enterprises</span>
+            {{ ibisap_config.hero_title|default:"The Intelligent ERP for Nepal's Regulated Enterprises"|linebreaksbr }}
         </h1>
 
         <p class="ibisap-hero-p">
-            A high-performance, cost-effective alternative to SAP Business One. Built specifically for regulated Microfinance Institutions (MFIs), Cooperatives, Manufacturers, and Multi-Branch Retail Chains across Nepal.
+            {{ ibisap_config.hero_description }}
         </p>
 
         <div class="ibisap-hero-cta-group">
@@ -32,11 +31,13 @@
                     <i class="fas fa-desktop"></i> Request a Live Demo
                 </a>
             </div>
+            {% if ibisap_config.live_sandbox_url %}
             <div class="magnetic-wrap">
-                <a href="https://ibisap.rajabhoj.com.np/login/?next=/" target="_blank" rel="noopener noreferrer" class="btn-blog-glow">
-                    <i class="fas fa-external-link-alt"></i> Launch Live Cloud Sandbox
+                <a href="{{ ibisap_config.live_sandbox_url }}" target="_blank" rel="noopener noreferrer" class="btn-blog-glow">
+                    <i class="fas fa-external-link-alt"></i> {{ ibisap_config.live_sandbox_btn_text|default:"Launch Live Cloud Sandbox" }}
                 </a>
             </div>
+            {% endif %}
             <div class="magnetic-wrap">
                 <a href="#comparison" class="skill-pill" style="text-decoration: none;">
                     <i class="fas fa-balance-scale"></i> Compare vs SAP B1
@@ -47,20 +48,20 @@
         <!-- Telemetry Highlights Strip -->
         <div class="ibisap-metrics-strip reveal-up">
             <div class="ibisap-metric-card">
-                <span class="m-val" style="color: #F9CD05;">80%</span>
-                <span class="m-lbl"><i class="fas fa-coins"></i> Lower TCO vs SAP B1</span>
+                <span class="m-val" style="color: #F9CD05;">{{ ibisap_config.metric_1_val|default:"80%" }}</span>
+                <span class="m-lbl"><i class="fas fa-coins"></i> {{ ibisap_config.metric_1_lbl|default:"Lower TCO vs SAP B1" }}</span>
             </div>
             <div class="ibisap-metric-card">
-                <span class="m-val" style="color: #10B981;">100%</span>
-                <span class="m-lbl"><i class="fas fa-shield-alt"></i> NRB IT Guidelines Compliant</span>
+                <span class="m-val" style="color: #10B981;">{{ ibisap_config.metric_2_val|default:"100%" }}</span>
+                <span class="m-lbl"><i class="fas fa-shield-alt"></i> {{ ibisap_config.metric_2_lbl|default:"NRB IT Guidelines Compliant" }}</span>
             </div>
             <div class="ibisap-metric-card">
-                <span class="m-val" style="color: #38bdf8;">v2.0</span>
-                <span class="m-lbl"><i class="fas fa-file-invoice-dollar"></i> IRD CBMS Certified Sync</span>
+                <span class="m-val" style="color: #38bdf8;">{{ ibisap_config.metric_3_val|default:"v2.0" }}</span>
+                <span class="m-lbl"><i class="fas fa-file-invoice-dollar"></i> {{ ibisap_config.metric_3_lbl|default:"IRD CBMS Certified Sync" }}</span>
             </div>
             <div class="ibisap-metric-card">
-                <span class="m-val" style="color: #F9CD05;">2081</span>
-                <span class="m-lbl"><i class="fas fa-calendar-alt"></i> Native Nepali Miti (Bikram Sambat)</span>
+                <span class="m-val" style="color: #F9CD05;">{{ ibisap_config.metric_4_val|default:"2081" }}</span>
+                <span class="m-lbl"><i class="fas fa-calendar-alt"></i> {{ ibisap_config.metric_4_lbl|default:"Native Nepali Miti (Bikram Sambat)" }}</span>
             </div>
         </div>
     </section>
@@ -74,62 +75,30 @@
         </div>
 
         <div class="ibisap-screenshots-grid reveal-up">
-            <div class="screenshot-card" onclick="openDemoLightbox('/static/gallery/ibisap-dashboard.png', 'Executive Analytics Dashboard', 'Real-time liquidity monitoring, GL summaries, and branch performance indicators.')">
+            {% for ss in screenshots %}
+            <div class="screenshot-card" onclick="openDemoLightbox('{{ ss.image_url }}', '{{ ss.title|escapejs }}', '{{ ss.description|escapejs }}')">
                 <div class="item-terminal-header">
                     <div class="terminal-dots">
                         <span class="dot dot-red"></span>
                         <span class="dot dot-yellow"></span>
                         <span class="dot dot-green"></span>
                     </div>
-                    <span class="item-category-pill">Executive Analytics</span>
+                    <span class="item-category-pill">{{ ss.category_tag|default:"Showcase" }}</span>
                 </div>
                 <div class="ss-img-wrap">
-                    <img src="/static/gallery/ibisap-dashboard.png" alt="IbiSAP Analytics Dashboard" loading="lazy">
-                    <div class="ss-overlay"><i class="fas fa-search-plus"></i> Inspect Dashboard</div>
+                    <img src="{{ ss.image_url }}" alt="{{ ss.title }}" loading="lazy">
+                    <div class="ss-overlay"><i class="fas fa-search-plus"></i> Inspect Interface</div>
                 </div>
                 <div class="ss-footer">
-                    <h4>Executive Analytics Dashboard</h4>
-                    <p>Real-time liquidity, general ledger balance, and multi-branch transaction feed.</p>
+                    <h4>{{ ss.title }}</h4>
+                    <p>{{ ss.description|truncatechars:120 }}</p>
                 </div>
             </div>
-
-            <div class="screenshot-card" onclick="openDemoLightbox('/static/gallery/ibisap-pos.png', 'Retail Cloud POS & High-Speed Billing', 'Fast thermal receipt printing, barcode scanning, and Fonepay QR integration.')">
-                <div class="item-terminal-header">
-                    <div class="terminal-dots">
-                        <span class="dot dot-red"></span>
-                        <span class="dot dot-yellow"></span>
-                        <span class="dot dot-green"></span>
-                    </div>
-                    <span class="item-category-pill">Retail Cloud POS</span>
-                </div>
-                <div class="ss-img-wrap">
-                    <img src="/static/gallery/ibisap-pos.png" alt="IbiSAP Cloud POS" loading="lazy">
-                    <div class="ss-overlay"><i class="fas fa-search-plus"></i> Inspect POS Terminal</div>
-                </div>
-                <div class="ss-footer">
-                    <h4>Retail Cloud POS &amp; Billing</h4>
-                    <p>Sub-second barcode scanning, dual currency, discounts, and instant receipt generation.</p>
-                </div>
+            {% empty %}
+            <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 2rem;">
+                <p>No screenshots uploaded yet. Add them in <a href="{% url 'private_portal:sm_ibisap_screenshot_list' %}" style="color: #F9CD05;">Site Manager</a>.</p>
             </div>
-
-            <div class="screenshot-card" onclick="openDemoLightbox('/static/gallery/ibisap-nepali-miti.png', 'Nepali Miti & IRD CBMS Module', 'Bi-directional Bikram Sambat calendar and real-time VAT billing synchronization.')">
-                <div class="item-terminal-header">
-                    <div class="terminal-dots">
-                        <span class="dot dot-red"></span>
-                        <span class="dot dot-yellow"></span>
-                        <span class="dot dot-green"></span>
-                    </div>
-                    <span class="item-category-pill">IRD Compliance</span>
-                </div>
-                <div class="ss-img-wrap">
-                    <img src="/static/gallery/ibisap-nepali-miti.png" alt="Nepali Miti & CBMS" loading="lazy">
-                    <div class="ss-overlay"><i class="fas fa-search-plus"></i> Inspect Compliance</div>
-                </div>
-                <div class="ss-footer">
-                    <h4>Nepali Miti &amp; IRD CBMS Engine</h4>
-                    <p>Shrawan 1 to Ashadh 31 fiscal periods with automated IRD API retry queues.</p>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </section>
 
@@ -154,49 +123,23 @@
                 </div>
 
                 <div class="edition-content-box">
-                    <h3 class="edition-title">Enterprise IbiSAP</h3>
-                    <span class="edition-tagline">Engineered for Institutions Requiring Strict Data Sovereignty</span>
+                    <h3 class="edition-title">{{ ibisap_config.enterprise_title|default:"Enterprise IbiSAP" }}</h3>
+                    <span class="edition-tagline">{{ ibisap_config.enterprise_tagline }}</span>
                     
                     <p class="edition-desc">
-                        Designed for regulated microfinance institutions (MFIs), cooperatives, hospitals, and large enterprises requiring NRB IT compliance, dedicated PostgreSQL/SQL HANA database servers, and maker-checker workflows.
+                        {{ ibisap_config.enterprise_desc }}
                     </p>
 
                     <ul class="edition-checklist">
+                        {% for f in ent_features %}
                         <li>
                             <i class="fas fa-check-circle"></i>
                             <div>
-                                <strong>On-Premises &amp; Private Cloud Deployment</strong>
-                                <span>Complete data sovereignty on your physical hardware or dedicated private virtual cluster.</span>
+                                <strong>{{ f.title }}</strong>
+                                {% if f.desc %}<span>{{ f.desc }}</span>{% endif %}
                             </div>
                         </li>
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            <div>
-                                <strong>NRB IT Security Guidelines Compliant</strong>
-                                <span>Granular RBAC, dual-authorization (maker-checker), automated DRP backups, and immutable audit logs.</span>
-                            </div>
-                        </li>
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            <div>
-                                <strong>Native Nepali Miti (Bikram Sambat) Engine</strong>
-                                <span>Dual-calendar fiscal accounting (Shrawan 1 to Ashadh 31) with bi-directional AD/BS conversion.</span>
-                            </div>
-                        </li>
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            <div>
-                                <strong>Certified IRD CBMS Real-Time Invoicing</strong>
-                                <span>Direct REST API synchronization with the Inland Revenue Department with offline failover queues.</span>
-                            </div>
-                        </li>
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            <div>
-                                <strong>Dedicated PostgreSQL / SQL HANA Instance</strong>
-                                <span>Pessimistic row-level locking (`select_for_update`) guaranteeing ledger transaction consistency.</span>
-                            </div>
-                        </li>
+                        {% endfor %}
                     </ul>
 
                     <div class="edition-footer-action">
@@ -219,49 +162,23 @@
                 </div>
 
                 <div class="edition-content-box">
-                    <h3 class="edition-title">Retail IbiSAP SaaS</h3>
-                    <span class="edition-tagline">Zero DevOps Overhead for Retail Chains &amp; Distributors</span>
+                    <h3 class="edition-title">{{ ibisap_config.retail_title|default:"Retail IbiSAP SaaS" }}</h3>
+                    <span class="edition-tagline">{{ ibisap_config.retail_tagline }}</span>
                     
                     <p class="edition-desc">
-                        Built for retail stores, supermarkets, pharmacies, and distributors who want enterprise-grade billing, inventory, and accounting with instant 60-second onboarding and zero hardware maintenance.
+                        {{ ibisap_config.retail_desc }}
                     </p>
 
                     <ul class="edition-checklist">
+                        {% for f in ret_features %}
                         <li>
                             <i class="fas fa-check-circle"></i>
                             <div>
-                                <strong>Isolated Multi-Tenant Architecture</strong>
-                                <span>Centralized application master with isolated schema/database segregation for every registered tenant.</span>
+                                <strong>{{ f.title }}</strong>
+                                {% if f.desc %}<span>{{ f.desc }}</span>{% endif %}
                             </div>
                         </li>
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            <div>
-                                <strong>High-Speed Point of Sale (POS) &amp; Barcode</strong>
-                                <span>Sub-second barcode scanning, thermal slip printing, loyalty discounts, and integrated Fonepay QR.</span>
-                            </div>
-                        </li>
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            <div>
-                                <strong>Multi-Branch Inventory &amp; Expiry Alerts</strong>
-                                <span>Real-time stock valuation across warehouses with batch-level expiry monitoring and automated reorders.</span>
-                            </div>
-                        </li>
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            <div>
-                                <strong>Zero DevOps Maintenance &amp; Automated Backups</strong>
-                                <span>Continuous encrypted cloud snapshots, 99.9% availability, and automatic seamless version upgrades.</span>
-                            </div>
-                        </li>
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            <div>
-                                <strong>Instant 60-Second Onboarding</strong>
-                                <span>Sign up and start generating invoices immediately on any browser, tablet, or POS terminal.</span>
-                            </div>
-                        </li>
+                        {% endfor %}
                     </ul>
 
                     <div class="edition-footer-action">
@@ -287,46 +204,22 @@
                 <thead>
                     <tr>
                         <th style="width: 25%;">Feature / Specification</th>
-                        <th style="width: 37.5%; color: #10B981;"><i class="fas fa-server"></i> Enterprise IbiSAP</th>
-                        <th style="width: 37.5%; color: #F9CD05;"><i class="fas fa-cloud"></i> Retail IbiSAP SaaS</th>
+                        <th style="width: 37.5%; color: #10B981;"><i class="fas fa-server"></i> {{ ibisap_config.enterprise_title|default:"Enterprise IbiSAP" }}</th>
+                        <th style="width: 37.5%; color: #F9CD05;"><i class="fas fa-cloud"></i> {{ ibisap_config.retail_title|default:"Retail IbiSAP SaaS" }}</th>
                     </tr>
                 </thead>
                 <tbody>
+                    {% for row in comparison_rows %}
                     <tr>
-                        <td><strong>Hosting &amp; Topology</strong></td>
-                        <td>On-Premises Server or Dedicated Private Cloud</td>
-                        <td>100% Fully Managed Multi-Tenant Cloud SaaS</td>
+                        <td><strong>{{ row.feature_name }}</strong></td>
+                        <td>{{ row.enterprise_value }}</td>
+                        <td>{{ row.retail_value }}</td>
                     </tr>
+                    {% empty %}
                     <tr>
-                        <td><strong>Pricing &amp; License Model</strong></td>
-                        <td>One-Time Perpetual License + Custom Annual SLA (Fraction of SAP B1)</td>
-                        <td>Predictable Monthly / Annual Subscription per Branch</td>
+                        <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 2rem;">No comparison matrix rows added yet.</td>
                     </tr>
-                    <tr>
-                        <td><strong>Regulatory Compliance</strong></td>
-                        <td>Full NRB Unified Directives + Real-Time IRD CBMS Sync</td>
-                        <td>Native Nepali Miti + IRD Approved Sales Invoicing</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Bespoke Customization</strong></td>
-                        <td>100% Tailored Modules, Custom APIs &amp; Legacy Migrations</td>
-                        <td>Pre-configured modular settings with instant activation</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Database Engine</strong></td>
-                        <td>Dedicated PostgreSQL / SQL HANA instance with Row-Level Locking</td>
-                        <td>Isolated Schema per Tenant (Automated Provisioning)</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Infrastructure Maintenance</strong></td>
-                        <td>Managed internally or via dedicated 24/7 SLA</td>
-                        <td>Zero maintenance required; automatic rolling cloud updates</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Ideal Implementation</strong></td>
-                        <td><strong>Regulated MFIs, Cooperatives, Hospitals, Mid-Enterprises</strong></td>
-                        <td><strong>Retail Chains, Wholesalers, Distributors, Supermarkets</strong></td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -367,8 +260,8 @@
     <section id="demo" class="section-container" style="padding-bottom: 6rem;">
         <div class="section-header-wrap text-center">
             <span class="section-kicker"><i class="fas fa-calendar-check"></i> Enterprise Sandbox</span>
-            <h2 class="section-title">Request a Live Demo &amp; Proposal</h2>
-            <p class="section-subtitle">Coordinate a live architectural walkthrough with sample dataset testing tailored to your institution.</p>
+            <h2 class="section-title">{{ ibisap_config.cta_headline|default:"Request a Live Demo & Proposal" }}</h2>
+            <p class="section-subtitle">{{ ibisap_config.cta_subheadline|default:"Coordinate a live architectural walkthrough with sample dataset testing tailored to your institution." }}</p>
         </div>
 
         <div class="transmission-form-terminal reveal-up" style="max-width: 860px; margin: 0 auto;">

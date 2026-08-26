@@ -18,9 +18,15 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordChangeView
 from django.contrib import messages
-from django.core import serializers
+
 from .models import Photo, Video, DashboardSettings, Post, Blog, Todo, Comment, MoodLog, DailyIntention, GratitudeLog, Message, Reaction, Bookmark, PinnedPost, Follow, Notification, Moment, Transaction
-from public_portal.models import Skill, Experience, Education, Project, ContactMessage, GalleryItem, IbiSAPModule, SiteConfiguration, VisitorLog
+from public_portal.models import (
+    Skill, Experience, Education, Project, ContactMessage, GalleryItem, 
+    IbiSAPModule, IbiSAPConfiguration, IbiSAPScreenshot, IbiSAPComparisonRow, SiteConfiguration, VisitorLog
+)
+
+
+
 
 User = get_user_model()
 
@@ -1236,12 +1242,15 @@ class SiteManagerView(StaffRequiredMixin, TemplateView):
         context['project_count'] = Project.objects.count()
         context['gallery_count'] = GalleryItem.objects.count()
         context['module_count'] = IbiSAPModule.objects.count()
+        context['screenshot_count'] = IbiSAPScreenshot.objects.count()
+        context['comparison_count'] = IbiSAPComparisonRow.objects.count()
         context['inquiry_count'] = ContactMessage.objects.count()
         context['recent_inquiries'] = ContactMessage.objects.all()[:5]
         context['config'] = SiteConfiguration.objects.first()
         context['visitor_count'] = VisitorLog.objects.count()
         context['lead_count'] = VisitorLog.objects.filter(is_lead=True).count()
         return context
+
 
 
 
@@ -1647,6 +1656,163 @@ class SmIbiSAPModuleDeleteView(StaffRequiredMixin, DeleteView):
         context['content_title'] = 'IbiSAP Module'
         context['back_url'] = 'private_portal:sm_ibisap_module_list'
         return context
+
+
+# ================================================================
+#  IBISAP GLOBAL CONFIGURATION & PRICING
+# ================================================================
+class SmIbiSAPConfigEditView(StaffRequiredMixin, UpdateView):
+    model = IbiSAPConfiguration
+    fields = [
+        'hero_badge', 'hero_title', 'hero_description', 'live_sandbox_url', 'live_sandbox_btn_text',
+        'metric_1_val', 'metric_1_lbl',
+        'metric_2_val', 'metric_2_lbl',
+        'metric_3_val', 'metric_3_lbl',
+        'metric_4_val', 'metric_4_lbl',
+        'enterprise_title', 'enterprise_tagline', 'enterprise_desc', 'enterprise_features',
+        'retail_title', 'retail_tagline', 'retail_desc', 'retail_features',
+        'cta_headline', 'cta_subheadline'
+    ]
+    template_name = 'private_portal/site_manager/content_form.html'
+    success_url = reverse_lazy('private_portal:site_manager')
+
+    def get_object(self, queryset=None):
+        obj = IbiSAPConfiguration.objects.first()
+        if not obj:
+            obj = IbiSAPConfiguration.objects.create()
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['content_title'] = 'IbiSAP ERP Global Content & Pricing Topologies'
+        context['content_icon'] = 'fas fa-sliders-h'
+        context['back_url'] = 'private_portal:site_manager'
+        context['is_edit'] = True
+        return context
+
+
+# ================================================================
+#  IBISAP SCREENSHOTS SHOWCASE
+# ================================================================
+class SmIbiSAPScreenshotListView(StaffRequiredMixin, ListView):
+    model = IbiSAPScreenshot
+    template_name = 'private_portal/site_manager/content_list.html'
+    context_object_name = 'items'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['content_title'] = 'IbiSAP Interface Showcase'
+        context['content_icon'] = 'fas fa-desktop'
+        context['add_url'] = 'private_portal:sm_ibisap_screenshot_add'
+        context['edit_url'] = 'private_portal:sm_ibisap_screenshot_edit'
+        context['delete_url'] = 'private_portal:sm_ibisap_screenshot_delete'
+        context['columns'] = ['Title', 'Category', 'Description', 'Order', 'Active']
+        context['fields'] = ['title', 'category_tag', 'description', 'order', 'is_active']
+        return context
+
+
+class SmIbiSAPScreenshotCreateView(StaffRequiredMixin, CreateView):
+    model = IbiSAPScreenshot
+    fields = ['title', 'category_tag', 'description', 'image', 'static_image_path', 'order', 'is_active']
+    template_name = 'private_portal/site_manager/content_form.html'
+    success_url = reverse_lazy('private_portal:sm_ibisap_screenshot_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['content_title'] = 'Add IbiSAP Interface Showcase'
+        context['content_icon'] = 'fas fa-desktop'
+        context['back_url'] = 'private_portal:sm_ibisap_screenshot_list'
+        return context
+
+
+class SmIbiSAPScreenshotUpdateView(StaffRequiredMixin, UpdateView):
+    model = IbiSAPScreenshot
+    fields = ['title', 'category_tag', 'description', 'image', 'static_image_path', 'order', 'is_active']
+    template_name = 'private_portal/site_manager/content_form.html'
+    success_url = reverse_lazy('private_portal:sm_ibisap_screenshot_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['content_title'] = 'Edit IbiSAP Interface Showcase'
+        context['content_icon'] = 'fas fa-desktop'
+        context['back_url'] = 'private_portal:sm_ibisap_screenshot_list'
+        context['is_edit'] = True
+        return context
+
+
+class SmIbiSAPScreenshotDeleteView(StaffRequiredMixin, DeleteView):
+    model = IbiSAPScreenshot
+    success_url = reverse_lazy('private_portal:sm_ibisap_screenshot_list')
+    template_name = 'private_portal/site_manager/confirm_delete.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['content_title'] = 'IbiSAP Interface'
+        context['back_url'] = 'private_portal:sm_ibisap_screenshot_list'
+        return context
+
+
+# ================================================================
+#  IBISAP COMPARISON MATRIX
+# ================================================================
+class SmIbiSAPComparisonListView(StaffRequiredMixin, ListView):
+    model = IbiSAPComparisonRow
+    template_name = 'private_portal/site_manager/content_list.html'
+    context_object_name = 'items'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['content_title'] = 'IbiSAP Comparison Matrix Rows'
+        context['content_icon'] = 'fas fa-table'
+        context['add_url'] = 'private_portal:sm_ibisap_comparison_add'
+        context['edit_url'] = 'private_portal:sm_ibisap_comparison_edit'
+        context['delete_url'] = 'private_portal:sm_ibisap_comparison_delete'
+        context['columns'] = ['Feature / Spec', 'Enterprise Value', 'Retail Value', 'Order']
+        context['fields'] = ['feature_name', 'enterprise_value', 'retail_value', 'order']
+        return context
+
+
+
+class SmIbiSAPComparisonCreateView(StaffRequiredMixin, CreateView):
+    model = IbiSAPComparisonRow
+    fields = ['feature_name', 'enterprise_value', 'retail_value', 'order']
+    template_name = 'private_portal/site_manager/content_form.html'
+    success_url = reverse_lazy('private_portal:sm_ibisap_comparison_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['content_title'] = 'Add Comparison Matrix Row'
+        context['content_icon'] = 'fas fa-table'
+        context['back_url'] = 'private_portal:sm_ibisap_comparison_list'
+        return context
+
+
+class SmIbiSAPComparisonUpdateView(StaffRequiredMixin, UpdateView):
+    model = IbiSAPComparisonRow
+    fields = ['feature_name', 'enterprise_value', 'retail_value', 'order']
+    template_name = 'private_portal/site_manager/content_form.html'
+    success_url = reverse_lazy('private_portal:sm_ibisap_comparison_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['content_title'] = 'Edit Comparison Matrix Row'
+        context['content_icon'] = 'fas fa-table'
+        context['back_url'] = 'private_portal:sm_ibisap_comparison_list'
+        context['is_edit'] = True
+        return context
+
+
+class SmIbiSAPComparisonDeleteView(StaffRequiredMixin, DeleteView):
+    model = IbiSAPComparisonRow
+    success_url = reverse_lazy('private_portal:sm_ibisap_comparison_list')
+    template_name = 'private_portal/site_manager/confirm_delete.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['content_title'] = 'Comparison Matrix Row'
+        context['back_url'] = 'private_portal:sm_ibisap_comparison_list'
+        return context
+
 
 
 # Contact Messages / Inquiries (Read-only)
