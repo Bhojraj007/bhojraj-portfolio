@@ -1,0 +1,309 @@
+{% extends "private_base.html" %}
+{% load static %}
+
+{% block title %}Visitor Intelligence, Leads & Monetization Analytics | Rajabhoj{% endblock %}
+
+{% block content %}
+<div class="sm-container" style="max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem;">
+
+    <!-- Header / Banner -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.4rem;">
+                <span class="user-status-pill" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); color: #10B981;">
+                    ● LIVE TELEMETRY SENSORS ACTIVE
+                </span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #F9CD05;">
+                    <i class="fas fa-satellite-dish"></i> IP &amp; LEAD INTELLIGENCE
+                </span>
+            </div>
+            <h1 style="font-size: 2rem; font-weight: 800; color: #ffffff; margin: 0; font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-chart-line" style="color: #F9CD05;"></i> Visitor Intelligence &amp; Monetization Hub
+            </h1>
+            <p style="color: var(--text-secondary); margin-top: 0.3rem; font-size: 0.95rem;">
+                Real-time visitor logs, lead identification (Gmail/Phone capture), traffic channels, and enterprise revenue pipeline.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.8rem; align-items: center;">
+            <a href="{% url 'private_portal:sm_inquiry_list' %}" class="btn-hire" style="padding: 0.65rem 1.3rem; font-size: 0.85rem;">
+                <i class="fas fa-inbox"></i> Inquiries ({{ inquiries_count }})
+            </a>
+            <a href="{% url 'private_portal:site_manager_dashboard' %}" class="skill-pill" style="text-decoration: none; padding: 0.65rem 1.2rem; font-size: 0.85rem;">
+                <i class="fas fa-cogs"></i> Site Manager
+            </a>
+        </div>
+    </div>
+
+    <!-- Telemetry Cards Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.2rem; margin-bottom: 2.2rem;">
+        
+        <!-- Total Hits -->
+        <div class="stat-card-box" style="background: rgba(26, 36, 33, 0.85); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 1.4rem; position: relative; overflow: hidden;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Total Pageviews</span>
+                    <div style="font-size: 2.2rem; font-weight: 900; color: #ffffff; font-family: 'JetBrains Mono', monospace; margin: 0.4rem 0;">{{ total_hits }}</div>
+                    <span style="font-size: 0.75rem; color: #10B981;"><i class="fas fa-clock"></i> {{ hits_24h }} in last 24h</span>
+                </div>
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); display: flex; align-items: center; justify-content: center; color: #38bdf8; font-size: 1.2rem;">
+                    <i class="fas fa-eye"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unique Visitors -->
+        <div class="stat-card-box" style="background: rgba(26, 36, 33, 0.85); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 1.4rem; position: relative; overflow: hidden;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Unique Visitors (IPs)</span>
+                    <div style="font-size: 2.2rem; font-weight: 900; color: #F9CD05; font-family: 'JetBrains Mono', monospace; margin: 0.4rem 0;">{{ unique_visitors }}</div>
+                    <span style="font-size: 0.75rem; color: #F9CD05;"><i class="fas fa-globe-asia"></i> Distinct Nodes</span>
+                </div>
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(249, 205, 5, 0.12); border: 1px solid rgba(249, 205, 5, 0.3); display: flex; align-items: center; justify-content: center; color: #F9CD05; font-size: 1.2rem;">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Live Now -->
+        <div class="stat-card-box" style="background: rgba(26, 36, 33, 0.85); border: 1.5px solid rgba(16, 185, 129, 0.3); border-radius: 16px; padding: 1.4rem; position: relative; overflow: hidden;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <span style="font-size: 0.78rem; font-weight: 700; color: #10B981; text-transform: uppercase; letter-spacing: 0.5px;">Active Right Now (15m)</span>
+                    <div style="font-size: 2.2rem; font-weight: 900; color: #10B981; font-family: 'JetBrains Mono', monospace; margin: 0.4rem 0;">{{ active_live }}</div>
+                    <span style="font-size: 0.75rem; color: var(--text-secondary);"><i class="fas fa-bolt"></i> Real-time Concurrency</span>
+                </div>
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: center; color: #10B981; font-size: 1.2rem;">
+                    <i class="fas fa-signal"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Identified Leads (Gmail Captured) -->
+        <div class="stat-card-box" style="background: rgba(26, 36, 33, 0.85); border: 1.5px solid rgba(168, 85, 247, 0.35); border-radius: 16px; padding: 1.4rem; position: relative; overflow: hidden;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <span style="font-size: 0.78rem; font-weight: 700; color: #c084fc; text-transform: uppercase; letter-spacing: 0.5px;">Captured Leads (Gmail)</span>
+                    <div style="font-size: 2.2rem; font-weight: 900; color: #c084fc; font-family: 'JetBrains Mono', monospace; margin: 0.4rem 0;">{{ total_leads_count }}</div>
+                    <span style="font-size: 0.75rem; color: #e9d5ff;"><i class="fas fa-user-check"></i> Form / Demo Submissions</span>
+                </div>
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.4); display: flex; align-items: center; justify-content: center; color: #c084fc; font-size: 1.2rem;">
+                    <i class="fas fa-id-card"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monetization Pipeline -->
+        <div class="stat-card-box" style="background: rgba(26, 36, 33, 0.85); border: 1.5px solid rgba(249, 205, 5, 0.4); border-radius: 16px; padding: 1.4rem; position: relative; overflow: hidden;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <span style="font-size: 0.78rem; font-weight: 700; color: #F9CD05; text-transform: uppercase; letter-spacing: 0.5px;">Est. Pipeline Value</span>
+                    <div style="font-size: 2.2rem; font-weight: 900; color: #F9CD05; font-family: 'JetBrains Mono', monospace; margin: 0.4rem 0;">${{ est_commercial_pipeline }}</div>
+                    <span style="font-size: 0.75rem; color: #10B981;"><i class="fas fa-hand-holding-usd"></i> {{ demo_count }} Enterprise Demos</span>
+                </div>
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(249, 205, 5, 0.15); border: 1px solid rgba(249, 205, 5, 0.4); display: flex; align-items: center; justify-content: center; color: #F9CD05; font-size: 1.2rem;">
+                    <i class="fas fa-coins"></i>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Section: Captured Leads & Identified Visitors -->
+    <div class="sm-form-card" style="margin-bottom: 2rem; padding: 1.8rem; background: rgba(26, 36, 33, 0.9); border: 1.5px solid rgba(249, 205, 5, 0.3); border-radius: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+                <h2 style="font-size: 1.25rem; font-weight: 800; color: #ffffff; margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-user-astronaut" style="color: #F9CD05;"></i> Captured Client Leads &amp; Gmail Records
+                </h2>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.2rem;">
+                    Automatically extracted from Demo Requests and Contact Transmissions linked with visitor telemetry.
+                </p>
+            </div>
+            <span class="user-status-pill" style="background: rgba(249, 205, 5, 0.15); color: #F9CD05; border-color: rgba(249, 205, 5, 0.3);">
+                {{ identified_leads|length }} Captured Leads
+            </span>
+        </div>
+
+        {% if identified_leads %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
+                <thead>
+                    <tr style="border-bottom: 2px solid rgba(249, 205, 5, 0.3); color: #F9CD05; font-family: 'Outfit', sans-serif;">
+                        <th style="padding: 0.9rem 1rem;">Visitor / Client Name</th>
+                        <th style="padding: 0.9rem 1rem;">Gmail / Email Address</th>
+                        <th style="padding: 0.9rem 1rem;">Phone / WhatsApp</th>
+                        <th style="padding: 0.9rem 1rem;">Inquiry Intent</th>
+                        <th style="padding: 0.9rem 1rem;">Location &amp; Device</th>
+                        <th style="padding: 0.9rem 1rem;">Visits</th>
+                        <th style="padding: 0.9rem 1rem; text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lead in identified_leads %}
+                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.06); transition: background 0.2s;" onmouseover="this.style.background='rgba(249,205,5,0.04)'" onmouseout="this.style.background='transparent'">
+                        <td style="padding: 1rem; font-weight: 700; color: #ffffff;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #F9CD05, #eab308); color: #121A17; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem;">
+                                    {{ lead.visitor_name|slice:":1"|upper }}
+                                </div>
+                                <span>{{ lead.visitor_name }}</span>
+                            </div>
+                        </td>
+                        <td style="padding: 1rem; font-family: 'JetBrains Mono', monospace; color: #38bdf8;">
+                            <a href="mailto:{{ lead.visitor_email }}" style="color: #38bdf8; text-decoration: none;">
+                                <i class="fas fa-envelope" style="font-size: 0.8rem; margin-right: 4px;"></i> {{ lead.visitor_email }}
+                            </a>
+                        </td>
+                        <td style="padding: 1rem; font-family: 'JetBrains Mono', monospace; color: #10B981;">
+                            {% if lead.visitor_phone %}
+                            <a href="https://wa.me/{{ lead.visitor_phone|cut:'+'|cut:' ' }}" target="_blank" style="color: #10B981; text-decoration: none;">
+                                <i class="fab fa-whatsapp"></i> {{ lead.visitor_phone }}
+                            </a>
+                            {% else %}
+                            <span style="color: var(--text-muted);">&mdash;</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span class="user-status-pill" style="font-size: 0.72rem; padding: 2px 8px; background: rgba(249, 205, 5, 0.12); color: #F9CD05;">
+                                {{ lead.inquiry_intent|default:"Commercial Inquiry" }}
+                            </span>
+                        </td>
+                        <td style="padding: 1rem; color: var(--text-secondary); font-size: 0.82rem;">
+                            <div><i class="fas fa-map-marker-alt" style="color: #F9CD05;"></i> {{ lead.country }}{% if lead.city %}, {{ lead.city }}{% endif %}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);"><i class="fas fa-laptop"></i> {{ lead.device_type }} &bull; {{ lead.browser }}</div>
+                        </td>
+                        <td style="padding: 1rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #F9CD05;">
+                            {{ lead.visit_count }}x
+                        </td>
+                        <td style="padding: 1rem; text-align: right;">
+                            <div style="display: inline-flex; gap: 6px;">
+                                {% if lead.visitor_phone %}
+                                <a href="https://wa.me/{{ lead.visitor_phone|cut:'+'|cut:' ' }}" target="_blank" class="skill-pill" style="text-decoration: none; padding: 4px 10px; font-size: 0.75rem; color: #10B981; border-color: rgba(16, 185, 129, 0.4);" title="WhatsApp Message">
+                                    <i class="fab fa-whatsapp"></i> Chat
+                                </a>
+                                {% endif %}
+                                <a href="mailto:{{ lead.visitor_email }}" class="skill-pill" style="text-decoration: none; padding: 4px 10px; font-size: 0.75rem; color: #38bdf8; border-color: rgba(56, 189, 248, 0.4);" title="Send Email">
+                                    <i class="fas fa-reply"></i> Email
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 2.5rem; color: var(--text-secondary);">
+            <i class="fas fa-id-card" style="font-size: 2.5rem; color: rgba(249, 205, 5, 0.4); margin-bottom: 0.8rem; display: block;"></i>
+            <h4 style="color: #ffffff; margin-bottom: 0.3rem;">No Leads Captured Yet</h4>
+            <p style="font-size: 0.88rem; max-width: 500px; margin: 0 auto;">
+                When a visitor submits an Enterprise Demo Request for IbiSAP or fills out the transmission contact form, their identity (Name, Gmail, Phone) will appear here automatically.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Two Column Breakdown: Top Pages & Referrers -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        
+        <!-- Top Pages -->
+        <div class="sm-form-card" style="padding: 1.5rem; background: rgba(26, 36, 33, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px;">
+            <h3 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-file-code" style="color: #38bdf8;"></i> Most Visited URLs &amp; Pages
+            </h3>
+            {% for page in top_pages %}
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.85rem;">
+                <span style="font-family: 'JetBrains Mono', monospace; color: #ffffff; overflow: hidden; text-overflow: ellipsis; max-width: 75%;">{{ page.path }}</span>
+                <span class="user-status-pill" style="font-size: 0.72rem; padding: 2px 8px; background: rgba(56, 189, 248, 0.12); color: #38bdf8;">{{ page.hits }} views</span>
+            </div>
+            {% empty %}
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Listening for page requests...</p>
+            {% endfor %}
+        </div>
+
+        <!-- Top Referrers -->
+        <div class="sm-form-card" style="padding: 1.5rem; background: rgba(26, 36, 33, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px;">
+            <h3 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-compass" style="color: #10B981;"></i> Traffic Channels &amp; Referrers
+            </h3>
+            {% for ref in top_referrers %}
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.85rem;">
+                <span style="color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-link" style="font-size: 0.75rem; color: #10B981;"></i> {{ ref.referrer_domain|default:"Direct / Bookmark" }}
+                </span>
+                <span class="user-status-pill" style="font-size: 0.72rem; padding: 2px 8px; background: rgba(16, 185, 129, 0.12); color: #10B981;">{{ ref.count }} visits</span>
+            </div>
+            {% empty %}
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Listening for incoming traffic...</p>
+            {% endfor %}
+        </div>
+
+    </div>
+
+    <!-- Live Chronological Traffic Feed -->
+    <div class="sm-form-card" style="padding: 1.8rem; background: rgba(26, 36, 33, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin: 0; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-stream" style="color: #F9CD05;"></i> Real-Time Live Traffic Stream
+            </h3>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-muted);">
+                Showing recent {{ recent_traffic|length }} events
+            </span>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.82rem;">
+                <thead>
+                    <tr style="border-bottom: 2px solid rgba(255, 255, 255, 0.08); color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">
+                        <th style="padding: 0.75rem;">Timestamp</th>
+                        <th style="padding: 0.75rem;">Location &amp; IP</th>
+                        <th style="padding: 0.75rem;">Page Path</th>
+                        <th style="padding: 0.75rem;">Device &amp; Browser</th>
+                        <th style="padding: 0.75rem;">Referrer</th>
+                        <th style="padding: 0.75rem;">Lead Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in recent_traffic %}
+                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+                        <td style="padding: 0.75rem; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; white-space: nowrap;">
+                            {{ item.created_at|date:"M d, H:i:s" }}
+                        </td>
+                        <td style="padding: 0.75rem; color: #ffffff; font-weight: 600;">
+                            <i class="fas fa-globe" style="color: #F9CD05; font-size: 0.8rem; margin-right: 4px;"></i> {{ item.country }}
+                            <span style="display: block; font-size: 0.72rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">{{ item.ip_address }}</span>
+                        </td>
+                        <td style="padding: 0.75rem; font-family: 'JetBrains Mono', monospace; color: #38bdf8;">
+                            {{ item.path }}
+                        </td>
+                        <td style="padding: 0.75rem; color: var(--text-secondary);">
+                            {{ item.device_type }} &bull; {{ item.browser }}
+                        </td>
+                        <td style="padding: 0.75rem; color: var(--text-muted); font-size: 0.78rem;">
+                            {{ item.referrer_domain|default:"Direct" }}
+                        </td>
+                        <td style="padding: 0.75rem;">
+                            {% if item.is_lead %}
+                            <span class="user-status-pill" style="font-size: 0.7rem; padding: 2px 6px; background: rgba(16, 185, 129, 0.15); color: #10B981;">
+                                <i class="fas fa-check"></i> {{ item.visitor_name|default:"Lead" }}
+                            </span>
+                            {% else %}
+                            <span style="color: var(--text-muted); font-size: 0.75rem;">Visitor</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="padding: 2rem; text-align: center; color: var(--text-muted);">
+                            Telemetry stream initializing. Visit a page to record telemetry.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

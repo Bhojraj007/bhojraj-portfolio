@@ -29,6 +29,11 @@
                 </a>
             </div>
             <div class="magnetic-wrap">
+                <a href="{% url 'public_portal:ibisap' %}" class="skill-pill" style="text-decoration: none; border-color: rgba(249, 205, 5, 0.45); color: #F9CD05; background: rgba(249, 205, 5, 0.1);">
+                    <i class="fas fa-cubes"></i> IbiSAP ERP
+                </a>
+            </div>
+            <div class="magnetic-wrap">
                 <a href="{% url 'public_portal:blog_list' %}" class="btn-blog-glow">
                     <i class="fas fa-feather-alt"></i> Read Poems &amp; Blog
                 </a>
@@ -47,6 +52,7 @@
                 </a>
             </div>
         </div>
+
 
 
         <!-- Quick Tech Badges -->
@@ -321,6 +327,12 @@
 
                 <!-- Project Action Buttons Row -->
                 <div class="project-actions-row" style="display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.5rem; padding-top: 1.2rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+                    {% if 'ibisap' in project.title|lower %}
+                    <a href="{% url 'public_portal:ibisap' %}" class="btn-project-link" style="background: rgba(249, 205, 5, 0.15); border-color: #F9CD05; color: #F9CD05; font-weight: 700;">
+                        <i class="fas fa-cubes"></i> Explore IbiSAP ERP Architecture
+                    </a>
+                    {% endif %}
+
                     {% if project.link %}
                     <a href="{{ project.link }}" target="_blank" rel="noopener noreferrer" class="btn-project-link">
                         <i class="fas fa-external-link-alt"></i> Live Project Link
@@ -334,6 +346,7 @@
                     </button>
                     {% endif %}
                 </div>
+
 
             </div>
         </div>

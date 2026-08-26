@@ -20,7 +20,7 @@ from django.contrib.auth.views import PasswordChangeView
 from django.contrib import messages
 from django.core import serializers
 from .models import Photo, Video, DashboardSettings, Post, Blog, Todo, Comment, MoodLog, DailyIntention, GratitudeLog, Message, Reaction, Bookmark, PinnedPost, Follow, Notification, Moment, Transaction
-from public_portal.models import Skill, Experience, Education, Project, ContactMessage, GalleryItem, IbiSAPModule, SiteConfiguration
+from public_portal.models import Skill, Experience, Education, Project, ContactMessage, GalleryItem, IbiSAPModule, SiteConfiguration, VisitorLog
 
 User = get_user_model()
 
@@ -1239,7 +1239,10 @@ class SiteManagerView(StaffRequiredMixin, TemplateView):
         context['inquiry_count'] = ContactMessage.objects.count()
         context['recent_inquiries'] = ContactMessage.objects.all()[:5]
         context['config'] = SiteConfiguration.objects.first()
+        context['visitor_count'] = VisitorLog.objects.count()
+        context['lead_count'] = VisitorLog.objects.filter(is_lead=True).count()
         return context
+
 
 
 class SiteConfigEditView(StaffRequiredMixin, TemplateView):
@@ -1652,3 +1655,73 @@ class SmInquiryListView(StaffRequiredMixin, ListView):
     template_name = 'private_portal/site_manager/inquiry_list.html'
     context_object_name = 'inquiries'
     paginate_by = 20
+
+
+# Visitor Intelligence, Leads & Monetization Analytics
+class AnalyticsDashboardView(StaffRequiredMixin, TemplateView):
+    template_name = 'private_portal/analytics.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        now = timezone.now()
+        last_24h = now - datetime.timedelta(hours=24)
+        last_15m = now - datetime.timedelta(minutes=15)
+        
+        # Overall Counts
+        total_hits = VisitorLog.objects.count()
+        unique_visitors = VisitorLog.objects.values('ip_address').distinct().count()
+        hits_24h = VisitorLog.objects.filter(created_at__gte=last_24h).count()
+        active_live = VisitorLog.objects.filter(created_at__gte=last_15m).values('ip_address').distinct().count()
+        
+        # Leads & Monetization
+        leads_qs = VisitorLog.objects.filter(is_lead=True).exclude(visitor_name__isnull=True).order_by('-created_at')
+        total_leads_count = leads_qs.values('visitor_email').distinct().count()
+        inquiries_count = ContactMessage.objects.count()
+        demo_count = ContactMessage.objects.filter(Q(inquiry_type__icontains='Demo') | Q(inquiry_type__icontains='IbiSAP')).count()
+        
+        # Estimated Monetization Value Pipeline (Enterprise leads = $1,500 each, General = $500 each)
+        est_commercial_pipeline = (demo_count * 1500) + ((inquiries_count - demo_count) * 500)
+        if est_commercial_pipeline == 0 and inquiries_count > 0:
+            est_commercial_pipeline = inquiries_count * 500
+        
+        # Top Visited Pages
+        top_pages = VisitorLog.objects.values('path').annotate(hits=Count('id')).order_by('-hits')[:8]
+        
+        # Top Traffic Referrers
+        top_referrers = VisitorLog.objects.values('referrer_domain').annotate(count=Count('id')).order_by('-count')[:6]
+        
+        # Devices Breakdown
+        device_stats = VisitorLog.objects.values('device_type').annotate(count=Count('id')).order_by('-count')
+        
+        # Identified Leads list
+        identified_leads = []
+        seen_emails = set()
+        for log in leads_qs:
+            email_key = (log.visitor_email or log.visitor_name or '').lower().strip()
+            if email_key and email_key not in seen_emails:
+                seen_emails.add(email_key)
+                identified_leads.append(log)
+            if len(identified_leads) >= 25:
+                break
+                
+        # Recent Live Traffic Stream (last 50 records)
+        recent_traffic = VisitorLog.objects.all().order_by('-created_at')[:50]
+        
+        context.update({
+            'total_hits': total_hits,
+            'unique_visitors': unique_visitors,
+            'hits_24h': hits_24h,
+            'active_live': active_live,
+            'total_leads_count': total_leads_count,
+            'inquiries_count': inquiries_count,
+            'demo_count': demo_count,
+            'est_commercial_pipeline': est_commercial_pipeline,
+            'top_pages': top_pages,
+            'top_referrers': top_referrers,
+            'device_stats': device_stats,
+            'identified_leads': identified_leads,
+            'recent_traffic': recent_traffic,
+        })
+        return context
+

@@ -11,16 +11,64 @@ from .models import (
     ContactMessage, 
     GalleryItem, 
     IbiSAPModule,
-    SiteConfiguration
+    SiteConfiguration,
+    VisitorLog
 )
+
+def record_identified_lead(request, name, email, phone, inquiry_type, path):
+    try:
+        if not request.session.session_key:
+            request.session.save()
+        session_key = request.session.session_key or ''
+        request.session['visitor_lead_name'] = name
+        request.session['visitor_lead_email'] = email
+        request.session['visitor_lead_phone'] = phone
+
+        is_enterprise = any(k in inquiry_type.lower() for k in ['demo', 'ibisap', 'enterprise', 'sap', 'banking'])
+        est_value = 1500.00 if is_enterprise else 500.00
+
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0].strip()
+        else:
+            ip = request.META.get('REMOTE_ADDR', '')
+
+        updated_rows = 0
+        if session_key:
+            updated_rows = VisitorLog.objects.filter(session_key=session_key).update(
+                visitor_name=name,
+                visitor_email=email,
+                visitor_phone=phone,
+                is_lead=True,
+                inquiry_intent=inquiry_type,
+                estimated_value=est_value
+            )
+
+        if updated_rows == 0:
+            country = request.META.get('HTTP_CF_IPCOUNTRY') or request.META.get('HTTP_X_COUNTRY_CODE') or 'Nepal'
+            VisitorLog.objects.create(
+                ip_address=ip[:60],
+                session_key=session_key[:100],
+                path=path[:255],
+                visitor_name=name,
+                visitor_email=email,
+                visitor_phone=phone,
+                is_lead=True,
+                inquiry_intent=inquiry_type,
+                estimated_value=est_value,
+                country=country
+            )
+    except Exception:
+        pass
+
 
 def home(request):
     if request.method == 'POST':
-        name = request.POST.get('name')
-        email = request.POST.get('email')
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
         phone = request.POST.get('phone', '').strip()
         inquiry_type = request.POST.get('inquiry_type', 'General Inquiry').strip()
-        message = request.POST.get('message')
+        message = request.POST.get('message', '').strip()
         if name and email and message:
             ContactMessage.objects.create(
                 name=name, 
@@ -29,11 +77,15 @@ def home(request):
                 inquiry_type=inquiry_type,
                 message=message
             )
+            record_identified_lead(request, name, email, phone, inquiry_type, path='/')
+
             if 'Demo' in inquiry_type or 'IbiSAP' in inquiry_type:
                 messages.success(request, f'🎉 Enterprise Demo Request Confirmed for {name}! I will reach out at {email}{" or " + phone if phone else ""} within 6–12 hours.')
             else:
-                messages.success(request, 'Transmission received! Thank you for reaching out. I will get back to you shortly.')
+                messages.success(request, f'Transmission received, {name}! Thank you for reaching out. I will get back to you shortly.')
             return redirect('public_portal:home')
+
+
 
 
     config = SiteConfiguration.objects.first()
@@ -187,11 +239,11 @@ def gallery(request):
 
 def ibisap(request):
     if request.method == 'POST':
-        name = request.POST.get('name')
-        email = request.POST.get('email')
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
         phone = request.POST.get('phone', '').strip()
         inquiry_type = request.POST.get('inquiry_type', 'Enterprise IbiSAP Implementation').strip()
-        message = request.POST.get('message')
+        message = request.POST.get('message', '').strip()
         if name and email and message:
             ContactMessage.objects.create(
                 name=name,
@@ -200,8 +252,10 @@ def ibisap(request):
                 inquiry_type=f"IbiSAP Demo: {inquiry_type}",
                 message=message
             )
+            record_identified_lead(request, name, email, phone, f"IbiSAP Demo: {inquiry_type}", path='/ibisap/')
             messages.success(request, f'🎉 IbiSAP Enterprise Demo Request Confirmed for {name}! We will reach out to {email}{" or " + phone if phone else ""} shortly.')
             return redirect('public_portal:ibisap')
+
 
     modules = IbiSAPModule.objects.all().order_by('order', 'id')
     config = SiteConfiguration.objects.first()
@@ -209,6 +263,7 @@ def ibisap(request):
         'modules': modules,
         'site_config': config,
     })
+
 
 
 

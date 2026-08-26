@@ -38,7 +38,11 @@ def robots_txt_view(request):
     ]
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
+from django.views.generic.base import RedirectView
+
 urlpatterns = [
+    path('favicon.ico', RedirectView.as_view(url='/static/favicon.svg', permanent=True)),
+    path('favicon.svg', RedirectView.as_view(url='/static/favicon.svg', permanent=True)),
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
@@ -46,6 +50,7 @@ urlpatterns = [
     path('', include('public_portal.urls', namespace='public_portal')),
     path('private/', include('private_portal.urls', namespace='private_portal')),
 ]
+
 
 
 # Media and static file serving MUST come before the catch-all

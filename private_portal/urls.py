@@ -115,4 +115,9 @@ urlpatterns = [
 
     # Inquiries (Read-only)
     path('site-manager/inquiries/', views.SmInquiryListView.as_view(), name='sm_inquiry_list'),
+
+    # Visitor Telemetry, Leads & Monetization Analytics
+    path('analytics/', views.AnalyticsDashboardView.as_view(), name='analytics_dashboard'),
+    path('site-manager/analytics/', views.AnalyticsDashboardView.as_view(), name='sm_analytics'),
 ]
+

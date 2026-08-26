@@ -3,6 +3,13 @@
 
 {% block title %}{{ title }} | Raj Bhoj Elite Command Center{% endblock %}
 
+{% block extrahead %}
+{{ block.super }}
+<link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
+<link rel="alternate icon" href="{% static 'favicon.svg' %}">
+{% endblock %}
+
+
 {% block branding %}
 <h1 id="site-name">
     <a href="{% url 'admin:index' %}" style="display: flex; align-items: center; gap: 14px; color: #ffffff; text-decoration: none; font-family: 'Outfit', 'Inter', sans-serif; font-weight: 800; letter-spacing: -0.5px;">

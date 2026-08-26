@@ -59,7 +59,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'public_portal.middleware.VisitorTelemetryMiddleware',
 ]
+
 
 ROOT_URLCONF = 'portfolio_site.urls'
 

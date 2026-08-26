@@ -24,6 +24,16 @@
 
     <!-- Stats Grid -->
     <div class="sm-stats-grid">
+        <a href="{% url 'private_portal:analytics_dashboard' %}" class="sm-stat-card reveal" style="border-color: rgba(249, 205, 5, 0.4); background: rgba(249, 205, 5, 0.05);">
+            <div class="sm-stat-icon" style="background: rgba(249, 205, 5, 0.15); color: #F9CD05;">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="sm-stat-info">
+                <h3>{{ visitor_count }}</h3>
+                <p>Visitor Logs ({{ lead_count }} Leads)</p>
+            </div>
+        </a>
+
         <a href="{% url 'private_portal:blog_list' %}" class="sm-stat-card reveal" style="border-color: rgba(192, 132, 252, 0.3);">
             <div class="sm-stat-icon" style="background: rgba(192, 132, 252, 0.15); color: #c084fc;">
                 <i class="fas fa-feather-alt"></i>
@@ -33,6 +43,7 @@
                 <p>Poems &amp; Articles</p>
             </div>
         </a>
+
 
         <a href="{% url 'private_portal:sm_inquiry_list' %}" class="sm-stat-card reveal" style="border-color: rgba(249, 205, 5, 0.3);">
             <div class="sm-stat-icon" style="background: rgba(249, 205, 5, 0.15); color: #F9CD05;">

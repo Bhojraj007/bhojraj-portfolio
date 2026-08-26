@@ -4,62 +4,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Bhoj Raj Upadhayay — IT Systems Architect, Full Stack Developer, and Creative Writer / Poet. Exploring the synergy between enterprise computing and evocative literature.">
-    <meta name="keywords" content="Bhoj Raj Upadhayay, Rajabhoj, IT Architect, Python, Django, SAP Business One, Core Banking, Nepali Poems, Tech Blog, Nepal">
-    <meta name="author" content="Bhoj Raj Upadhayay">
+    <meta name="description" content="Official website and portfolio of Bhojraj Upadhayay (Bhojraj / Rajabhoj) — Leading IT Systems Architect, Full Stack Software Engineer, SAP Business One Specialist, Core Banking Engineer, and Writer based in Kathmandu, Nepal.">
+    <meta name="keywords" content="Bhojraj, Bhojraj Upadhayay, Bhoj Raj Upadhayay, Rajabhoj, Raja Bhoj, Bhojraj Nepal, Bhojraj Developer, IT Systems Architect Nepal, SAP Business One Nepal, Core Banking Expert, IbiSAP ERP, Prakriti Prabhav, rajabhoj.com.np, Bhojraj Portfolio">
+    <meta name="author" content="Bhojraj Upadhayay">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     
     <!-- Open Graph SEO -->
-    <meta property="og:title" content="{% block og_title %}Bhoj Raj Upadhayay | IT Systems Architect & Creative Thinker{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}Mastering enterprise computing, systems architecture, and modern full-stack engineering alongside evocative poetry and reflective writing.{% endblock %}">
-    <meta property="og:type" content="website">
+    <meta property="og:title" content="{% block og_title %}Bhojraj Upadhayay | Bhojraj — IT Systems Architect &amp; Full Stack Engineer{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Official portfolio of Bhojraj Upadhayay (Bhojraj / Rajabhoj) — IT Systems Architect, SAP Business One Specialist, Core Banking, and Creative Writer in Nepal.{% endblock %}">
+    <meta property="og:type" content="profile">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:site_name" content="Bhojraj Upadhayay — Official Portfolio">
     <meta property="og:image" content="{% if site_config.hero_image %}{{ request.scheme }}://{{ request.get_host }}{{ site_config.hero_image.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}/static/gallery/ibisap-dashboard.png{% endif %}">
     
     <!-- Twitter Card SEO -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{% block twitter_title %}Bhoj Raj Upadhayay | IT Systems Architect & Creative Thinker{% endblock %}">
-    <meta name="twitter:description" content="{% block twitter_description %}Mastering enterprise computing, systems architecture, Core Banking and evocative literature.{% endblock %}">
+    <meta name="twitter:title" content="{% block twitter_title %}Bhojraj Upadhayay | Bhojraj — IT Systems Architect &amp; Software Engineer{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Bhojraj Upadhayay (Rajabhoj) — Enterprise Systems Architect, SAP Business One Specialist, Core Banking Engineer, and Poet.{% endblock %}">
     <meta name="twitter:image" content="{% if site_config.hero_image %}{{ request.scheme }}://{{ request.get_host }}{{ site_config.hero_image.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}/static/gallery/ibisap-dashboard.png{% endif %}">
     
     <link rel="canonical" href="{{ request.build_absolute_uri }}">
 
-    <!-- Schema.org JSON-LD Structured Data -->
+    <!-- Schema.org JSON-LD Structured Data for Google #1 Ranking -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Person",
-      "name": "Bhoj Raj Upadhayay",
-      "alternateName": "Rajabhoj",
-      "jobTitle": "IT Systems Architect & Full Stack Engineer",
-      "url": "{{ request.scheme }}://{{ request.get_host }}",
-      "sameAs": [
-        "https://github.com/bhojrajupadhayay",
-        "https://linkedin.com/in/bhojrajupadhayay",
-        "https://prakritiprabhav.com"
-      ],
-      "knowsAbout": [
-        "Core Banking Systems (CBS)",
-        "Python",
-        "Django",
-        "SAP Business One",
-        "SQL HANA",
-        "PostgreSQL",
-        "Disaster Recovery Planning",
-        "Nepali Poetry"
-      ],
-      "nationality": "Nepalese",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Kathmandu",
-        "addressCountry": "NP"
-      }
+      "@graph": [
+        {
+          "@type": "Person",
+          "@id": "{{ request.scheme }}://{{ request.get_host }}/#person",
+          "name": "Bhojraj Upadhayay",
+          "givenName": "Bhojraj",
+          "familyName": "Upadhayay",
+          "alternateName": ["Bhojraj", "Bhoj Raj Upadhayay", "Rajabhoj", "Raja Bhoj", "Bhojraj Upadhyay"],
+          "jobTitle": "IT Systems Architect & Full Stack Engineer",
+          "description": "IT Systems Architect and Senior Full Stack Engineer specializing in Enterprise Core Banking, SAP Business One, SQL HANA, and Python Django architectures.",
+          "url": "{{ request.scheme }}://{{ request.get_host }}",
+          "sameAs": [
+            "https://github.com/bhojrajupadhayay",
+            "https://github.com/Bhojraj007",
+            "https://linkedin.com/in/bhojrajupadhayay",
+            "https://prakritiprabhav.com",
+            "https://rajabhoj.com.np"
+          ],
+          "knowsAbout": [
+            "Core Banking Systems (CBS)",
+            "Enterprise Architecture",
+            "Python",
+            "Django",
+            "SAP Business One",
+            "SQL HANA",
+            "PostgreSQL",
+            "Disaster Recovery Planning",
+            "NRB IT Guidelines & Compliance",
+            "Nepali Literature & Poetry"
+          ],
+          "nationality": {
+            "@type": "Country",
+            "name": "Nepal"
+          },
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Kathmandu",
+            "addressRegion": "Bagmati",
+            "addressCountry": "NP"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "{{ request.scheme }}://{{ request.get_host }}/#website",
+          "url": "{{ request.scheme }}://{{ request.get_host }}",
+          "name": "Bhojraj Upadhayay Portfolio & Creative Hub",
+          "description": "Official website and systems architecture portfolio of Bhojraj Upadhayay (Rajabhoj).",
+          "publisher": {
+            "@id": "{{ request.scheme }}://{{ request.get_host }}/#person"
+          }
+        }
+      ]
     }
     </script>
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%231A2421'/><rect x='4' y='4' width='92' height='92' rx='20' fill='none' stroke='%23F9CD05' stroke-width='4'/><text x='50%25' y='58%25' font-size='40' font-weight='900' font-family='monospace' fill='%23F9CD05' text-anchor='middle' dominant-baseline='middle'>&lt;B/&gt;</text></svg>">
+    <!-- Branded 'R' Favicon Suite -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
+    <link rel="alternate icon" href="{% static 'favicon.svg' %}">
+    <link rel="apple-touch-icon" href="{% static 'favicon.svg' %}">
 
-    <title>{% block title %}Bhoj Raj Upadhayay | IT Architect & Creative Hub{% endblock %}</title>
+    <title>{% block title %}Bhojraj Upadhayay | Bhojraj — IT Systems Architect &amp; Full Stack Engineer | Nepal{% endblock %}</title>
+
     
     <!-- Google Analytics (GA4) -->
     {% block analytics %}
@@ -113,6 +144,9 @@
             <a href="{% url 'public_portal:home' %}#skills" class="magnetic-wrap">Competencies</a>
             <a href="{% url 'public_portal:home' %}#experience" class="magnetic-wrap">Experience</a>
             <a href="{% url 'public_portal:home' %}#projects" class="magnetic-wrap">Systems</a>
+            <a href="{% url 'public_portal:ibisap' %}" class="magnetic-wrap" style="color: #F9CD05; font-weight: 700;">
+                <i class="fas fa-cubes"></i> IbiSAP ERP
+            </a>
             <a href="{% url 'public_portal:blog_list' %}" class="btn-blog-nav magnetic-wrap">
                 <i class="fas fa-feather-alt"></i> Blog &amp; Verses
             </a>
@@ -161,7 +195,9 @@
             <a href="{% url 'public_portal:home' %}#skills" class="mobile-nav-link"><i class="fas fa-layer-group"></i> Core Competencies</a>
             <a href="{% url 'public_portal:home' %}#experience" class="mobile-nav-link"><i class="fas fa-briefcase"></i> Experience</a>
             <a href="{% url 'public_portal:home' %}#projects" class="mobile-nav-link"><i class="fas fa-laptop-code"></i> Engineering Systems</a>
+            <a href="{% url 'public_portal:ibisap' %}" class="mobile-nav-link" style="color: var(--accent-gold); font-weight: 700;"><i class="fas fa-cubes"></i> IbiSAP ERP Showcase</a>
             <a href="{% url 'public_portal:blog_list' %}" class="mobile-nav-link highlight"><i class="fas fa-feather-alt"></i> Blog, Poems &amp; Thoughts</a>
+
             <a href="{% url 'public_portal:gallery' %}" class="mobile-nav-link"><i class="fas fa-images"></i> Visual Showcase</a>
             
             {% if site_config.cv_download_url %}

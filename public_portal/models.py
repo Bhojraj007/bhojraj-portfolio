@@ -207,3 +207,42 @@ class SiteConfiguration(models.Model):
         return "Global Site Configuration"
 
 
+class VisitorLog(models.Model):
+    ip_address = models.CharField(max_length=60, blank=True, db_index=True)
+    session_key = models.CharField(max_length=100, blank=True, db_index=True)
+    path = models.CharField(max_length=255, default='/', db_index=True)
+    referrer = models.CharField(max_length=500, blank=True)
+    referrer_domain = models.CharField(max_length=150, blank=True)
+    user_agent = models.TextField(blank=True)
+    device_type = models.CharField(max_length=30, default='Desktop') # Mobile, Tablet, Desktop, Bot
+    browser = models.CharField(max_length=50, blank=True)
+    os = models.CharField(max_length=50, blank=True)
+    country = models.CharField(max_length=100, default='Nepal')
+    city = models.CharField(max_length=100, blank=True)
+    
+    # Lead Identification Capture (Names, Gmail, Phone, Inquiries)
+    visitor_name = models.CharField(max_length=200, blank=True, null=True, db_index=True)
+    visitor_email = models.EmailField(blank=True, null=True, db_index=True)
+    visitor_phone = models.CharField(max_length=50, blank=True, null=True)
+    is_lead = models.BooleanField(default=False, db_index=True)
+    inquiry_intent = models.CharField(max_length=200, blank=True)
+    estimated_value = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    
+    visit_count = models.IntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['-created_at']),
+            models.Index(fields=['is_lead', '-created_at']),
+            models.Index(fields=['session_key']),
+        ]
+
+    def __str__(self):
+        lead_str = f" [LEAD: {self.visitor_name} - {self.visitor_email}]" if self.is_lead else ""
+        return f"Visit to {self.path} from {self.country} ({self.device_type}){lead_str}"
+
+
+
