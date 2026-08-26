@@ -1664,64 +1664,195 @@ class AnalyticsDashboardView(StaffRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
+        req = self.request.GET
+        period = req.get('period', 'all').strip()
+        lead_filter = req.get('lead_filter', 'all').strip()
+        device_filter = req.get('device', 'all').strip()
+        source_filter = req.get('source', 'all').strip()
+        search_query = req.get('q', '').strip()
+
         now = timezone.now()
+        base_qs = VisitorLog.objects.all()
+
+        # Date Range Filter
+        if period == 'today':
+            base_qs = base_qs.filter(created_at__gte=now - datetime.timedelta(hours=24))
+        elif period == '7d':
+            base_qs = base_qs.filter(created_at__gte=now - datetime.timedelta(days=7))
+        elif period == '30d':
+            base_qs = base_qs.filter(created_at__gte=now - datetime.timedelta(days=30))
+
+        # Device Filter
+        if device_filter == 'mobile':
+            base_qs = base_qs.filter(device_type__icontains='Mobile')
+        elif device_filter == 'desktop':
+            base_qs = base_qs.filter(device_type='Desktop')
+        elif device_filter == 'tablet':
+            base_qs = base_qs.filter(device_type='Tablet')
+        elif device_filter == 'bot':
+            base_qs = base_qs.filter(device_type__icontains='Bot')
+
+        # Source / Referrer Filter
+        if source_filter == 'google':
+            base_qs = base_qs.filter(referrer_domain__icontains='Google')
+        elif source_filter == 'direct':
+            base_qs = base_qs.filter(referrer_domain__icontains='Direct')
+        elif source_filter == 'linkedin':
+            base_qs = base_qs.filter(referrer_domain__icontains='LinkedIn')
+        elif source_filter == 'facebook':
+            base_qs = base_qs.filter(referrer_domain__icontains='Facebook')
+        elif source_filter == 'github':
+            base_qs = base_qs.filter(referrer_domain__icontains='GitHub')
+
+        # Lead Type Filter
+        if lead_filter == 'leads_only':
+            base_qs = base_qs.filter(is_lead=True)
+        elif lead_filter == 'enterprise_only':
+            base_qs = base_qs.filter(is_lead=True, inquiry_intent__icontains='Demo')
+
+        # Keyword Search
+        if search_query:
+            base_qs = base_qs.filter(
+                Q(visitor_name__icontains=search_query) |
+                Q(visitor_email__icontains=search_query) |
+                Q(visitor_phone__icontains=search_query) |
+                Q(ip_address__icontains=search_query) |
+                Q(country__icontains=search_query) |
+                Q(city__icontains=search_query) |
+                Q(path__icontains=search_query) |
+                Q(inquiry_intent__icontains=search_query)
+            )
+
+        # Global Counters (All-time context)
         last_24h = now - datetime.timedelta(hours=24)
         last_15m = now - datetime.timedelta(minutes=15)
-        
-        # Overall Counts
         total_hits = VisitorLog.objects.count()
         unique_visitors = VisitorLog.objects.values('ip_address').distinct().count()
         hits_24h = VisitorLog.objects.filter(created_at__gte=last_24h).count()
         active_live = VisitorLog.objects.filter(created_at__gte=last_15m).values('ip_address').distinct().count()
-        
+
+        # Filtered Counters
+        filtered_total_hits = base_qs.count()
+        filtered_unique_visitors = base_qs.values('ip_address').distinct().count()
+
         # Leads & Monetization
-        leads_qs = VisitorLog.objects.filter(is_lead=True).exclude(visitor_name__isnull=True).order_by('-created_at')
-        total_leads_count = leads_qs.values('visitor_email').distinct().count()
+        all_leads_qs = VisitorLog.objects.filter(is_lead=True).exclude(visitor_name__isnull=True).order_by('-created_at')
+        total_leads_count = all_leads_qs.values('visitor_email').distinct().count()
         inquiries_count = ContactMessage.objects.count()
         demo_count = ContactMessage.objects.filter(Q(inquiry_type__icontains='Demo') | Q(inquiry_type__icontains='IbiSAP')).count()
         
-        # Estimated Monetization Value Pipeline (Enterprise leads = $1,500 each, General = $500 each)
+        # Enterprise Lead Tiers
         est_commercial_pipeline = (demo_count * 1500) + ((inquiries_count - demo_count) * 500)
         if est_commercial_pipeline == 0 and inquiries_count > 0:
             est_commercial_pipeline = inquiries_count * 500
-        
-        # Top Visited Pages
-        top_pages = VisitorLog.objects.values('path').annotate(hits=Count('id')).order_by('-hits')[:8]
-        
-        # Top Traffic Referrers
-        top_referrers = VisitorLog.objects.values('referrer_domain').annotate(count=Count('id')).order_by('-count')[:6]
-        
-        # Devices Breakdown
-        device_stats = VisitorLog.objects.values('device_type').annotate(count=Count('id')).order_by('-count')
-        
+
+        conversion_rate = round((total_leads_count / unique_visitors * 100), 1) if unique_visitors > 0 else 0.0
+
+        # Top Pages & Referrers within filter
+        top_pages = base_qs.values('path').annotate(hits=Count('id')).order_by('-hits')[:8]
+        top_referrers = base_qs.values('referrer_domain').annotate(count=Count('id')).order_by('-count')[:6]
+        top_countries = base_qs.values('country').annotate(count=Count('id')).order_by('-count')[:6]
+        device_stats = base_qs.values('device_type').annotate(count=Count('id')).order_by('-count')
+
         # Identified Leads list
         identified_leads = []
         seen_emails = set()
-        for log in leads_qs:
+        for log in all_leads_qs:
             email_key = (log.visitor_email or log.visitor_name or '').lower().strip()
             if email_key and email_key not in seen_emails:
                 seen_emails.add(email_key)
                 identified_leads.append(log)
-            if len(identified_leads) >= 25:
+            if len(identified_leads) >= 40:
                 break
-                
-        # Recent Live Traffic Stream (last 50 records)
-        recent_traffic = VisitorLog.objects.all().order_by('-created_at')[:50]
-        
+
+        # Recent Live Traffic Stream
+        recent_traffic = base_qs.order_by('-created_at')[:60]
+
         context.update({
             'total_hits': total_hits,
             'unique_visitors': unique_visitors,
             'hits_24h': hits_24h,
             'active_live': active_live,
+            'filtered_total_hits': filtered_total_hits,
+            'filtered_unique_visitors': filtered_unique_visitors,
             'total_leads_count': total_leads_count,
             'inquiries_count': inquiries_count,
             'demo_count': demo_count,
+            'conversion_rate': conversion_rate,
             'est_commercial_pipeline': est_commercial_pipeline,
             'top_pages': top_pages,
             'top_referrers': top_referrers,
+            'top_countries': top_countries,
             'device_stats': device_stats,
             'identified_leads': identified_leads,
             'recent_traffic': recent_traffic,
+            # Filter state
+            'period': period,
+            'lead_filter': lead_filter,
+            'device_filter': device_filter,
+            'source_filter': source_filter,
+            'search_query': search_query,
         })
         return context
+
+
+@login_required
+def export_leads_csv(request):
+    if not request.user.is_staff:
+        return HttpResponse('Unauthorized', status=403)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="rajabhoj_leads_{timezone.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow([
+        'Client / Visitor Name',
+        'Gmail / Email',
+        'Phone Number',
+        'Inquiry Intent / Tier',
+        'Country',
+        'City',
+        'IP Address',
+        'Visit Frequency',
+        'Est. Value ($)',
+        'First Captured Timestamp'
+    ])
+
+    leads_qs = VisitorLog.objects.filter(is_lead=True).exclude(visitor_name__isnull=True).order_by('-created_at')
+    seen = set()
+    for l in leads_qs:
+        key = (l.visitor_email or l.visitor_name or '').lower().strip()
+        if key not in seen:
+            seen.add(key)
+            writer.writerow([
+                l.visitor_name or 'N/A',
+                l.visitor_email or 'N/A',
+                l.visitor_phone or 'N/A',
+                l.inquiry_intent or 'General Commercial Inquiry',
+                l.country or 'Nepal',
+                l.city or 'N/A',
+                l.ip_address,
+                l.visit_count,
+                float(l.estimated_value or 500.00),
+                l.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            ])
+
+    return response
+
+
+@login_required
+def purge_bot_traffic(request):
+    if not request.user.is_staff:
+        return HttpResponse('Unauthorized', status=403)
+    
+    deleted_count, _ = VisitorLog.objects.filter(
+        Q(device_type__icontains='Bot') | 
+        Q(user_agent__icontains='bot') | 
+        Q(user_agent__icontains='crawler') | 
+        Q(user_agent__icontains='spider')
+    ).delete()
+    
+    messages.success(request, f'🧹 Successfully purged {deleted_count} automated bot and crawler log entries.')
+    return redirect('private_portal:analytics_dashboard')
+
 

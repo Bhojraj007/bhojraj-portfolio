@@ -4,47 +4,162 @@
 {% block title %}Visitor Intelligence, Leads & Monetization Analytics | Rajabhoj{% endblock %}
 
 {% block content %}
-<div class="sm-container" style="max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem;">
+<div class="sm-container" style="max-width: 1440px; margin: 0 auto; padding: 2rem 1.5rem;">
 
-    <!-- Header / Banner -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <!-- Top Header & Action Controls -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1.2rem;">
         <div>
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.4rem;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.4rem; flex-wrap: wrap;">
                 <span class="user-status-pill" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); color: #10B981;">
                     ● LIVE TELEMETRY SENSORS ACTIVE
                 </span>
-                <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #F9CD05;">
-                    <i class="fas fa-satellite-dish"></i> IP &amp; LEAD INTELLIGENCE
+                <span class="user-status-pill" style="background: rgba(249, 205, 5, 0.12); border-color: rgba(249, 205, 5, 0.35); color: #F9CD05; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;">
+                    <i class="fas fa-satellite-dish"></i> IP &amp; GMAIL INTELLIGENCE
+                </span>
+                <span style="font-size: 0.8rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">
+                    Conversion Rate: <strong style="color: #10B981;">{{ conversion_rate }}%</strong>
                 </span>
             </div>
-            <h1 style="font-size: 2rem; font-weight: 800; color: #ffffff; margin: 0; font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 12px;">
+            <h1 style="font-size: 2.1rem; font-weight: 800; color: #ffffff; margin: 0; font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 12px;">
                 <i class="fas fa-chart-line" style="color: #F9CD05;"></i> Visitor Intelligence &amp; Monetization Hub
             </h1>
             <p style="color: var(--text-secondary); margin-top: 0.3rem; font-size: 0.95rem;">
-                Real-time visitor logs, lead identification (Gmail/Phone capture), traffic channels, and enterprise revenue pipeline.
+                Real-time traffic sensors, lead identification (Names, Gmail, Phone), traffic sources, and enterprise revenue pipeline.
             </p>
         </div>
-        <div style="display: flex; gap: 0.8rem; align-items: center;">
-            <a href="{% url 'private_portal:sm_inquiry_list' %}" class="btn-hire" style="padding: 0.65rem 1.3rem; font-size: 0.85rem;">
+        
+        <!-- Header Actions: Export, Inquiries & Purge -->
+        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            <a href="{% url 'private_portal:analytics_export_leads' %}" class="btn-hire" style="padding: 0.6rem 1.15rem; font-size: 0.82rem; background: linear-gradient(135deg, #10B981, #059669); color: #ffffff; border: none;" title="Download all leads to CSV spreadsheet">
+                <i class="fas fa-file-csv"></i> Export Leads (.CSV)
+            </a>
+            <a href="{% url 'private_portal:sm_inquiry_list' %}" class="skill-pill" style="text-decoration: none; padding: 0.6rem 1.15rem; font-size: 0.82rem; border-color: rgba(249, 205, 5, 0.4); color: #F9CD05;">
                 <i class="fas fa-inbox"></i> Inquiries ({{ inquiries_count }})
             </a>
-            <a href="{% url 'private_portal:site_manager' %}" class="skill-pill" style="text-decoration: none; padding: 0.65rem 1.2rem; font-size: 0.85rem;">
-                <i class="fas fa-cogs"></i> Site Manager
+            <a href="{% url 'private_portal:analytics_purge_bots' %}" onclick="return confirm('Purge automated bot and crawler log entries?')" class="skill-pill" style="text-decoration: none; padding: 0.6rem 1rem; font-size: 0.82rem; color: #f87171; border-color: rgba(239, 68, 68, 0.35);" title="Clean bot/crawler telemetry">
+                <i class="fas fa-broom"></i> Clean Bots
             </a>
-
+            <a href="{% url 'private_portal:site_manager' %}" class="skill-pill" style="text-decoration: none; padding: 0.6rem 1rem; font-size: 0.82rem;">
+                <i class="fas fa-cogs"></i> CMS
+            </a>
         </div>
     </div>
 
-    <!-- Telemetry Cards Grid -->
+    <!-- Multi-Dimensional Filter Control Bar -->
+    <div class="sm-form-card" style="margin-bottom: 2rem; padding: 1.3rem; background: rgba(20, 28, 25, 0.9); border: 1.5px solid rgba(255, 255, 255, 0.1); border-radius: 18px;">
+        <form method="GET" action="{% url 'private_portal:analytics_dashboard' %}" style="display: flex; flex-direction: column; gap: 1rem;">
+            
+            <!-- Top Row: Time Range Filter Pills -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.9rem;">
+                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-right: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <i class="fas fa-calendar-alt" style="color: #F9CD05;"></i> Timeframe:
+                    </span>
+                    <a href="?period=all{% if lead_filter != 'all' %}&lead_filter={{ lead_filter }}{% endif %}{% if device_filter != 'all' %}&device={{ device_filter }}{% endif %}{% if source_filter != 'all' %}&source={{ source_filter }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="skill-pill {% if period == 'all' or not period %}active-filter{% endif %}" 
+                       style="padding: 5px 12px; font-size: 0.78rem; text-decoration: none; {% if period == 'all' or not period %}background: #F9CD05; color: #121A17; font-weight: 800; border-color: #F9CD05;{% endif %}">
+                       All Time ({{ total_hits }})
+                    </a>
+                    <a href="?period=today{% if lead_filter != 'all' %}&lead_filter={{ lead_filter }}{% endif %}{% if device_filter != 'all' %}&device={{ device_filter }}{% endif %}{% if source_filter != 'all' %}&source={{ source_filter }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="skill-pill {% if period == 'today' %}active-filter{% endif %}" 
+                       style="padding: 5px 12px; font-size: 0.78rem; text-decoration: none; {% if period == 'today' %}background: #F9CD05; color: #121A17; font-weight: 800; border-color: #F9CD05;{% endif %}">
+                       Today 24h ({{ hits_24h }})
+                    </a>
+                    <a href="?period=7d{% if lead_filter != 'all' %}&lead_filter={{ lead_filter }}{% endif %}{% if device_filter != 'all' %}&device={{ device_filter }}{% endif %}{% if source_filter != 'all' %}&source={{ source_filter }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="skill-pill {% if period == '7d' %}active-filter{% endif %}" 
+                       style="padding: 5px 12px; font-size: 0.78rem; text-decoration: none; {% if period == '7d' %}background: #F9CD05; color: #121A17; font-weight: 800; border-color: #F9CD05;{% endif %}">
+                       Last 7 Days
+                    </a>
+                    <a href="?period=30d{% if lead_filter != 'all' %}&lead_filter={{ lead_filter }}{% endif %}{% if device_filter != 'all' %}&device={{ device_filter }}{% endif %}{% if source_filter != 'all' %}&source={{ source_filter }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="skill-pill {% if period == '30d' %}active-filter{% endif %}" 
+                       style="padding: 5px 12px; font-size: 0.78rem; text-decoration: none; {% if period == '30d' %}background: #F9CD05; color: #121A17; font-weight: 800; border-color: #F9CD05;{% endif %}">
+                       This Month (30d)
+                    </a>
+                </div>
+
+                <!-- Active Filter Indicator -->
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: #38bdf8;">
+                    Showing: <strong style="color: #ffffff;">{{ filtered_total_hits }}</strong> events &bull; <strong style="color: #F9CD05;">{{ filtered_unique_visitors }}</strong> unique IPs
+                </div>
+            </div>
+
+            <!-- Second Row: Multi-Dropdown Filters & Search Input -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.8rem; align-items: center;">
+                
+                <!-- Lead Filter -->
+                <div>
+                    <label style="display: block; font-size: 0.74rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">
+                        <i class="fas fa-id-badge" style="color: #c084fc;"></i> Lead Status
+                    </label>
+                    <select name="lead_filter" onchange="this.form.submit()" style="width: 100%; background: #0E1613; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px; padding: 0.55rem 0.8rem; font-size: 0.82rem; font-family: 'Inter', sans-serif;">
+                        <option value="all" {% if lead_filter == 'all' %}selected{% endif %}>All Traffic Events</option>
+                        <option value="leads_only" {% if lead_filter == 'leads_only' %}selected{% endif %}>🎯 Identified Leads (Gmail/Name)</option>
+                        <option value="enterprise_only" {% if lead_filter == 'enterprise_only' %}selected{% endif %}>🚀 Enterprise Demo Requests</option>
+                    </select>
+                </div>
+
+                <!-- Device Filter -->
+                <div>
+                    <label style="display: block; font-size: 0.74rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">
+                        <i class="fas fa-laptop" style="color: #38bdf8;"></i> Device / Client
+                    </label>
+                    <select name="device" onchange="this.form.submit()" style="width: 100%; background: #0E1613; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px; padding: 0.55rem 0.8rem; font-size: 0.82rem; font-family: 'Inter', sans-serif;">
+                        <option value="all" {% if device_filter == 'all' %}selected{% endif %}>All Devices</option>
+                        <option value="mobile" {% if device_filter == 'mobile' %}selected{% endif %}>📱 Mobile Phones</option>
+                        <option value="desktop" {% if device_filter == 'desktop' %}selected{% endif %}>💻 Desktop Computers</option>
+                        <option value="tablet" {% if device_filter == 'tablet' %}selected{% endif %}>📟 Tablets / iPad</option>
+                        <option value="bot" {% if device_filter == 'bot' %}selected{% endif %}>🤖 Search Bots / Crawlers</option>
+                    </select>
+                </div>
+
+                <!-- Traffic Channel Filter -->
+                <div>
+                    <label style="display: block; font-size: 0.74rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">
+                        <i class="fas fa-compass" style="color: #10B981;"></i> Traffic Channel
+                    </label>
+                    <select name="source" onchange="this.form.submit()" style="width: 100%; background: #0E1613; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px; padding: 0.55rem 0.8rem; font-size: 0.82rem; font-family: 'Inter', sans-serif;">
+                        <option value="all" {% if source_filter == 'all' %}selected{% endif %}>All Traffic Channels</option>
+                        <option value="google" {% if source_filter == 'google' %}selected{% endif %}>🔍 Google Search</option>
+                        <option value="direct" {% if source_filter == 'direct' %}selected{% endif %}>⚡ Direct / Bookmark</option>
+                        <option value="linkedin" {% if source_filter == 'linkedin' %}selected{% endif %}>💼 LinkedIn</option>
+                        <option value="facebook" {% if source_filter == 'facebook' %}selected{% endif %}>📘 Facebook</option>
+                        <option value="github" {% if source_filter == 'github' %}selected{% endif %}>🐙 GitHub</option>
+                    </select>
+                </div>
+
+                <!-- Search Input with Submit -->
+                <div>
+                    <label style="display: block; font-size: 0.74rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">
+                        <i class="fas fa-search" style="color: #F9CD05;"></i> Search Keyword / IP
+                    </label>
+                    <div style="display: flex; gap: 6px;">
+                        <input type="text" name="q" value="{{ search_query }}" placeholder="Name, Gmail, IP, City, Path..." style="flex-grow: 1; background: #0E1613; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px; padding: 0.55rem 0.8rem; font-size: 0.82rem;">
+                        <button type="submit" class="btn-hire" style="padding: 0.55rem 1rem; font-size: 0.82rem;">
+                            <i class="fas fa-filter"></i> Filter
+                        </button>
+                        {% if period != 'all' or lead_filter != 'all' or device_filter != 'all' or source_filter != 'all' or search_query %}
+                        <a href="{% url 'private_portal:analytics_dashboard' %}" class="skill-pill" style="text-decoration: none; padding: 0.55rem 0.8rem; font-size: 0.82rem; color: #f87171;" title="Reset all filters">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+
+        </form>
+    </div>
+
+    <!-- Telemetry Metric Cards Grid -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.2rem; margin-bottom: 2.2rem;">
         
         <!-- Total Hits -->
         <div class="stat-card-box" style="background: rgba(26, 36, 33, 0.85); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 1.4rem; position: relative; overflow: hidden;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                 <div>
-                    <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Total Pageviews</span>
-                    <div style="font-size: 2.2rem; font-weight: 900; color: #ffffff; font-family: 'JetBrains Mono', monospace; margin: 0.4rem 0;">{{ total_hits }}</div>
-                    <span style="font-size: 0.75rem; color: #10B981;"><i class="fas fa-clock"></i> {{ hits_24h }} in last 24h</span>
+                    <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Filtered Pageviews</span>
+                    <div style="font-size: 2.2rem; font-weight: 900; color: #ffffff; font-family: 'JetBrains Mono', monospace; margin: 0.4rem 0;">{{ filtered_total_hits }}</div>
+                    <span style="font-size: 0.75rem; color: #38bdf8;"><i class="fas fa-layer-group"></i> Total All-Time: {{ total_hits }}</span>
                 </div>
                 <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); display: flex; align-items: center; justify-content: center; color: #38bdf8; font-size: 1.2rem;">
                     <i class="fas fa-eye"></i>
@@ -57,8 +172,8 @@
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                 <div>
                     <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Unique Visitors (IPs)</span>
-                    <div style="font-size: 2.2rem; font-weight: 900; color: #F9CD05; font-family: 'JetBrains Mono', monospace; margin: 0.4rem 0;">{{ unique_visitors }}</div>
-                    <span style="font-size: 0.75rem; color: #F9CD05;"><i class="fas fa-globe-asia"></i> Distinct Nodes</span>
+                    <div style="font-size: 2.2rem; font-weight: 900; color: #F9CD05; font-family: 'JetBrains Mono', monospace; margin: 0.4rem 0;">{{ filtered_unique_visitors }}</div>
+                    <span style="font-size: 0.75rem; color: #F9CD05;"><i class="fas fa-globe-asia"></i> Total Nodes: {{ unique_visitors }}</span>
                 </div>
                 <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(249, 205, 5, 0.12); border: 1px solid rgba(249, 205, 5, 0.3); display: flex; align-items: center; justify-content: center; color: #F9CD05; font-size: 1.2rem;">
                     <i class="fas fa-users"></i>
@@ -70,7 +185,7 @@
         <div class="stat-card-box" style="background: rgba(26, 36, 33, 0.85); border: 1.5px solid rgba(16, 185, 129, 0.3); border-radius: 16px; padding: 1.4rem; position: relative; overflow: hidden;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                 <div>
-                    <span style="font-size: 0.78rem; font-weight: 700; color: #10B981; text-transform: uppercase; letter-spacing: 0.5px;">Active Right Now (15m)</span>
+                    <span style="font-size: 0.78rem; font-weight: 700; color: #10B981; text-transform: uppercase; letter-spacing: 0.5px;">Active Live Now (15m)</span>
                     <div style="font-size: 2.2rem; font-weight: 900; color: #10B981; font-family: 'JetBrains Mono', monospace; margin: 0.4rem 0;">{{ active_live }}</div>
                     <span style="font-size: 0.75rem; color: var(--text-secondary);"><i class="fas fa-bolt"></i> Real-time Concurrency</span>
                 </div>
@@ -86,7 +201,7 @@
                 <div>
                     <span style="font-size: 0.78rem; font-weight: 700; color: #c084fc; text-transform: uppercase; letter-spacing: 0.5px;">Captured Leads (Gmail)</span>
                     <div style="font-size: 2.2rem; font-weight: 900; color: #c084fc; font-family: 'JetBrains Mono', monospace; margin: 0.4rem 0;">{{ total_leads_count }}</div>
-                    <span style="font-size: 0.75rem; color: #e9d5ff;"><i class="fas fa-user-check"></i> Form / Demo Submissions</span>
+                    <span style="font-size: 0.75rem; color: #e9d5ff;"><i class="fas fa-user-check"></i> Conversion Rate: <strong>{{ conversion_rate }}%</strong></span>
                 </div>
                 <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.4); display: flex; align-items: center; justify-content: center; color: #c084fc; font-size: 1.2rem;">
                     <i class="fas fa-id-card"></i>
@@ -100,7 +215,7 @@
                 <div>
                     <span style="font-size: 0.78rem; font-weight: 700; color: #F9CD05; text-transform: uppercase; letter-spacing: 0.5px;">Est. Pipeline Value</span>
                     <div style="font-size: 2.2rem; font-weight: 900; color: #F9CD05; font-family: 'JetBrains Mono', monospace; margin: 0.4rem 0;">${{ est_commercial_pipeline }}</div>
-                    <span style="font-size: 0.75rem; color: #10B981;"><i class="fas fa-hand-holding-usd"></i> {{ demo_count }} Enterprise Demos</span>
+                    <span style="font-size: 0.75rem; color: #10B981;"><i class="fas fa-hand-holding-usd"></i> {{ demo_count }} Enterprise Inquiries</span>
                 </div>
                 <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(249, 205, 5, 0.15); border: 1px solid rgba(249, 205, 5, 0.4); display: flex; align-items: center; justify-content: center; color: #F9CD05; font-size: 1.2rem;">
                     <i class="fas fa-coins"></i>
@@ -115,15 +230,20 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 0.5rem;">
             <div>
                 <h2 style="font-size: 1.25rem; font-weight: 800; color: #ffffff; margin: 0; display: flex; align-items: center; gap: 8px;">
-                    <i class="fas fa-user-astronaut" style="color: #F9CD05;"></i> Captured Client Leads &amp; Gmail Records
+                    <i class="fas fa-user-astronaut" style="color: #F9CD05;"></i> Captured Client Leads &amp; Gmail Directory
                 </h2>
                 <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.2rem;">
-                    Automatically extracted from Demo Requests and Contact Transmissions linked with visitor telemetry.
+                    Automatically identified from IbiSAP Demo Requests and Contact Transmissions with visitor tracking.
                 </p>
             </div>
-            <span class="user-status-pill" style="background: rgba(249, 205, 5, 0.15); color: #F9CD05; border-color: rgba(249, 205, 5, 0.3);">
-                {{ identified_leads|length }} Captured Leads
-            </span>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <a href="{% url 'private_portal:analytics_export_leads' %}" class="skill-pill" style="text-decoration: none; padding: 4px 12px; font-size: 0.75rem; color: #10B981; border-color: rgba(16, 185, 129, 0.4);">
+                    <i class="fas fa-download"></i> Download CSV
+                </a>
+                <span class="user-status-pill" style="background: rgba(249, 205, 5, 0.15); color: #F9CD05; border-color: rgba(249, 205, 5, 0.3);">
+                    {{ identified_leads|length }} Captured Profiles
+                </span>
+            </div>
         </div>
 
         {% if identified_leads %}
@@ -134,7 +254,7 @@
                         <th style="padding: 0.9rem 1rem;">Visitor / Client Name</th>
                         <th style="padding: 0.9rem 1rem;">Gmail / Email Address</th>
                         <th style="padding: 0.9rem 1rem;">Phone / WhatsApp</th>
-                        <th style="padding: 0.9rem 1rem;">Inquiry Intent</th>
+                        <th style="padding: 0.9rem 1rem;">Inquiry Intent / Tier</th>
                         <th style="padding: 0.9rem 1rem;">Location &amp; Device</th>
                         <th style="padding: 0.9rem 1rem;">Visits</th>
                         <th style="padding: 0.9rem 1rem; text-align: right;">Action</th>
@@ -166,7 +286,7 @@
                             {% endif %}
                         </td>
                         <td style="padding: 1rem;">
-                            <span class="user-status-pill" style="font-size: 0.72rem; padding: 2px 8px; background: rgba(249, 205, 5, 0.12); color: #F9CD05;">
+                            <span class="user-status-pill" style="font-size: 0.72rem; padding: 3px 8px; background: rgba(249, 205, 5, 0.12); color: #F9CD05; font-weight: 600;">
                                 {{ lead.inquiry_intent|default:"Commercial Inquiry" }}
                             </span>
                         </td>
@@ -197,46 +317,63 @@
         {% else %}
         <div style="text-align: center; padding: 2.5rem; color: var(--text-secondary);">
             <i class="fas fa-id-card" style="font-size: 2.5rem; color: rgba(249, 205, 5, 0.4); margin-bottom: 0.8rem; display: block;"></i>
-            <h4 style="color: #ffffff; margin-bottom: 0.3rem;">No Leads Captured Yet</h4>
+            <h4 style="color: #ffffff; margin-bottom: 0.3rem;">No Leads Captured in this Filter View</h4>
             <p style="font-size: 0.88rem; max-width: 500px; margin: 0 auto;">
-                When a visitor submits an Enterprise Demo Request for IbiSAP or fills out the transmission contact form, their identity (Name, Gmail, Phone) will appear here automatically.
+                Try resetting your filters or submit a test demo request from <a href="{% url 'public_portal:ibisap' %}" target="_blank" style="color: #F9CD05;">/ibisap/</a>.
             </p>
         </div>
         {% endif %}
     </div>
 
-    <!-- Two Column Breakdown: Top Pages & Referrers -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <!-- 3-Column Breakdown: Top Pages, Channels & Top Countries -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.4rem; margin-bottom: 2rem;">
         
         <!-- Top Pages -->
         <div class="sm-form-card" style="padding: 1.5rem; background: rgba(26, 36, 33, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px;">
-            <h3 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-file-code" style="color: #38bdf8;"></i> Most Visited URLs &amp; Pages
+            <h3 style="font-size: 1.02rem; font-weight: 800; color: #ffffff; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-file-code" style="color: #38bdf8;"></i> Top Visited Pages
             </h3>
             {% for page in top_pages %}
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.85rem;">
-                <span style="font-family: 'JetBrains Mono', monospace; color: #ffffff; overflow: hidden; text-overflow: ellipsis; max-width: 75%;">{{ page.path }}</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.84rem;">
+                <span style="font-family: 'JetBrains Mono', monospace; color: #ffffff; overflow: hidden; text-overflow: ellipsis; max-width: 70%;">{{ page.path }}</span>
                 <span class="user-status-pill" style="font-size: 0.72rem; padding: 2px 8px; background: rgba(56, 189, 248, 0.12); color: #38bdf8;">{{ page.hits }} views</span>
             </div>
             {% empty %}
-            <p style="color: var(--text-muted); font-size: 0.85rem;">Listening for page requests...</p>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">No matching page data.</p>
             {% endfor %}
         </div>
 
-        <!-- Top Referrers -->
+        <!-- Traffic Channels -->
         <div class="sm-form-card" style="padding: 1.5rem; background: rgba(26, 36, 33, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px;">
-            <h3 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-compass" style="color: #10B981;"></i> Traffic Channels &amp; Referrers
+            <h3 style="font-size: 1.02rem; font-weight: 800; color: #ffffff; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-compass" style="color: #10B981;"></i> Referrer Channels
             </h3>
             {% for ref in top_referrers %}
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.85rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.84rem;">
                 <span style="color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
                     <i class="fas fa-link" style="font-size: 0.75rem; color: #10B981;"></i> {{ ref.referrer_domain|default:"Direct / Bookmark" }}
                 </span>
                 <span class="user-status-pill" style="font-size: 0.72rem; padding: 2px 8px; background: rgba(16, 185, 129, 0.12); color: #10B981;">{{ ref.count }} visits</span>
             </div>
             {% empty %}
-            <p style="color: var(--text-muted); font-size: 0.85rem;">Listening for incoming traffic...</p>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">No channel data.</p>
+            {% endfor %}
+        </div>
+
+        <!-- Geographic / Top Countries -->
+        <div class="sm-form-card" style="padding: 1.5rem; background: rgba(26, 36, 33, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px;">
+            <h3 style="font-size: 1.02rem; font-weight: 800; color: #ffffff; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-globe-americas" style="color: #F9CD05;"></i> Geographic Reach
+            </h3>
+            {% for c in top_countries %}
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.84rem;">
+                <span style="color: #ffffff; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-map-pin" style="color: #F9CD05; font-size: 0.75rem;"></i> {{ c.country|default:"Nepal" }}
+                </span>
+                <span class="user-status-pill" style="font-size: 0.72rem; padding: 2px 8px; background: rgba(249, 205, 5, 0.12); color: #F9CD05;">{{ c.count }} visits</span>
+            </div>
+            {% empty %}
+            <p style="color: var(--text-muted); font-size: 0.85rem;">No geo data.</p>
             {% endfor %}
         </div>
 
@@ -245,11 +382,16 @@
     <!-- Live Chronological Traffic Feed -->
     <div class="sm-form-card" style="padding: 1.8rem; background: rgba(26, 36, 33, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 0.5rem;">
-            <h3 style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin: 0; display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-stream" style="color: #F9CD05;"></i> Real-Time Live Traffic Stream
-            </h3>
-            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-muted);">
-                Showing recent {{ recent_traffic|length }} events
+            <div>
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-stream" style="color: #F9CD05;"></i> Live Visitor Traffic Stream
+                </h3>
+                <p style="color: var(--text-secondary); font-size: 0.82rem; margin-top: 0.2rem;">
+                    Chronological telemetry sensor events matching your active search &amp; filter criteria.
+                </p>
+            </div>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: #38bdf8;">
+                Showing {{ recent_traffic|length }} active events
             </span>
         </div>
 
@@ -262,42 +404,44 @@
                         <th style="padding: 0.75rem;">Page Path</th>
                         <th style="padding: 0.75rem;">Device &amp; Browser</th>
                         <th style="padding: 0.75rem;">Referrer</th>
-                        <th style="padding: 0.75rem;">Lead Status</th>
+                        <th style="padding: 0.75rem;">Identity / Lead</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in recent_traffic %}
-                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
                         <td style="padding: 0.75rem; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; white-space: nowrap;">
                             {{ item.created_at|date:"M d, H:i:s" }}
                         </td>
                         <td style="padding: 0.75rem; color: #ffffff; font-weight: 600;">
-                            <i class="fas fa-globe" style="color: #F9CD05; font-size: 0.8rem; margin-right: 4px;"></i> {{ item.country }}
+                            <i class="fas fa-globe" style="color: #F9CD05; font-size: 0.8rem; margin-right: 4px;"></i> {{ item.country }}{% if item.city %}, {{ item.city }}{% endif %}
                             <span style="display: block; font-size: 0.72rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">{{ item.ip_address }}</span>
                         </td>
                         <td style="padding: 0.75rem; font-family: 'JetBrains Mono', monospace; color: #38bdf8;">
                             {{ item.path }}
                         </td>
                         <td style="padding: 0.75rem; color: var(--text-secondary);">
-                            {{ item.device_type }} &bull; {{ item.browser }}
+                            <span style="display: block; color: #ffffff;">{{ item.device_type }}</span>
+                            <span style="font-size: 0.72rem; color: var(--text-muted);">{{ item.browser }} &bull; {{ item.os }}</span>
                         </td>
                         <td style="padding: 0.75rem; color: var(--text-muted); font-size: 0.78rem;">
                             {{ item.referrer_domain|default:"Direct" }}
                         </td>
                         <td style="padding: 0.75rem;">
                             {% if item.is_lead %}
-                            <span class="user-status-pill" style="font-size: 0.7rem; padding: 2px 6px; background: rgba(16, 185, 129, 0.15); color: #10B981;">
-                                <i class="fas fa-check"></i> {{ item.visitor_name|default:"Lead" }}
+                            <span class="user-status-pill" style="font-size: 0.7rem; padding: 3px 8px; background: rgba(16, 185, 129, 0.15); color: #10B981; font-weight: 700;">
+                                <i class="fas fa-check-circle"></i> {{ item.visitor_name|default:item.visitor_email }}
                             </span>
                             {% else %}
-                            <span style="color: var(--text-muted); font-size: 0.75rem;">Visitor</span>
+                            <span style="color: var(--text-muted); font-size: 0.75rem;">Anonymous Visitor</span>
                             {% endif %}
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" style="padding: 2rem; text-align: center; color: var(--text-muted);">
-                            Telemetry stream initializing. Visit a page to record telemetry.
+                        <td colspan="6" style="padding: 2.5rem; text-align: center; color: var(--text-muted);">
+                            <i class="fas fa-filter" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; color: rgba(255,255,255,0.2);"></i>
+                            No events match the current filter criteria.
                         </td>
                     </tr>
                     {% endfor %}

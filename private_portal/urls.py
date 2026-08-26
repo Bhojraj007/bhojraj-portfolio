@@ -118,6 +118,9 @@ urlpatterns = [
 
     # Visitor Telemetry, Leads & Monetization Analytics
     path('analytics/', views.AnalyticsDashboardView.as_view(), name='analytics_dashboard'),
+    path('analytics/export/', views.export_leads_csv, name='analytics_export_leads'),
+    path('analytics/purge-bots/', views.purge_bot_traffic, name='analytics_purge_bots'),
     path('site-manager/analytics/', views.AnalyticsDashboardView.as_view(), name='sm_analytics'),
 ]
+
 
