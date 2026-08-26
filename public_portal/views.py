@@ -62,6 +62,8 @@ def record_identified_lead(request, name, email, phone, inquiry_type, path):
         pass
 
 
+from .utils import send_lead_email_notification_async
+
 def home(request):
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
@@ -70,7 +72,7 @@ def home(request):
         inquiry_type = request.POST.get('inquiry_type', 'General Inquiry').strip()
         message = request.POST.get('message', '').strip()
         if name and email and message:
-            ContactMessage.objects.create(
+            contact_obj = ContactMessage.objects.create(
                 name=name, 
                 email=email, 
                 phone=phone,
@@ -78,11 +80,13 @@ def home(request):
                 message=message
             )
             record_identified_lead(request, name, email, phone, inquiry_type, path='/')
+            send_lead_email_notification_async(contact_obj)
 
             if 'Demo' in inquiry_type or 'IbiSAP' in inquiry_type:
                 messages.success(request, f'🎉 Enterprise Demo Request Confirmed for {name}! I will reach out at {email}{" or " + phone if phone else ""} within 6–12 hours.')
             else:
                 messages.success(request, f'Transmission received, {name}! Thank you for reaching out. I will get back to you shortly.')
+
             return redirect('public_portal:home')
 
 
@@ -245,7 +249,7 @@ def ibisap(request):
         inquiry_type = request.POST.get('inquiry_type', 'Enterprise IbiSAP Implementation').strip()
         message = request.POST.get('message', '').strip()
         if name and email and message:
-            ContactMessage.objects.create(
+            contact_obj = ContactMessage.objects.create(
                 name=name,
                 email=email,
                 phone=phone,
@@ -253,8 +257,10 @@ def ibisap(request):
                 message=message
             )
             record_identified_lead(request, name, email, phone, f"IbiSAP Demo: {inquiry_type}", path='/ibisap/')
+            send_lead_email_notification_async(contact_obj)
             messages.success(request, f'🎉 IbiSAP Enterprise Demo Request Confirmed for {name}! We will reach out to {email}{" or " + phone if phone else ""} shortly.')
             return redirect('public_portal:ibisap')
+
 
 
     modules = IbiSAPModule.objects.all().order_by('order', 'id')

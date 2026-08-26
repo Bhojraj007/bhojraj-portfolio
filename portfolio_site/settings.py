@@ -156,7 +156,18 @@ LOGOUT_REDIRECT_URL = 'public_portal:home'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Email Notification Configuration (Gmail SMTP & Lead Alerts)
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'noreply@rajabhoj.com.np')
+NOTIFICATION_RECIPIENT_EMAIL = os.environ.get('NOTIFICATION_RECIPIENT_EMAIL', 'upadhayaybhojraj@gmail.com')
+
 # Production Security Settings (SSL handled cleanly by cPanel / Cloudflare / Apache)
+
 if not DEBUG and os.environ.get('DISABLE_SSL_REDIRECT', 'False') != 'True':
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
