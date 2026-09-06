@@ -72,14 +72,39 @@ python manage.py check --deploy
 python manage.py showmigrations
 ```
 
-## 7. Admin Panel
+## 7. cPanel / Linux Server Updating & GitHub Authentication
+
+When pulling updates onto cPanel (`chilltec@s805`):
+
+```bash
+# 1. Activate virtual environment and enter repository directory
+source /home/chilltec/virtualenv/Bhojraj_portfolio/3.11/bin/activate
+cd /home/chilltec/Bhojraj_portfolio
+
+# 2. Configure GitHub authentication (using Personal Access Token):
+# Generate a token on github.com: Settings -> Developer Settings -> Personal access tokens (classic) -> Check 'repo'
+git remote set-url origin https://<YOUR_GITHUB_TOKEN>@github.com/Bhojraj007/bhojraj-portfolio.git
+
+# 3. Pull latest commits
+git pull origin main
+
+# 4. Run migrations
+python manage.py migrate
+
+# 5. Collect static files
+python manage.py collectstatic --noinput
+
+# 6. Restart Python application via cPanel "Setup Python App" -> Click "Restart"
+```
+
+## 8. Admin Panel
 
 Access the Django admin at `/admin/` to manage:
 - Site Configuration (hero text, about section, footer)
 - Photos, Videos, Posts, Blogs
 - User accounts & permissions
 - Cash Book transactions
-- Contact messages
+- Contact messages & demo requests (Full View, Edit, Update, Delete)
 
 ## File Structure (Production)
 
