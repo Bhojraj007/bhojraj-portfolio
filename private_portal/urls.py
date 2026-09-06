@@ -131,6 +131,7 @@ urlpatterns = [
 
     # Inquiries & Demo Requests (Full CRUD)
     path('site-manager/inquiries/', views.SmInquiryListView.as_view(), name='sm_inquiry_list'),
+    path('site-manager/inquiries/<int:pk>/', views.SmInquiryDetailView.as_view(), name='sm_inquiry_detail'),
     path('site-manager/inquiries/<int:pk>/edit/', views.SmInquiryUpdateView.as_view(), name='sm_inquiry_edit'),
     path('site-manager/inquiries/<int:pk>/delete/', views.SmInquiryDeleteView.as_view(), name='sm_inquiry_delete'),
 

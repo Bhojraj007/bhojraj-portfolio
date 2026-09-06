@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import TemplateView, ListView, CreateView, DeleteView, UpdateView
+from django.views.generic import TemplateView, ListView, CreateView, DeleteView, UpdateView, DetailView
 from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
@@ -1882,6 +1882,18 @@ class SmInquiryListView(StaffRequiredMixin, ListView):
         context['total_general'] = context['total_all'] - context['total_demos']
         context['active_tab'] = self.request.GET.get('tab', 'all').strip().lower()
         context['search_query'] = self.request.GET.get('q', '').strip()
+        return context
+
+
+class SmInquiryDetailView(StaffRequiredMixin, DetailView):
+    model = ContactMessage
+    template_name = 'private_portal/site_manager/inquiry_detail.html'
+    context_object_name = 'inquiry'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['content_title'] = f"Inquiry from {self.object.name}"
+        context['back_url'] = 'private_portal:sm_inquiry_list'
         return context
 
 

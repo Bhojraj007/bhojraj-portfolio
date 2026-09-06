@@ -90,7 +90,7 @@
                         <th>Inquiry Classification</th>
                         <th>Message Payload</th>
                         <th>Received At</th>
-                        <th style="text-align: right;">Quick Actions</th>
+                        <th style="text-align: right; min-width: 180px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -133,17 +133,28 @@
                             </span>
                             {% endif %}
                         </td>
-                        <td>
-                            <div style="max-width: 300px; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5; white-space: pre-line;">
-                                {{ item.message|truncatewords:25 }}
-                            </div>
+                        <td style="color: var(--text-secondary); font-size: 0.88rem; max-width: 320px;">
+                            {{ item.message|truncatewords:20 }}
                         </td>
                         <td style="color: var(--text-muted); font-size: 0.82rem; font-family: 'JetBrains Mono', monospace; white-space: nowrap;">
                             {{ item.timestamp|date:"M d, Y" }}<br>
                             <span style="font-size: 0.75rem;">{{ item.timestamp|time:"h:i A" }}</span>
                         </td>
                         <td>
-                            <div class="sm-row-actions" style="justify-content: flex-end; gap: 8px;">
+                            <div class="sm-row-actions" style="justify-content: flex-end; gap: 6px;">
+                                <button type="button" 
+                                        class="sm-row-btn" 
+                                        title="View Full Transmission" 
+                                        style="color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); cursor: pointer;"
+                                        onclick="openInquiryModal('{{ item.pk }}', '{{ item.name|escapejs }}', '{{ item.email|escapejs }}', '{{ item.phone|default:''|escapejs }}', '{{ item.inquiry_type|escapejs }}', '{{ item.message|escapejs }}', '{{ item.timestamp|date:"M d, Y · h:i A" }}', '{% url 'private_portal:sm_inquiry_detail' item.pk %}', '{% url 'private_portal:sm_inquiry_edit' item.pk %}', '{% url 'private_portal:sm_inquiry_delete' item.pk %}')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <a href="{% url 'private_portal:sm_inquiry_edit' item.pk %}" class="sm-row-btn" title="Edit / Update Details" style="color: #F9CD05; background: rgba(249, 205, 5, 0.12); border: 1px solid rgba(249, 205, 5, 0.35);">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'private_portal:sm_inquiry_delete' item.pk %}" class="sm-row-btn danger" title="Delete Transmission" style="color: #ef4444; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35);">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
                                 <a href="mailto:{{ item.email }}?subject=Re:%20{{ item.inquiry_type|urlencode }}" class="sm-row-btn" title="Reply via Email" style="color: #38bdf8;">
                                     <i class="fas fa-reply"></i>
                                 </a>
@@ -152,12 +163,6 @@
                                     <i class="fab fa-whatsapp"></i>
                                 </a>
                                 {% endif %}
-                                <a href="{% url 'private_portal:sm_inquiry_edit' item.pk %}" class="sm-row-btn" title="Edit Inquiry / Demo" style="color: #F9CD05;">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="{% url 'private_portal:sm_inquiry_delete' item.pk %}" class="sm-row-btn danger" title="Delete Record" style="color: #ef4444;">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
                             </div>
                         </td>
                     </tr>
@@ -192,5 +197,153 @@
     </div>
     {% endif %}
 </div>
-{% endblock %}
 
+<!-- Quick View Modal -->
+<div id="inquiryModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.78); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 1.25rem;">
+    <div style="background: #151D1A; border: 1px solid rgba(249, 205, 5, 0.35); border-radius: 16px; width: 100%; max-width: 680px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.6);">
+        <!-- Modal Header -->
+        <div style="padding: 1.25rem 1.75rem; border-bottom: 1px solid var(--divider); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                    <i class="fas fa-satellite-dish"></i>
+                </div>
+                <div>
+                    <h3 id="modalSender" style="margin: 0; font-size: 1.15rem; color: #ffffff; font-weight: 700;">Sender</h3>
+                    <span id="modalType" style="font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; font-weight: 700;">Type</span>
+                </div>
+            </div>
+            <button type="button" onclick="closeInquiryModal()" style="background: transparent; border: none; color: var(--text-muted); font-size: 1.3rem; cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: color 0.2s;" onmouseover="this.style.color='#ffffff'" onmouseout="this.style.color='var(--text-muted)'">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div style="padding: 1.5rem 1.75rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.25rem;">
+            <!-- Metadata Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; background: rgba(0,0,0,0.25); padding: 1rem; border-radius: 10px; border: 1px solid var(--divider);">
+                <div>
+                    <span style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; display: block; margin-bottom: 2px;">Email</span>
+                    <a id="modalEmail" href="#" style="color: #38bdf8; font-size: 0.88rem; text-decoration: none; word-break: break-all;">-</a>
+                </div>
+                <div>
+                    <span style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; display: block; margin-bottom: 2px;">Phone / WhatsApp</span>
+                    <a id="modalPhone" href="#" style="color: #10B981; font-size: 0.88rem; text-decoration: none;">-</a>
+                </div>
+                <div>
+                    <span style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; display: block; margin-bottom: 2px;">Received At</span>
+                    <span id="modalTime" style="color: var(--text-secondary); font-size: 0.85rem; font-family: 'JetBrains Mono', monospace;">-</span>
+                </div>
+            </div>
+
+            <!-- Message Payload -->
+            <div>
+                <label style="font-size: 0.75rem; text-transform: uppercase; color: #F9CD05; letter-spacing: 0.5px; font-weight: 700; display: block; margin-bottom: 0.5rem;">
+                    <i class="fas fa-comment-alt"></i> Message Payload
+                </label>
+                <div id="modalMessage" style="background: rgba(0,0,0,0.3); border: 1px solid var(--divider); border-radius: 10px; padding: 1.25rem; font-size: 0.95rem; line-height: 1.7; color: #f1f5f9; white-space: pre-line; min-height: 120px;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div style="padding: 1rem 1.75rem; border-top: 1px solid var(--divider); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; background: rgba(0,0,0,0.15);">
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <a id="modalMailBtn" href="#" class="sm-cancel-btn" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); font-size: 0.82rem; padding: 6px 12px;">
+                    <i class="fas fa-reply"></i> Email
+                </a>
+                <a id="modalWaBtn" href="#" target="_blank" rel="noopener noreferrer" class="sm-cancel-btn" style="color: #10B981; border-color: rgba(16, 185, 129, 0.4); font-size: 0.82rem; padding: 6px 12px; display: none;">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </a>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <a id="modalDetailBtn" href="#" class="sm-cancel-btn" style="color: #ffffff; border-color: rgba(255,255,255,0.25); font-size: 0.82rem; padding: 6px 12px;">
+                    <i class="fas fa-expand-alt"></i> Full Detail
+                </a>
+                <a id="modalEditBtn" href="#" class="sm-add-btn" style="background: linear-gradient(135deg, #F9CD05, #eab308); color: #121A17; font-weight: 700; font-size: 0.82rem; padding: 6px 14px;">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a id="modalDeleteBtn" href="#" class="sm-cancel-btn" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4); font-size: 0.82rem; padding: 6px 12px;">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openInquiryModal(id, name, email, phone, inquiryType, message, timestamp, detailUrl, editUrl, deleteUrl) {
+    document.getElementById('modalSender').textContent = name;
+    
+    const typeEl = document.getElementById('modalType');
+    typeEl.textContent = inquiryType || 'General Inquiry';
+    if (inquiryType.includes('Demo') || inquiryType.includes('IbiSAP')) {
+        typeEl.style.background = 'rgba(249, 205, 5, 0.18)';
+        typeEl.style.color = '#F9CD05';
+        typeEl.style.border = '1px solid rgba(249, 205, 5, 0.4)';
+    } else if (inquiryType.includes('CBS') || inquiryType.includes('Enterprise')) {
+        typeEl.style.background = 'rgba(16, 185, 129, 0.18)';
+        typeEl.style.color = '#10B981';
+        typeEl.style.border = '1px solid rgba(16, 185, 129, 0.4)';
+    } else {
+        typeEl.style.background = 'rgba(255, 255, 255, 0.08)';
+        typeEl.style.color = 'var(--text-secondary)';
+        typeEl.style.border = 'none';
+    }
+
+    const emailEl = document.getElementById('modalEmail');
+    emailEl.textContent = email;
+    emailEl.href = 'mailto:' + email + '?subject=Re: ' + encodeURIComponent(inquiryType);
+
+    const mailBtn = document.getElementById('modalMailBtn');
+    mailBtn.href = 'mailto:' + email + '?subject=Re: ' + encodeURIComponent(inquiryType);
+
+    const phoneEl = document.getElementById('modalPhone');
+    const waBtn = document.getElementById('modalWaBtn');
+    if (phone && phone.trim()) {
+        phoneEl.textContent = phone;
+        phoneEl.href = 'tel:' + phone;
+        phoneEl.style.display = 'inline';
+        const cleanPhone = phone.replace(/[^0-9]/g, '');
+        waBtn.href = 'https://wa.me/' + cleanPhone;
+        waBtn.style.display = 'inline-flex';
+    } else {
+        phoneEl.textContent = 'Not provided';
+        phoneEl.removeAttribute('href');
+        waBtn.style.display = 'none';
+    }
+
+    document.getElementById('modalTime').textContent = timestamp;
+    document.getElementById('modalMessage').textContent = message;
+
+    document.getElementById('modalDetailBtn').href = detailUrl;
+    document.getElementById('modalEditBtn').href = editUrl;
+    document.getElementById('modalDeleteBtn').href = deleteUrl;
+
+    const modal = document.getElementById('inquiryModal');
+    modal.style.display = 'flex';
+}
+
+function closeInquiryModal() {
+    const modal = document.getElementById('inquiryModal');
+    if (modal) modal.style.display = 'none';
+}
+
+// Close on backdrop click
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('inquiryModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeInquiryModal();
+            }
+        });
+    }
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeInquiryModal();
+        }
+    });
+});
+</script>
+{% endblock %}

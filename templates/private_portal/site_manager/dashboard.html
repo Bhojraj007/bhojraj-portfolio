@@ -244,6 +244,15 @@
                         </td>
                         <td>
                             <div class="sm-row-actions" style="justify-content: flex-end; gap: 6px;">
+                                <a href="{% url 'private_portal:sm_inquiry_detail' item.pk %}" class="sm-row-btn" title="View Transmission" style="color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35);">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'private_portal:sm_inquiry_edit' item.pk %}" class="sm-row-btn" title="Edit / Update" style="color: #F9CD05; background: rgba(249, 205, 5, 0.12); border: 1px solid rgba(249, 205, 5, 0.35);">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'private_portal:sm_inquiry_delete' item.pk %}" class="sm-row-btn danger" title="Delete Inquiry" style="color: #ef4444; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35);">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
                                 <a href="mailto:{{ item.email }}?subject=Re:%20{{ item.inquiry_type|urlencode }}" class="sm-row-btn" title="Reply via Email" style="color: #38bdf8;">
                                     <i class="fas fa-reply"></i>
                                 </a>
@@ -252,12 +261,6 @@
                                     <i class="fab fa-whatsapp"></i>
                                 </a>
                                 {% endif %}
-                                <a href="{% url 'private_portal:sm_inquiry_edit' item.pk %}" class="sm-row-btn" title="Edit Inquiry / Demo" style="color: #F9CD05;">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="{% url 'private_portal:sm_inquiry_delete' item.pk %}" class="sm-row-btn danger" title="Delete Inquiry" style="color: #ef4444;">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
                             </div>
                         </td>
                     </tr>

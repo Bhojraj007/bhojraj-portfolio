@@ -1,0 +1,115 @@
+{% extends "private_base.html" %}
+
+{% block title %}Inquiry Details: {{ inquiry.name }} | Site Manager{% endblock %}
+
+{% block content %}
+<div class="sm-container">
+    <div class="sm-header">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+            <a href="{% url 'private_portal:sm_inquiry_list' %}" style="color: var(--text-muted); text-decoration: none; font-size: 0.8rem;">
+                <i class="fas fa-arrow-left"></i> Back to Inquiries
+            </a>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1><i class="fas fa-envelope-open-text" style="color: #38bdf8;"></i> Transmission Details</h1>
+                <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.25rem;">
+                    Received on {{ inquiry.timestamp|date:"F d, Y" }} at {{ inquiry.timestamp|time:"h:i A" }}
+                </p>
+            </div>
+            <div style="display: flex; gap: 0.6rem; align-items: center;">
+                <a href="{% url 'private_portal:sm_inquiry_edit' inquiry.pk %}" class="sm-add-btn" style="background: linear-gradient(135deg, #F9CD05, #eab308); color: #121A17; font-weight: 700;">
+                    <i class="fas fa-edit"></i> Edit Inquiry
+                </a>
+                <a href="{% url 'private_portal:sm_inquiry_delete' inquiry.pk %}" class="sm-cancel-btn" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4);">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 340px; gap: 1.5rem; align-items: start;">
+        <!-- Left: Message Content -->
+        <div class="sm-form-card" style="padding: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--divider); padding-bottom: 1rem;">
+                <h2 style="font-size: 1.25rem; color: #ffffff; margin: 0; font-weight: 700;">
+                    <i class="fas fa-comment-alt" style="color: #F9CD05;"></i> Message Payload
+                </h2>
+                {% if 'Demo' in inquiry.inquiry_type or 'IbiSAP' in inquiry.inquiry_type %}
+                <span class="sm-badge gold" style="background: rgba(249, 205, 5, 0.15); color: #F9CD05; border: 1px solid rgba(249, 205, 5, 0.35); padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 0.8rem;">
+                    <i class="fas fa-desktop"></i> {{ inquiry.inquiry_type }}
+                </span>
+                {% elif 'CBS' in inquiry.inquiry_type or 'Enterprise' in inquiry.inquiry_type %}
+                <span class="sm-badge emerald" style="background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.35); padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 0.8rem;">
+                    <i class="fas fa-shield-alt"></i> {{ inquiry.inquiry_type }}
+                </span>
+                {% else %}
+                <span class="sm-badge" style="background: rgba(255, 255, 255, 0.08); color: var(--text-secondary); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem;">
+                    {{ inquiry.inquiry_type|default:"General Inquiry" }}
+                </span>
+                {% endif %}
+            </div>
+
+            <div style="color: var(--text-primary); font-size: 1rem; line-height: 1.8; white-space: pre-line; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--divider);">
+                {{ inquiry.message }}
+            </div>
+
+            <!-- Quick Reply Row -->
+            <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap;">
+                <a href="mailto:{{ inquiry.email }}?subject=Re:%20{{ inquiry.inquiry_type|urlencode }}" class="sm-add-btn" style="background: #38bdf8; color: #0f172a; font-weight: 700;">
+                    <i class="fas fa-reply"></i> Reply via Email
+                </a>
+                {% if inquiry.phone %}
+                <a href="https://wa.me/{{ inquiry.phone|cut:' '|cut:'+' }}" target="_blank" rel="noopener noreferrer" class="sm-add-btn" style="background: #10B981; color: white; font-weight: 700;">
+                    <i class="fab fa-whatsapp"></i> Chat on WhatsApp
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right: Sender Metadata Card -->
+        <div class="sm-form-card" style="padding: 1.75rem;">
+            <h3 style="font-size: 1.1rem; color: #ffffff; margin-bottom: 1.25rem; font-weight: 700; border-bottom: 1px solid var(--divider); padding-bottom: 0.75rem;">
+                <i class="fas fa-user-circle" style="color: #38bdf8;"></i> Sender Profile
+            </h3>
+
+            <div style="display: flex; flex-direction: column; gap: 1rem; font-size: 0.9rem;">
+                <div>
+                    <span style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 3px;">Full Name</span>
+                    <strong style="color: #ffffff; font-size: 1.05rem;">{{ inquiry.name }}</strong>
+                </div>
+
+                <div>
+                    <span style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 3px;">Email Address</span>
+                    <a href="mailto:{{ inquiry.email }}" style="color: #38bdf8; text-decoration: none; word-break: break-all;">
+                        <i class="fas fa-envelope"></i> {{ inquiry.email }}
+                    </a>
+                </div>
+
+                <div>
+                    <span style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 3px;">Phone / WhatsApp</span>
+                    {% if inquiry.phone %}
+                    <a href="tel:{{ inquiry.phone }}" style="color: #10B981; text-decoration: none; font-weight: 600;">
+                        <i class="fas fa-phone"></i> {{ inquiry.phone }}
+                    </a>
+                    {% else %}
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">Not provided</span>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <span style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 3px;">Classification Intent</span>
+                    <span style="color: var(--text-secondary); font-weight: 600;">{{ inquiry.inquiry_type }}</span>
+                </div>
+
+                <div>
+                    <span style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 3px;">Received Timestamp</span>
+                    <span style="color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">
+                        {{ inquiry.timestamp|date:"Y-m-d H:i:s" }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
