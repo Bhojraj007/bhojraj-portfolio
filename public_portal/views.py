@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
-from django.db.models import Q, F
-from private_portal.models import Photo, Video, Blog
+from django.db.models import Q, F, Count
+from django.contrib.contenttypes.models import ContentType
+from django.utils.timesince import timesince
+from private_portal.models import Photo, Video, Blog, Comment
 from .models import (
     Skill, 
     Experience, 
@@ -176,6 +178,10 @@ def blog_detail(request, slug):
     Blog.objects.filter(pk=blog.pk).update(views_count=F('views_count') + 1)
     blog.refresh_from_db(fields=['views_count'])
 
+    # Fetch comments
+    blog_ct = ContentType.objects.get_for_model(Blog)
+    comments = Comment.objects.filter(content_type=blog_ct, object_id=blog.pk).order_by('created_at')
+
     # Related blogs
     related_blogs = Blog.objects.filter(is_public=True, category=blog.category).exclude(pk=blog.pk).order_by('-created_at')[:3]
     if related_blogs.count() < 3:
@@ -190,6 +196,9 @@ def blog_detail(request, slug):
 
     context = {
         'blog': blog,
+        'comments': comments,
+        'comments_count': comments.count(),
+        'blog_ct_id': blog_ct.id,
         'related_blogs': related_blogs,
         'prev_blog': prev_blog,
         'next_blog': next_blog,
@@ -214,22 +223,164 @@ def blog_like(request, blog_id):
     return JsonResponse({'error': 'POST required'}, status=400)
 
 
-def ibisap(request):
-    """
-    Gracefully redirect /ibisap/ requests to the main portfolio projects showcase.
-    """
-    return redirect('/#projects')
+def add_public_comment(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'POST request required'}, status=405)
+
+    content_type_str = request.POST.get('content_type', '').strip().lower()
+    object_id = request.POST.get('object_id')
+    text = request.POST.get('text', '').strip()
+    author_name = request.POST.get('author_name', '').strip()
+    author_email = request.POST.get('author_email', '').strip()
+
+    is_ajax = (
+        request.headers.get('x-requested-with') == 'XMLHttpRequest' or 
+        request.GET.get('ajax') == '1' or
+        request.POST.get('ajax') == '1' or
+        'application/json' in request.headers.get('accept', '')
+    )
+
+    if not text:
+        if is_ajax:
+            return JsonResponse({'status': 'error', 'message': 'Comment text cannot be empty.'}, status=400)
+        messages.error(request, 'Please write a reflection or comment before submitting.')
+        return redirect(request.META.get('HTTP_REFERER', 'public_portal:home'))
+
+    ct = None
+    if content_type_str in ('blog', 'article', 'poem'):
+        ct = ContentType.objects.get_for_model(Blog)
+    elif content_type_str in ('photo', 'image'):
+        ct = ContentType.objects.get_for_model(Photo)
+    elif content_type_str in ('gallery_item', 'galleryitem', 'artifact'):
+        ct = ContentType.objects.get_for_model(GalleryItem)
+    elif content_type_str.isdigit():
+        ct = ContentType.objects.filter(id=int(content_type_str)).first()
+
+    if not ct or not object_id:
+        if is_ajax:
+            return JsonResponse({'status': 'error', 'message': 'Target object for comment not specified.'}, status=400)
+        messages.error(request, 'Target for comment was not found.')
+        return redirect(request.META.get('HTTP_REFERER', 'public_portal:home'))
+
+    user = request.user if request.user.is_authenticated else None
+    display_author = (user.get_full_name() or user.username) if user else (author_name or 'Anonymous Visitor')
+    display_email = user.email if user else author_email
+
+    comment = Comment.objects.create(
+        user=user,
+        author_name=display_author,
+        author_email=display_email,
+        content_type=ct,
+        object_id=int(object_id),
+        text=text
+    )
+
+    if author_email:
+        record_identified_lead(
+            request, 
+            name=display_author, 
+            email=author_email, 
+            phone='', 
+            inquiry_type=f'Comment on {content_type_str}', 
+            path=request.path
+        )
+
+    if is_ajax:
+        total_comments = Comment.objects.filter(content_type=ct, object_id=object_id).count()
+        return JsonResponse({
+            'status': 'ok',
+            'message': 'Comment posted successfully!',
+            'comment': {
+                'id': comment.id,
+                'author': comment.display_author,
+                'initial': comment.initial,
+                'avatar_url': comment.avatar_url,
+                'text': comment.text,
+                'created_at': comment.created_at.strftime('%b %d, %Y · %I:%M %p'),
+                'time_ago': 'Just now',
+                'is_staff': comment.user.is_staff if comment.user else False,
+            },
+            'comments_count': total_comments
+        })
+
+    messages.success(request, '✨ Thank you! Your reflection has been published.')
+    ref = request.META.get('HTTP_REFERER', '')
+    if ref:
+        return redirect(ref + ('#comments' if '#comments' not in ref else ''))
+    return redirect('public_portal:home')
+
+
+def get_comments_ajax(request, content_type, object_id):
+    ct = None
+    ct_str = content_type.strip().lower()
+    if ct_str in ('blog', 'article', 'poem'):
+        ct = ContentType.objects.get_for_model(Blog)
+    elif ct_str in ('photo', 'image'):
+        ct = ContentType.objects.get_for_model(Photo)
+    elif ct_str in ('gallery_item', 'galleryitem', 'artifact'):
+        ct = ContentType.objects.get_for_model(GalleryItem)
+    elif ct_str.isdigit():
+        ct = ContentType.objects.filter(id=int(ct_str)).first()
+
+    if not ct:
+        return JsonResponse({'status': 'error', 'message': 'Invalid content type.'}, status=400)
+
+    comments_qs = Comment.objects.filter(content_type=ct, object_id=object_id).order_by('created_at')
+    data = []
+    for c in comments_qs:
+        data.append({
+            'id': c.id,
+            'author': c.display_author,
+            'initial': c.initial,
+            'avatar_url': c.avatar_url,
+            'text': c.text,
+            'created_at': c.created_at.strftime('%b %d, %Y · %I:%M %p'),
+            'time_ago': timesince(c.created_at) + ' ago',
+            'is_staff': c.user.is_staff if c.user else False,
+        })
+    return JsonResponse({
+        'status': 'ok',
+        'comments': data,
+        'count': len(data),
+        'content_type': ct_str,
+        'object_id': object_id,
+    })
+
+
+def delete_public_comment(request, comment_id):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'POST required'}, status=405)
+    comment = get_object_or_404(Comment, pk=comment_id)
+    if request.user.is_staff or (request.user.is_authenticated and comment.user == request.user):
+        comment.delete()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'ok', 'message': 'Comment removed'})
+        messages.success(request, 'Comment removed successfully.')
+        return redirect(request.META.get('HTTP_REFERER', 'public_portal:home'))
+    return JsonResponse({'status': 'error', 'message': 'Permission denied'}, status=403)
 
 
 def gallery(request):
     category = request.GET.get('category', '').strip()
     
-    photos = Photo.objects.filter(is_public=True).order_by('-upload_timestamp')
+    photos = list(Photo.objects.filter(is_public=True).order_by('-upload_timestamp'))
     videos = Video.objects.filter(is_public=True).order_by('-upload_timestamp')
-    gallery_items = GalleryItem.objects.filter(is_active=True).order_by('order', 'id')
+    gallery_items = list(GalleryItem.objects.filter(is_active=True).order_by('order', 'id'))
     config = SiteConfiguration.objects.first()
     
-    total_count = photos.count() + gallery_items.count() + videos.count()
+    # Calculate comment counts
+    photo_ct = ContentType.objects.get_for_model(Photo)
+    gallery_ct = ContentType.objects.get_for_model(GalleryItem)
+    
+    photo_counts = dict(Comment.objects.filter(content_type=photo_ct).values('object_id').annotate(c=Count('id')).values_list('object_id', 'c'))
+    gallery_counts = dict(Comment.objects.filter(content_type=gallery_ct).values('object_id').annotate(c=Count('id')).values_list('object_id', 'c'))
+    
+    for p in photos:
+        p.comments_count = photo_counts.get(p.pk, 0)
+    for g in gallery_items:
+        g.comments_count = gallery_counts.get(g.pk, 0)
+
+    total_count = len(photos) + len(gallery_items) + videos.count()
     
     context = {
         'photos': photos,
@@ -238,11 +389,12 @@ def gallery(request):
         'site_config': config,
         'active_category': category,
         'total_count': total_count,
-        'photos_count': photos.count(),
-        'gallery_items_count': gallery_items.count(),
+        'photos_count': len(photos),
+        'gallery_items_count': len(gallery_items),
         'videos_count': videos.count(),
     }
     return render(request, 'public_portal/gallery.html', context)
+
 
 
 def ibisap(request):

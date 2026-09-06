@@ -129,8 +129,10 @@ urlpatterns = [
     path('site-manager/ibisap-comparison/<int:pk>/delete/', views.SmIbiSAPComparisonDeleteView.as_view(), name='sm_ibisap_comparison_delete'),
 
 
-    # Inquiries (Read-only)
+    # Inquiries & Demo Requests (Full CRUD)
     path('site-manager/inquiries/', views.SmInquiryListView.as_view(), name='sm_inquiry_list'),
+    path('site-manager/inquiries/<int:pk>/edit/', views.SmInquiryUpdateView.as_view(), name='sm_inquiry_edit'),
+    path('site-manager/inquiries/<int:pk>/delete/', views.SmInquiryDeleteView.as_view(), name='sm_inquiry_delete'),
 
     # Visitor Telemetry, Leads & Monetization Analytics
     path('analytics/', views.AnalyticsDashboardView.as_view(), name='analytics_dashboard'),

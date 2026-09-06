@@ -465,7 +465,7 @@
                     <div class="ch-icon" style="background: rgba(16, 185, 129, 0.15); color: #10B981;"><i class="fab fa-whatsapp"></i></div>
                     <div class="ch-info">
                         <span class="ch-title">Instant Messaging / WhatsApp</span>
-                        <span class="ch-val">{{ site_config.whatsapp_number|default:site_config.phone_number|default:"+977 9848485292" }}</span>
+                        <span class="ch-val">{% if site_config.whatsapp_number %}{{ site_config.whatsapp_number }}{% elif site_config.phone_number %}{{ site_config.phone_number }}{% else %}+977 9848485292{% endif %}</span>
                     </div>
                     <span class="ch-arrow"><i class="fas fa-external-link-alt"></i></span>
                 </a>

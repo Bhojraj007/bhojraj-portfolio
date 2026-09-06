@@ -150,6 +150,8 @@ class Todo(models.Model):
 
 class Comment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='portal_comments')
+    author_name = models.CharField(max_length=150, blank=True, default='')
+    author_email = models.EmailField(blank=True, default='')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -159,9 +161,25 @@ class Comment(models.Model):
     class Meta:
         ordering = ['created_at']
 
+    @property
+    def display_author(self):
+        if self.user:
+            return self.user.get_full_name() or self.user.username
+        return self.author_name or 'Anonymous Visitor'
+
+    @property
+    def avatar_url(self):
+        if self.user and hasattr(self.user, 'profile_picture') and self.user.profile_picture:
+            return self.user.profile_picture.url
+        return None
+
+    @property
+    def initial(self):
+        name = self.display_author.strip()
+        return name[0].upper() if name else 'A'
+
     def __str__(self):
-        name = self.user.username if self.user else 'Anonymous'
-        return f"{name} on {self.content_object}"
+        return f"{self.display_author} on {self.content_object}"
 
 class MoodLog(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)

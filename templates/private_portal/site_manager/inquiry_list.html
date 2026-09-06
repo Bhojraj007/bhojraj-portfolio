@@ -10,12 +10,73 @@
                 <i class="fas fa-arrow-left"></i> Site Manager
             </a>
         </div>
-        <h1><i class="fas fa-envelope-open-text"></i> Client Transmissions &amp; Demo Requests</h1>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1><i class="fas fa-envelope-open-text" style="color: #F9CD05;"></i> Client Transmissions &amp; Demo Requests</h1>
+                <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.25rem;">
+                    Manage, review, edit, or purge incoming client inquiries, enterprise demo bookings, and consultation leads.
+                </p>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <span class="sm-badge" style="background: rgba(249, 205, 5, 0.12); color: #F9CD05; border: 1px solid rgba(249, 205, 5, 0.3); padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem;">
+                    <i class="fas fa-satellite-dish"></i> {{ total_all }} Total Messages
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter & Search Toolbar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+        <!-- Category Filter Tabs -->
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <a href="?tab=all{% if search_query %}&q={{ search_query }}{% endif %}" 
+               class="sm-cancel-btn" 
+               style="padding: 0.45rem 1rem; font-size: 0.82rem; {% if active_tab == 'all' or not active_tab %}background: rgba(249, 205, 5, 0.15); border-color: #F9CD05; color: #F9CD05; font-weight: 700;{% else %}color: var(--text-secondary);{% endif %}">
+                <i class="fas fa-inbox"></i> All Transmissions ({{ total_all }})
+            </a>
+            <a href="?tab=demos{% if search_query %}&q={{ search_query }}{% endif %}" 
+               class="sm-cancel-btn" 
+               style="padding: 0.45rem 1rem; font-size: 0.82rem; {% if active_tab == 'demos' %}background: rgba(249, 205, 5, 0.15); border-color: #F9CD05; color: #F9CD05; font-weight: 700;{% else %}color: var(--text-secondary);{% endif %}">
+                <i class="fas fa-desktop"></i> Demo Requests ({{ total_demos }})
+            </a>
+            <a href="?tab=general{% if search_query %}&q={{ search_query }}{% endif %}" 
+               class="sm-cancel-btn" 
+               style="padding: 0.45rem 1rem; font-size: 0.82rem; {% if active_tab == 'general' %}background: rgba(249, 205, 5, 0.15); border-color: #F9CD05; color: #F9CD05; font-weight: 700;{% else %}color: var(--text-secondary);{% endif %}">
+                <i class="fas fa-envelope"></i> General Inquiries ({{ total_general }})
+            </a>
+        </div>
+
+        <!-- Search Box -->
+        <form method="get" style="display: flex; gap: 0.4rem; align-items: center;">
+            {% if active_tab %}<input type="hidden" name="tab" value="{{ active_tab }}">{% endif %}
+            <div style="position: relative;">
+                <input type="text" name="q" value="{{ search_query }}" placeholder="Search sender, email, intent..." 
+                       style="background: var(--bg-card); border: 1px solid var(--divider); color: var(--text-primary); padding: 0.45rem 1rem 0.45rem 2rem; border-radius: var(--radius-full); font-size: 0.82rem; outline: none; width: 220px;">
+                <i class="fas fa-search" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 0.75rem; color: var(--text-muted);"></i>
+            </div>
+            <button type="submit" class="sm-cancel-btn" style="padding: 0.45rem 0.85rem; font-size: 0.82rem;">
+                Filter
+            </button>
+            {% if search_query %}
+            <a href="?tab={{ active_tab|default:'all' }}" class="sm-cancel-btn" style="padding: 0.45rem 0.65rem; color: var(--accent-rose);" title="Clear Search">
+                <i class="fas fa-times"></i>
+            </a>
+            {% endif %}
+        </form>
     </div>
 
     <div class="sm-table-wrap">
         <div class="sm-table-header">
-            <h2><i class="fas fa-inbox"></i> Incoming Messages ({{ inquiries|length }})</h2>
+            <h2>
+                <i class="fas fa-inbox" style="color: #F9CD05;"></i> 
+                {% if active_tab == 'demos' %}
+                    Enterprise Demo Requests ({{ inquiries|length }})
+                {% elif active_tab == 'general' %}
+                    General Portfolio Inquiries ({{ inquiries|length }})
+                {% else %}
+                    All Incoming Messages &amp; Demos ({{ inquiries|length }})
+                {% endif %}
+            </h2>
         </div>
         
         {% if inquiries %}
@@ -73,7 +134,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            <div style="max-width: 320px; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5; white-space: pre-line;">
+                            <div style="max-width: 300px; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5; white-space: pre-line;">
                                 {{ item.message|truncatewords:25 }}
                             </div>
                         </td>
@@ -91,6 +152,12 @@
                                     <i class="fab fa-whatsapp"></i>
                                 </a>
                                 {% endif %}
+                                <a href="{% url 'private_portal:sm_inquiry_edit' item.pk %}" class="sm-row-btn" title="Edit Inquiry / Demo" style="color: #F9CD05;">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'private_portal:sm_inquiry_delete' item.pk %}" class="sm-row-btn danger" title="Delete Record" style="color: #ef4444;">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
                             </div>
                         </td>
                     </tr>
@@ -101,10 +168,29 @@
         {% else %}
         <div class="sm-empty-state" style="padding: 3rem; text-align: center;">
             <i class="fas fa-inbox" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem; opacity: 0.4;"></i>
-            <h3 style="color: var(--text-secondary); font-weight: 600;">No Incoming Inquiries Yet</h3>
-            <p style="color: var(--text-muted); font-size: 0.88rem;">Submissions from the public portfolio transmission form and demo requests will appear here.</p>
+            <h3 style="color: var(--text-secondary); font-weight: 600;">No Transmissions Found</h3>
+            <p style="color: var(--text-muted); font-size: 0.88rem;">Submissions matching your filter or query will appear here.</p>
         </div>
         {% endif %}
     </div>
+
+    {% if is_paginated %}
+    <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 0.5rem;">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if active_tab %}&tab={{ active_tab }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="sm-cancel-btn">
+            <i class="fas fa-chevron-left"></i> Previous
+        </a>
+        {% endif %}
+        <span class="sm-cancel-btn" style="border-color: transparent; color: var(--text-muted);">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if active_tab %}&tab={{ active_tab }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="sm-cancel-btn">
+            Next <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
+

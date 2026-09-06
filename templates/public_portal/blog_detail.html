@@ -5,6 +5,275 @@
 {% block og_title %}{{ blog.title }} — {{ blog.get_category_display }}{% endblock %}
 {% block og_description %}{{ blog.excerpt|default:blog.subtitle|default:blog.content|truncatewords:30 }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Comments Section Aesthetics */
+    .comments-section-wrap {
+        margin: 3.5rem 0 2rem 0;
+        padding: 2.25rem;
+        background: rgba(18, 26, 23, 0.65);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        backdrop-filter: blur(12px);
+    }
+    .comments-header-row {
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        padding-bottom: 1.25rem;
+    }
+    .comments-header-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.35rem;
+    }
+    .comments-header-title i {
+        font-size: 1.4rem;
+        color: #F9CD05;
+    }
+    .comments-header-title h2 {
+        font-size: 1.45rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin: 0;
+        letter-spacing: -0.3px;
+    }
+    .comment-count-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        background: rgba(249, 205, 5, 0.15);
+        color: #F9CD05;
+        border: 1px solid rgba(249, 205, 5, 0.3);
+    }
+    .comments-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.88rem;
+        margin: 0;
+        line-height: 1.5;
+    }
+    .add-comment-card {
+        background: rgba(10, 15, 13, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2.25rem;
+        transition: border-color 0.2s;
+    }
+    .add-comment-card:focus-within {
+        border-color: rgba(249, 205, 5, 0.35);
+    }
+    .logged-in-user-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.4rem 0.85rem;
+        background: rgba(16, 185, 129, 0.12);
+        border: 1px solid rgba(16, 185, 129, 0.25);
+        border-radius: 20px;
+        margin-bottom: 1rem;
+        font-size: 0.82rem;
+        color: #10B981;
+    }
+    .guest-fields-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    @media (max-width: 640px) {
+        .guest-fields-row {
+            grid-template-columns: 1fr;
+        }
+    }
+    .form-input-field label {
+        display: block;
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+    }
+    .form-input-field input,
+    .form-input-field textarea {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        padding: 0.7rem 0.9rem;
+        color: #ffffff;
+        font-family: inherit;
+        font-size: 0.9rem;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-input-field textarea {
+        resize: vertical;
+        min-height: 85px;
+        line-height: 1.5;
+    }
+    .form-input-field input:focus,
+    .form-input-field textarea:focus {
+        border-color: #F9CD05;
+        box-shadow: 0 0 0 3px rgba(249, 205, 5, 0.12);
+    }
+    .form-actions-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+    .form-privacy-note {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .btn-publish-comment {
+        background: linear-gradient(135deg, #F9CD05, #eab308);
+        color: #121A17;
+        font-weight: 800;
+        font-size: 0.88rem;
+        border: none;
+        padding: 0.65rem 1.4rem;
+        border-radius: 8px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-publish-comment:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(249, 205, 5, 0.35);
+    }
+    .btn-publish-comment:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    .comment-item-card {
+        display: flex;
+        gap: 1rem;
+        padding: 1.25rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        animation: commentFadeIn 0.35s ease forwards;
+    }
+    .comment-item-card:last-child {
+        border-bottom: none;
+    }
+    @keyframes commentFadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .comment-avatar-bubble {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #10B981, #059669);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #ffffff;
+        flex-shrink: 0;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .comment-avatar-bubble img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .comment-content-body {
+        flex: 1;
+    }
+    .comment-meta-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.4rem;
+    }
+    .comment-author-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .comment-author-name {
+        color: #ffffff;
+        font-size: 0.92rem;
+        font-weight: 600;
+    }
+    .badge-author-verified {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        padding: 1px 6px;
+        background: rgba(249, 205, 5, 0.15);
+        color: #F9CD05;
+        border: 1px solid rgba(249, 205, 5, 0.3);
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 700;
+    }
+    .comment-actions-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+    .comment-timestamp {
+        color: var(--text-muted);
+        font-size: 0.78rem;
+    }
+    .btn-delete-comment {
+        background: transparent;
+        border: none;
+        color: #ef4444;
+        opacity: 0.6;
+        cursor: pointer;
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        transition: opacity 0.2s, background 0.2s;
+    }
+    .btn-delete-comment:hover {
+        opacity: 1;
+        background: rgba(239, 68, 68, 0.15);
+    }
+    .comment-text-paragraph {
+        color: var(--text-secondary);
+        font-size: 0.92rem;
+        line-height: 1.6;
+        white-space: pre-line;
+    }
+    .comments-empty-state {
+        text-align: center;
+        padding: 2.5rem 1rem;
+        color: var(--text-muted);
+    }
+    .comments-empty-state .empty-icon {
+        font-size: 2.5rem;
+        opacity: 0.35;
+        margin-bottom: 0.75rem;
+    }
+    .comments-empty-state h4 {
+        color: var(--text-secondary);
+        margin-bottom: 0.25rem;
+        font-size: 1.05rem;
+    }
+    .comments-empty-state p {
+        font-size: 0.85rem;
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Reading Progress Bar -->
 <div class="reading-progress-bar" id="readingProgress"></div>
@@ -151,6 +420,109 @@
             </div>
         </div>
     </div>
+
+    <!-- Reader Reflections & Discourse (Comments Section) -->
+    <section class="comments-section-wrap reveal-up" id="comments">
+        <div class="comments-header-row">
+            <div class="comments-header-title">
+                <i class="fas fa-comments"></i>
+                <h2>Reflections &amp; Discourse</h2>
+                <span class="comment-count-chip" id="commentCountBadge">{{ comments_count }}</span>
+            </div>
+            <p class="comments-subtitle">
+                Share your perspective, critique, or technical reflections with the author and reading community.
+            </p>
+        </div>
+
+        <!-- Add Comment Form Card -->
+        <div class="add-comment-card">
+            <form id="blogCommentForm" onsubmit="submitBlogComment(event)">
+                {% csrf_token %}
+                <input type="hidden" name="content_type" value="blog">
+                <input type="hidden" name="object_id" value="{{ blog.id }}">
+
+                {% if request.user.is_authenticated %}
+                <div class="logged-in-user-badge">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #10B981; color: white; font-weight: 700; font-size: 0.75rem;">
+                        {% if request.user.profile_picture %}
+                        <img src="{{ request.user.profile_picture.url }}" alt="{{ request.user.username }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                        <span>{{ request.user.username|slice:":1"|upper }}</span>
+                        {% endif %}
+                    </div>
+                    <span>Commenting as <strong>{{ request.user.get_full_name|default:request.user.username }}</strong></span>
+                </div>
+                {% else %}
+                <div class="guest-fields-row">
+                    <div class="form-input-field">
+                        <label for="commentAuthorName"><i class="fas fa-user"></i> Your Name or Alias <span style="color: #f43f5e;">*</span></label>
+                        <input type="text" id="commentAuthorName" name="author_name" placeholder="e.g. Aadarsh Sharma" required>
+                    </div>
+                    <div class="form-input-field">
+                        <label for="commentAuthorEmail"><i class="fas fa-envelope"></i> Email Address <span style="font-size: 0.72rem; color: var(--text-muted);">(optional, kept private)</span></label>
+                        <input type="email" id="commentAuthorEmail" name="author_email" placeholder="name@domain.com">
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="form-input-field" style="margin-top: 1rem;">
+                    <label for="commentTextInput"><i class="fas fa-pen-fancy"></i> Your Reflection <span style="color: #f43f5e;">*</span></label>
+                    <textarea id="commentTextInput" name="text" rows="3" placeholder="Leave your thoughtful feedback, resonance with verses, or systems analysis..." required></textarea>
+                </div>
+
+                <div class="form-actions-row">
+                    <span class="form-privacy-note"><i class="fas fa-shield-alt"></i> Civil and respectful discourse is treasured.</span>
+                    <button type="submit" class="btn-publish-comment" id="btnSubmitComment">
+                        <i class="fas fa-paper-plane"></i> Publish Reflection
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Comment Feed Stream -->
+        <div class="comments-stream-container" id="commentsFeed">
+            {% if comments %}
+                {% for c in comments %}
+                <div class="comment-item-card reveal-up" id="comment-node-{{ c.id }}">
+                    <div class="comment-avatar-bubble">
+                        {% if c.avatar_url %}
+                        <img src="{{ c.avatar_url }}" alt="{{ c.display_author }}">
+                        {% else %}
+                        <span>{{ c.initial }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="comment-content-body">
+                        <div class="comment-meta-bar">
+                            <div class="comment-author-info">
+                                <strong class="comment-author-name">{{ c.display_author }}</strong>
+                                {% if c.user and c.user.is_staff %}
+                                <span class="badge-author-verified"><i class="fas fa-check-circle"></i> Author</span>
+                                {% endif %}
+                            </div>
+                            <div class="comment-actions-bar">
+                                <span class="comment-timestamp"><i class="far fa-clock"></i> {{ c.created_at|date:"M d, Y · h:i A" }}</span>
+                                {% if request.user.is_staff or request.user == c.user %}
+                                <button type="button" class="btn-delete-comment" onclick="deleteComment({{ c.id }})" title="Delete Reflection">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="comment-text-paragraph">
+                            {{ c.text|linebreaksbr }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="comments-empty-state" id="commentsEmptyState">
+                    <div class="empty-icon"><i class="far fa-comment-dots"></i></div>
+                    <h4>No reflections posted yet</h4>
+                    <p>Be the first voice in the conversation. Share your thoughts or resonate with these verses.</p>
+                </div>
+            {% endif %}
+        </div>
+    </section>
 
     <!-- Navigation between Next / Previous Posts -->
     <div class="prev-next-navigator reveal-up">
@@ -303,6 +675,134 @@
             box.appendChild(heart);
             setTimeout(() => heart.remove(), 1200);
         }
+    }
+
+    // Submit Blog Comment via AJAX
+    function submitBlogComment(e) {
+        e.preventDefault();
+        const form = document.getElementById('blogCommentForm');
+        const submitBtn = document.getElementById('btnSubmitComment');
+        const textInput = document.getElementById('commentTextInput');
+        const textVal = textInput.value.trim();
+        
+        if (!textVal) {
+            showToast('Please enter your reflection before submitting.');
+            return;
+        }
+
+        const formData = new FormData(form);
+        submitBtn.disabled = true;
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...';
+
+        fetch('{% url "public_portal:add_public_comment" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+
+            if (data.status === 'ok') {
+                showToast('✨ Reflection published successfully!');
+                textInput.value = '';
+
+                // Update count badge
+                const badge = document.getElementById('commentCountBadge');
+                if (badge) badge.innerText = data.comments_count;
+
+                // Hide empty state if visible
+                const emptyState = document.getElementById('commentsEmptyState');
+                if (emptyState) emptyState.remove();
+
+                // Append new comment card
+                const feed = document.getElementById('commentsFeed');
+                const commentCard = document.createElement('div');
+                commentCard.className = 'comment-item-card';
+                commentCard.id = `comment-node-${data.comment.id}`;
+                
+                const avatarHtml = data.comment.avatar_url 
+                    ? `<img src="${data.comment.avatar_url}" alt="${escapeHtml(data.comment.author)}">` 
+                    : `<span>${escapeHtml(data.comment.initial)}</span>`;
+
+                const verifiedBadge = data.comment.is_staff 
+                    ? `<span class="badge-author-verified"><i class="fas fa-check-circle"></i> Author</span>` 
+                    : '';
+
+                const deleteBtnHtml = `<button type="button" class="btn-delete-comment" onclick="deleteComment(${data.comment.id})" title="Delete Reflection"><i class="fas fa-trash-alt"></i></button>`;
+
+                commentCard.innerHTML = `
+                    <div class="comment-avatar-bubble">${avatarHtml}</div>
+                    <div class="comment-content-body">
+                        <div class="comment-meta-bar">
+                            <div class="comment-author-info">
+                                <strong class="comment-author-name">${escapeHtml(data.comment.author)}</strong>
+                                ${verifiedBadge}
+                            </div>
+                            <div class="comment-actions-bar">
+                                <span class="comment-timestamp"><i class="far fa-clock"></i> Just now</span>
+                                ${deleteBtnHtml}
+                            </div>
+                        </div>
+                        <div class="comment-text-paragraph">${escapeHtml(data.comment.text).replace(/\n/g, '<br>')}</div>
+                    </div>
+                `;
+
+                feed.appendChild(commentCard);
+            } else {
+                showToast('⚠️ ' + (data.message || 'Unable to post comment.'));
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+            showToast('⚠️ Error posting comment. Please try again.');
+        });
+    }
+
+    // Delete comment
+    function deleteComment(commentId) {
+        if (!confirm('Are you sure you want to remove this reflection?')) return;
+        
+        fetch(`/comment/delete/${commentId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'ok') {
+                const node = document.getElementById(`comment-node-${commentId}`);
+                if (node) {
+                    node.style.transition = 'all 0.3s ease';
+                    node.style.opacity = '0';
+                    node.style.transform = 'translateY(-10px)';
+                    setTimeout(() => {
+                        node.remove();
+                        const badge = document.getElementById('commentCountBadge');
+                        if (badge) {
+                            const cur = parseInt(badge.innerText) || 1;
+                            badge.innerText = Math.max(0, cur - 1);
+                        }
+                    }, 300);
+                }
+                showToast('Reflection removed.');
+            } else {
+                showToast('⚠️ ' + (data.message || 'Could not delete reflection.'));
+            }
+        })
+        .catch(err => console.error(err));
+    }
+
+    function escapeHtml(str) {
+        return (str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]);
     }
 </script>
 {% endblock %}

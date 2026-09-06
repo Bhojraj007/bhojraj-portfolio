@@ -269,7 +269,7 @@
                 {% if site_config.whatsapp_url or site_config.phone_number %}
                 <a href="{{ site_config.whatsapp_url|default:'https://wa.me/9779848485292' }}" target="_blank" rel="noopener noreferrer" class="palette-item">
                     <span class="palette-item-icon" style="color: #10B981;"><i class="fab fa-whatsapp"></i></span>
-                    <span class="palette-item-text">Instant WhatsApp Consultation ({{ site_config.whatsapp_number|default:site_config.phone_number|default:'+977 9848485292' }})</span>
+                    <span class="palette-item-text">Instant WhatsApp Consultation ({% if site_config.whatsapp_number %}{{ site_config.whatsapp_number }}{% elif site_config.phone_number %}{{ site_config.phone_number }}{% else %}+977 9848485292{% endif %})</span>
                     <span class="palette-item-shortcut">Chat</span>
                 </a>
                 {% endif %}

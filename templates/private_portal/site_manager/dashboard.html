@@ -252,6 +252,12 @@
                                     <i class="fab fa-whatsapp"></i>
                                 </a>
                                 {% endif %}
+                                <a href="{% url 'private_portal:sm_inquiry_edit' item.pk %}" class="sm-row-btn" title="Edit Inquiry / Demo" style="color: #F9CD05;">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'private_portal:sm_inquiry_delete' item.pk %}" class="sm-row-btn danger" title="Delete Inquiry" style="color: #ef4444;">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
                             </div>
                         </td>
                     </tr>

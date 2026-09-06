@@ -626,6 +626,23 @@ class PhotoListView(BaseMediaListView):
     model = Photo
     template_name = 'private_portal/photo_list.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        photo_ct = ContentType.objects.get_for_model(Photo)
+        context['photo_ct_id'] = photo_ct.id
+        photos = list(context.get('object_list', []))
+        if photos:
+            photo_ids = [p.pk for p in photos]
+            all_comments = Comment.objects.filter(content_type=photo_ct, object_id__in=photo_ids).order_by('created_at')
+            from collections import defaultdict
+            comments_by_photo = defaultdict(list)
+            for c in all_comments:
+                comments_by_photo[c.object_id].append(c)
+            for p in photos:
+                p.comments_list = comments_by_photo[p.pk]
+                p.comments_total = len(p.comments_list)
+        return context
+
 class PhotoCreateView(BaseMediaCreateView):
     model = Photo
     fields = ['title', 'description', 'image', 'is_public']
@@ -743,12 +760,29 @@ def add_comment(request):
         
         if ct_id and obj_id and text:
             ct = ContentType.objects.get(id=ct_id)
-            Comment.objects.create(
+            comment = Comment.objects.create(
                 content_type=ct,
                 object_id=obj_id,
                 text=text,
-                user=request.user
+                user=request.user,
+                author_name=request.user.get_full_name() or request.user.username,
+                author_email=request.user.email
             )
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('ajax') == '1':
+                return JsonResponse({
+                    'status': 'ok',
+                    'comment': {
+                        'id': comment.id,
+                        'author': comment.display_author,
+                        'initial': comment.initial,
+                        'avatar_url': comment.avatar_url,
+                        'text': comment.text,
+                        'time_ago': 'Just now',
+                    }
+                })
+    ref = request.META.get('HTTP_REFERER')
+    if ref:
+        return redirect(ref)
     return redirect('private_portal:dashboard')
 
 
@@ -1815,12 +1849,80 @@ class SmIbiSAPComparisonDeleteView(StaffRequiredMixin, DeleteView):
 
 
 
-# Contact Messages / Inquiries (Read-only)
+# Contact Messages / Inquiries & Demo Requests (Full CRUD)
 class SmInquiryListView(StaffRequiredMixin, ListView):
     model = ContactMessage
     template_name = 'private_portal/site_manager/inquiry_list.html'
     context_object_name = 'inquiries'
-    paginate_by = 20
+    paginate_by = 25
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        tab = self.request.GET.get('tab', 'all').strip().lower()
+        search_query = self.request.GET.get('q', '').strip()
+        if search_query:
+            qs = qs.filter(
+                Q(name__icontains=search_query) |
+                Q(email__icontains=search_query) |
+                Q(phone__icontains=search_query) |
+                Q(inquiry_type__icontains=search_query) |
+                Q(message__icontains=search_query)
+            )
+        if tab == 'demos':
+            qs = qs.filter(Q(inquiry_type__icontains='Demo') | Q(inquiry_type__icontains='IbiSAP'))
+        elif tab == 'general':
+            qs = qs.exclude(Q(inquiry_type__icontains='Demo') | Q(inquiry_type__icontains='IbiSAP'))
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        base = ContactMessage.objects.all()
+        context['total_all'] = base.count()
+        context['total_demos'] = base.filter(Q(inquiry_type__icontains='Demo') | Q(inquiry_type__icontains='IbiSAP')).count()
+        context['total_general'] = context['total_all'] - context['total_demos']
+        context['active_tab'] = self.request.GET.get('tab', 'all').strip().lower()
+        context['search_query'] = self.request.GET.get('q', '').strip()
+        return context
+
+
+class SmInquiryUpdateView(StaffRequiredMixin, UpdateView):
+    model = ContactMessage
+    fields = ['name', 'email', 'phone', 'inquiry_type', 'message']
+    template_name = 'private_portal/site_manager/content_form.html'
+    success_url = reverse_lazy('private_portal:sm_inquiry_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['content_title'] = 'Edit Client Inquiry / Demo Request'
+        context['content_icon'] = 'fas fa-envelope-open-text'
+        context['back_url'] = 'private_portal:sm_inquiry_list'
+        context['is_edit'] = True
+        return context
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, f"Inquiry from '{self.object.name}' updated successfully.")
+        return response
+
+
+class SmInquiryDeleteView(StaffRequiredMixin, DeleteView):
+    model = ContactMessage
+    success_url = reverse_lazy('private_portal:sm_inquiry_list')
+    template_name = 'private_portal/site_manager/confirm_delete.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['content_title'] = 'Inquiry / Demo Request'
+        context['back_url'] = 'private_portal:sm_inquiry_list'
+        return context
+
+    def delete(self, request, *args, **kwargs):
+        obj = self.get_object()
+        name = obj.name
+        inquiry_type = obj.inquiry_type
+        response = super().delete(request, *args, **kwargs)
+        messages.success(request, f"Inquiry transmission from '{name}' ({inquiry_type}) was permanently deleted.")
+        return response
 
 
 # Visitor Intelligence, Leads & Monetization Analytics

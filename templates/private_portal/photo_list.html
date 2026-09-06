@@ -709,7 +709,12 @@
       <div class="photo-card-footer">
         <div class="photo-card-actions">
           <button class="photo-action-btn" title="Love"><i class="far fa-heart"></i></button>
-          <button class="photo-action-btn" title="Comment"><i class="far fa-comment"></i></button>
+          <button class="photo-action-btn" title="Comment" onclick="togglePhotoComments('{{ photo.id }}')">
+            <i class="far fa-comment"></i>
+            {% if photo.comments_total %}
+            <span style="font-size: 0.75rem; margin-left: 3px; font-weight: 700;">{{ photo.comments_total }}</span>
+            {% endif %}
+          </button>
           <button class="photo-action-btn" title="Share"><i class="far fa-paper-plane"></i></button>
           <span class="photo-action-spacer"></span>
           <button class="photo-action-btn" title="Save"><i class="far fa-bookmark"></i></button>
@@ -721,6 +726,31 @@
         <p class="photo-card-description">{{ photo.description }}</p>
         {% endif %}
         <span class="photo-card-timestamp">{{ photo.upload_timestamp|date:"M d, Y" }} · {{ photo.upload_timestamp|timesince }} ago</span>
+      </div>
+
+      <!-- Photo Comments Drawer -->
+      <div class="photo-comments-drawer" id="photo-comments-{{ photo.id }}" style="display: none; padding: 0.85rem 1rem; border-top: 1px solid var(--divider); background: rgba(0, 0, 0, 0.2);">
+        <div class="photo-comments-feed" id="photo-feed-{{ photo.id }}" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem; max-height: 160px; overflow-y: auto;">
+          {% for c in photo.comments_list %}
+          <div style="display: flex; gap: 0.5rem; font-size: 0.82rem; align-items: baseline;">
+            <strong style="color: var(--text-primary);">{{ c.display_author }}:</strong>
+            <span style="color: var(--text-secondary); flex: 1;">{{ c.text }}</span>
+            <span style="color: var(--text-muted); font-size: 0.7rem;">{{ c.created_at|timesince }} ago</span>
+          </div>
+          {% empty %}
+          <div class="no-comments-yet" style="color: var(--text-muted); font-size: 0.8rem; text-align: center; padding: 0.3rem;">No comments yet.</div>
+          {% endfor %}
+        </div>
+        <!-- Add comment form -->
+        <form method="post" action="{% url 'private_portal:add_comment' %}" onsubmit="submitPrivatePhotoComment(event, '{{ photo.id }}')" style="display: flex; gap: 0.5rem; align-items: center;">
+          {% csrf_token %}
+          <input type="hidden" name="content_type_id" value="{{ photo_ct_id }}">
+          <input type="hidden" name="object_id" value="{{ photo.id }}">
+          <input type="text" name="text" placeholder="Add a comment..." required style="flex: 1; padding: 0.45rem 0.8rem; background: var(--bg-input); border: 1px solid var(--divider); border-radius: var(--radius-full); color: var(--text-primary); font-size: 0.82rem; outline: none;">
+          <button type="submit" style="background: var(--accent); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;">
+            <i class="fas fa-paper-plane" style="font-size: 0.72rem;"></i>
+          </button>
+        </form>
       </div>
     </article>
     {% empty %}
@@ -881,5 +911,48 @@
       closeLightbox();
     }
   }, { passive: true });
+
+  function togglePhotoComments(photoId) {
+    const drawer = document.getElementById(`photo-comments-${photoId}`);
+    if (drawer) {
+      drawer.style.display = (drawer.style.display === 'none' || !drawer.style.display) ? 'block' : 'none';
+    }
+  }
+
+  function submitPrivatePhotoComment(e, photoId) {
+    e.preventDefault();
+    const form = e.target;
+    const textInput = form.querySelector('input[name="text"]');
+    const text = textInput.value.trim();
+    if (!text) return;
+
+    const formData = new FormData(form);
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'ok') {
+        textInput.value = '';
+        const feed = document.getElementById(`photo-feed-${photoId}`);
+        if (feed) {
+          const emptyNotice = feed.querySelector('.no-comments-yet');
+          if (emptyNotice) emptyNotice.remove();
+
+          const item = document.createElement('div');
+          item.style.cssText = 'display: flex; gap: 0.5rem; font-size: 0.82rem; align-items: baseline;';
+          item.innerHTML = `
+            <strong style="color: var(--text-primary);">${data.comment.author}:</strong>
+            <span style="color: var(--text-secondary); flex: 1;">${data.comment.text}</span>
+            <span style="color: var(--text-muted); font-size: 0.7rem;">Just now</span>
+          `;
+          feed.appendChild(item);
+        }
+      }
+    })
+    .catch(() => form.submit());
+  }
 </script>
 {% endblock %}

@@ -145,5 +145,7 @@ class ContactMessageAdmin(admin.ModelAdmin):
     list_display = ('name', 'email', 'phone', 'inquiry_type', 'timestamp')
     list_filter = ('inquiry_type', 'timestamp')
     search_fields = ('name', 'email', 'phone', 'message')
-    readonly_fields = ('name', 'email', 'phone', 'inquiry_type', 'message', 'timestamp')
+    readonly_fields = ('timestamp',)
+    fields = ('name', 'email', 'phone', 'inquiry_type', 'message', 'timestamp')
+
 
