@@ -193,7 +193,7 @@
     <h2 class="section-title">Core Competencies</h2>
     <p class="section-subtitle">Technical acumen forged across enterprise workloads and modern stacks</p>
 
-    <div class="skill-categories" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+    <div class="skill-categories" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 1.5rem;">
         {% regroup skills by category as skill_list %}
         {% for category in skill_list %}
         <div class="pro-card reveal-up" style="background: rgba(255,255,255,0.02); height: auto;">
@@ -631,37 +631,39 @@
         }
     }
 
-    // 3D Tilt Effect
-    document.querySelectorAll('.pro-card, .stat-card, .pillar-card').forEach(card => {
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            const rotateX = (y - centerY) / 12;
-            const rotateY = (centerX - x) / 12;
+    // 3D Tilt Effect (Desktop & pointer devices only)
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        document.querySelectorAll('.pro-card, .stat-card, .pillar-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = (y - centerY) / 12;
+                const rotateY = (centerX - x) / 12;
+                
+                gsap.to(card, {
+                    rotateX: rotateX,
+                    rotateY: rotateY,
+                    scale: 1.02,
+                    duration: 0.4,
+                    ease: 'power2.out',
+                    transformPerspective: 1000
+                });
+            });
             
-            gsap.to(card, {
-                rotateX: rotateX,
-                rotateY: rotateY,
-                scale: 1.02,
-                duration: 0.4,
-                ease: 'power2.out',
-                transformPerspective: 1000
+            card.addEventListener('mouseleave', () => {
+                gsap.to(card, {
+                    rotateX: 0,
+                    rotateY: 0,
+                    scale: 1,
+                    duration: 0.5,
+                    ease: 'power2.out'
+                });
             });
         });
-        
-        card.addEventListener('mouseleave', () => {
-            gsap.to(card, {
-                rotateX: 0,
-                rotateY: 0,
-                scale: 1,
-                duration: 0.5,
-                ease: 'power2.out'
-            });
-        });
-    });
+    }
 
     // Demo Modal Handlers
     const demoModal = document.getElementById('demoRequestModal');

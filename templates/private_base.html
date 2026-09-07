@@ -41,6 +41,7 @@
     </div>
 
     <!-- Sidebar Navigation -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <a href="{% url 'private_portal:dashboard' %}" class="brand">
@@ -226,31 +227,26 @@
             setInterval(updateNotifications, 45000);
             updateNotifications();
 
-            // Sidebar Toggle for Mobile
+            // Sidebar Toggle for Mobile & Tablets
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.getElementById('sidebar-toggle');
             const sidebarClose = document.getElementById('sidebar-close');
+            const sidebarBackdrop = document.getElementById('sidebar-backdrop');
 
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', () => {
-                    sidebar.classList.add('mobile-active');
-                });
+            function openSidebar() {
+                if (sidebar) sidebar.classList.add('mobile-active');
+                if (sidebarBackdrop) sidebarBackdrop.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            function closeSidebar() {
+                if (sidebar) sidebar.classList.remove('mobile-active');
+                if (sidebarBackdrop) sidebarBackdrop.classList.remove('active');
+                document.body.style.overflow = '';
             }
 
-            if (sidebarClose) {
-                sidebarClose.addEventListener('click', () => {
-                    sidebar.classList.remove('mobile-active');
-                });
-            }
-
-            // Close sidebar when clicking outside on mobile
-            document.addEventListener('click', (e) => {
-                if (window.innerWidth <= 1024) {
-                    if (sidebar && !sidebar.contains(e.target) && sidebarToggle && !sidebarToggle.contains(e.target) && sidebar.classList.contains('mobile-active')) {
-                        sidebar.classList.remove('mobile-active');
-                    }
-                }
-            });
+            if (sidebarToggle) sidebarToggle.addEventListener('click', openSidebar);
+            if (sidebarClose) sidebarClose.addEventListener('click', closeSidebar);
+            if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', closeSidebar);
 
             // Intersection Observer for reveal animations
             const observer = new IntersectionObserver((entries) => {

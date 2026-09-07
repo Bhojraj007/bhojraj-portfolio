@@ -73,7 +73,37 @@
                 <a href="{% url 'private_portal:dashboard' %}" class="btn-hire magnetic-wrap" style="padding: 0.45rem 1.1rem; font-size: 0.82rem;">Private Dashboard</a>
             {% endif %}
         </div>
+
+        <!-- Mobile Menu Hamburger Button -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle Navigation">
+            <i class="fas fa-bars"></i>
+        </button>
     </nav>
+
+    <!-- Mobile Drawer Navigation -->
+    <div class="mobile-drawer" id="mobileDrawer">
+        <div class="mobile-drawer-header">
+            <span class="logo">&lt;{{ site_config.brand_name|default:"BHOJ RAJ" }} /&gt;</span>
+            <button class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close Navigation">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-nav-links">
+            <a href="{% url 'public_portal:home' %}#about" class="mobile-nav-link"><i class="fas fa-user-astronaut"></i> About Me</a>
+            <a href="{% url 'public_portal:home' %}#skills" class="mobile-nav-link"><i class="fas fa-layer-group"></i> Core Competencies</a>
+            <a href="{% url 'public_portal:home' %}#experience" class="mobile-nav-link"><i class="fas fa-briefcase"></i> Experience</a>
+            <a href="{% url 'public_portal:home' %}#education" class="mobile-nav-link"><i class="fas fa-graduation-cap"></i> Education</a>
+            <a href="{% url 'public_portal:home' %}#projects" class="mobile-nav-link"><i class="fas fa-laptop-code"></i> Projects</a>
+            <a href="{% url 'public_portal:ibisap' %}" class="mobile-nav-link" style="color: var(--accent-gold); font-weight: 700;"><i class="fas fa-cubes"></i> IbiSAP ERP</a>
+            <a href="{% url 'public_portal:blog_list' %}" class="mobile-nav-link highlight"><i class="fas fa-feather-alt"></i> Blog &amp; Verses</a>
+            <a href="{% url 'public_portal:gallery' %}" class="mobile-nav-link"><i class="fas fa-images"></i> Visuals</a>
+            <a href="{% url 'public_portal:home' %}#contact" class="mobile-nav-link"><i class="fas fa-paper-plane"></i> Connect</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'private_portal:dashboard' %}" class="mobile-nav-link" style="color: var(--accent-emerald);"><i class="fas fa-lock"></i> Private Sanctuary</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="mobile-backdrop" id="mobileBackdrop"></div>
 
     <main>
         {% block content %}{% endblock %}
@@ -142,6 +172,28 @@
                 gsap.to(wrap, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.3)' });
             });
         });
+
+        // Mobile Drawer Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileDrawer = document.getElementById('mobileDrawer');
+        const mobileDrawerClose = document.getElementById('mobileDrawerClose');
+        const mobileBackdrop = document.getElementById('mobileBackdrop');
+
+        function openDrawer() {
+            if (mobileDrawer) mobileDrawer.classList.add('open');
+            if (mobileBackdrop) mobileBackdrop.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeDrawer() {
+            if (mobileDrawer) mobileDrawer.classList.remove('open');
+            if (mobileBackdrop) mobileBackdrop.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', openDrawer);
+        if (mobileDrawerClose) mobileDrawerClose.addEventListener('click', closeDrawer);
+        if (mobileBackdrop) mobileBackdrop.addEventListener('click', closeDrawer);
+        document.querySelectorAll('.mobile-nav-link').forEach(link => link.addEventListener('click', closeDrawer));
     </script>
     {% block extra_js %}{% endblock %}
 </body>
