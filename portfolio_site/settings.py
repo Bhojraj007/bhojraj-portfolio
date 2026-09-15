@@ -33,6 +33,14 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 raw_hosts = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 ALLOWED_HOSTS = list({h.strip() for h in raw_hosts if h.strip()} | {'localhost', '127.0.0.1', 'testserver', 'rajabhoj.com.np', 'www.rajabhoj.com.np'})
 
+raw_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+CSRF_TRUSTED_ORIGINS = list({o.strip() for o in raw_origins if o.strip()} | {
+    'https://rajabhoj.com.np',
+    'https://www.rajabhoj.com.np',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+})
+
 
 
 # Application definition
@@ -61,6 +69,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware',
+    'portfolio_site.middleware.PermissionsPolicyMiddleware',
     'public_portal.middleware.VisitorTelemetryMiddleware',
 ]
 
@@ -167,15 +177,58 @@ DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'bh
 NOTIFICATION_RECIPIENT_EMAIL = os.environ.get('NOTIFICATION_RECIPIENT_EMAIL', 'bhojrajupadhayay7@gmail.com')
 
 
-# Production Security Settings (SSL handled cleanly by cPanel / Cloudflare / Apache)
+# ==============================================================================
+# Security & SSL Configuration (LiteSpeed Reverse Proxy & Production Hardening)
+# ==============================================================================
 
+# Required behind LiteSpeed / reverse proxy terminating SSL to detect HTTPS via header
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# HTTPS Redirection & HSTS (enforced in production when DEBUG=False)
 if not DEBUG and os.environ.get('DISABLE_SSL_REDIRECT', 'False') != 'True':
+    SECURE_SSL_REDIRECT = True
+
+    # HTTP Strict Transport Security (HSTS - 2 years, subdomains, preload)
+    SECURE_HSTS_SECONDS = 63072000          # 2 years
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+    # Restrict session and CSRF cookies to HTTPS connections
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+else:
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# Cookie Hardening (applies to all environments)
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# Standard Security Headers
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# Content Security Policy (django-csp 4.0+)
+# Starts in Report-Only mode to avoid breaking any scripts/styles.
+# Set CSP_REPORT_ONLY=False in environment variables (.env) once verified to switch to enforcing.
+CSP_REPORT_ONLY = os.environ.get('CSP_REPORT_ONLY', 'True') == 'True'
+
+CSP_DIRECTIVES = {
+    'default-src': ("'self'",),
+    'style-src': ("'self'", "'unsafe-inline'", "fonts.googleapis.com", "cdnjs.cloudflare.com"),
+    'font-src': ("'self'", "fonts.gstatic.com", "cdnjs.cloudflare.com"),
+    'script-src': ("'self'", "cdnjs.cloudflare.com"),
+    'img-src': ("'self'", "data:"),
+}
+
+if CSP_REPORT_ONLY:
+    CONTENT_SECURITY_POLICY_REPORT_ONLY = {'DIRECTIVES': CSP_DIRECTIVES}
+    CONTENT_SECURITY_POLICY = None
+else:
+    CONTENT_SECURITY_POLICY = {'DIRECTIVES': CSP_DIRECTIVES}
+    CONTENT_SECURITY_POLICY_REPORT_ONLY = None
 
 
 # Jazzmin Admin Theme Configuration

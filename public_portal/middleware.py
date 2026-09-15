@@ -35,9 +35,8 @@ class VisitorTelemetryMiddleware:
         else:
             ip = request.META.get('REMOTE_ADDR', '')
 
-        # Session key
-        if not request.session.session_key:
-            request.session.save()
+        # Session key - only record if an active session already exists (e.g. authenticated user or identified lead)
+        # Avoid calling request.session.save() so anonymous visitors do not get unnecessary sessionid cookies
         session_key = request.session.session_key or ''
 
         # User Agent & Device parsing
@@ -108,14 +107,18 @@ class VisitorTelemetryMiddleware:
         )
         city = request.META.get('HTTP_CF_IPCITY') or request.META.get('GEOIP_CITY') or ''
 
-        # Check existing lead identity stored in session
-        lead_name = request.session.get('visitor_lead_name', '')
-        lead_email = request.session.get('visitor_lead_email', '')
-        lead_phone = request.session.get('visitor_lead_phone', '')
+        # Check existing lead identity stored in session (only if an active session exists)
+        if session_key:
+            lead_name = request.session.get('visitor_lead_name', '')
+            lead_email = request.session.get('visitor_lead_email', '')
+            lead_phone = request.session.get('visitor_lead_phone', '')
+            prior_visits = VisitorLog.objects.filter(session_key=session_key).count() + 1
+        else:
+            lead_name = ''
+            lead_email = ''
+            lead_phone = ''
+            prior_visits = 1
         is_lead = bool(lead_name or lead_email)
-
-        # Count visits
-        prior_visits = VisitorLog.objects.filter(session_key=session_key).count() + 1
 
         VisitorLog.objects.create(
             ip_address=ip[:60],

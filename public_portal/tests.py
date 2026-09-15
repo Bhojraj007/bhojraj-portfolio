@@ -119,3 +119,33 @@ class PublicPortalTestCase(TestCase):
         photo_ct = ContentType.objects.get_for_model(Photo)
         self.assertEqual(Comment.objects.filter(content_type=photo_ct, object_id=photo.id).count(), 1)
 
+    def test_anonymous_get_does_not_create_sessionid_cookie(self):
+        resp = self.client.get(reverse('public_portal:home'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotIn('sessionid', resp.cookies)
+        self.assertIn('csrftoken', resp.cookies)
+
+    def test_security_headers_present(self):
+        resp = self.client.get(reverse('public_portal:home'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('Permissions-Policy', resp.headers)
+        self.assertEqual(resp.headers['Permissions-Policy'], 'camera=(), microphone=(), geolocation=()')
+        self.assertIn('Content-Security-Policy-Report-Only', resp.headers)
+        self.assertIn("default-src 'self'", resp.headers['Content-Security-Policy-Report-Only'])
+        self.assertIn("fonts.googleapis.com", resp.headers['Content-Security-Policy-Report-Only'])
+        self.assertIn("cdnjs.cloudflare.com", resp.headers['Content-Security-Policy-Report-Only'])
+        self.assertEqual(resp.headers.get('X-Content-Type-Options'), 'nosniff')
+
+    @override_settings(DEBUG=False, SECURE_SSL_REDIRECT=True, SECURE_HSTS_SECONDS=63072000, SECURE_HSTS_INCLUDE_SUBDOMAINS=True, SECURE_HSTS_PRELOAD=True, SESSION_COOKIE_SECURE=True, CSRF_COOKIE_SECURE=True)
+    def test_production_ssl_and_hsts(self):
+        # Unsecure HTTP redirect
+        resp_http = self.client.get(reverse('public_portal:home'), secure=False, HTTP_HOST='rajabhoj.com.np')
+        self.assertEqual(resp_http.status_code, 301)
+        self.assertTrue(resp_http['Location'].startswith('https://'))
+
+        # Secure HTTPS request
+        resp_https = self.client.get(reverse('public_portal:home'), secure=True, HTTP_HOST='rajabhoj.com.np', HTTP_X_FORWARDED_PROTO='https')
+        self.assertEqual(resp_https.status_code, 200)
+        self.assertEqual(resp_https.headers.get('Strict-Transport-Security'), 'max-age=63072000; includeSubDomains; preload')
+        self.assertTrue(resp_https.cookies['csrftoken']['secure'])
+
