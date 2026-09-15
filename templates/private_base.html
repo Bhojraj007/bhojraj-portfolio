@@ -197,6 +197,11 @@
                         
                         const list = document.getElementById('notif-list');
                         if (list && data.notifications.length > 0) {
+                            function escapeNotifHtml(s) {
+                                const d = document.createElement('div');
+                                d.textContent = s || '';
+                                return d.innerHTML;
+                            }
                             list.innerHTML = data.notifications.map(n => `
                                 <div class="notif-item ${n.is_read ? '' : 'unread'}">
                                     <div style="display: flex; gap: 1rem; align-items: start;">
@@ -204,7 +209,7 @@
                                             <i class="fas ${n.verb === 'followed' ? 'fa-user-plus' : 'fa-heart'}"></i>
                                         </div>
                                         <div>
-                                            <strong>${n.actor}</strong> ${n.verb} your resonance.
+                                            <strong>${escapeNotifHtml(n.actor)}</strong> ${escapeNotifHtml(n.verb)} your resonance.
                                             <div style="font-size: 0.75rem; opacity: 0.5; margin-top: 0.3rem;">${n.timestamp}</div>
                                         </div>
                                     </div>

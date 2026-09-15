@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.db.models import Q, F, Count
 from django.contrib.contenttypes.models import ContentType
 from django.utils.timesince import timesince
+from django.utils.http import url_has_allowed_host_and_scheme
 from private_portal.models import Photo, Video, Blog, Comment
 from .models import (
     Skill, 
@@ -19,6 +20,18 @@ from .models import (
     SiteConfiguration,
     VisitorLog
 )
+
+
+def safe_redirect(request, target_url, fallback='public_portal:home'):
+    """Redirect only to approved, safe local destinations to prevent Open Redirects."""
+    if target_url and url_has_allowed_host_and_scheme(
+        url=target_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure()
+    ):
+        return redirect(target_url)
+    return redirect(fallback)
+
 
 
 def record_identified_lead(request, name, email, phone, inquiry_type, path):
@@ -244,7 +257,7 @@ def add_public_comment(request):
         if is_ajax:
             return JsonResponse({'status': 'error', 'message': 'Comment text cannot be empty.'}, status=400)
         messages.error(request, 'Please write a reflection or comment before submitting.')
-        return redirect(request.META.get('HTTP_REFERER', 'public_portal:home'))
+        return safe_redirect(request, request.META.get('HTTP_REFERER'))
 
     ct = None
     if content_type_str in ('blog', 'article', 'poem'):
@@ -260,7 +273,7 @@ def add_public_comment(request):
         if is_ajax:
             return JsonResponse({'status': 'error', 'message': 'Target object for comment not specified.'}, status=400)
         messages.error(request, 'Target for comment was not found.')
-        return redirect(request.META.get('HTTP_REFERER', 'public_portal:home'))
+        return safe_redirect(request, request.META.get('HTTP_REFERER'))
 
     user = request.user if request.user.is_authenticated else None
     display_author = (user.get_full_name() or user.username) if user else (author_name or 'Anonymous Visitor')
@@ -305,9 +318,8 @@ def add_public_comment(request):
 
     messages.success(request, '✨ Thank you! Your reflection has been published.')
     ref = request.META.get('HTTP_REFERER', '')
-    if ref:
-        return redirect(ref + ('#comments' if '#comments' not in ref else ''))
-    return redirect('public_portal:home')
+    target = (ref + ('#comments' if '#comments' not in ref else '')) if ref else None
+    return safe_redirect(request, target)
 
 
 def get_comments_ajax(request, content_type, object_id):
@@ -356,7 +368,8 @@ def delete_public_comment(request, comment_id):
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({'status': 'ok', 'message': 'Comment removed'})
         messages.success(request, 'Comment removed successfully.')
-        return redirect(request.META.get('HTTP_REFERER', 'public_portal:home'))
+        return safe_redirect(request, request.META.get('HTTP_REFERER'))
+    return JsonResponse({'status': 'error', 'message': 'Permission denied'}, status=403)
     return JsonResponse({'status': 'error', 'message': 'Permission denied'}, status=403)
 
 

@@ -941,11 +941,16 @@
           const emptyNotice = feed.querySelector('.no-comments-yet');
           if (emptyNotice) emptyNotice.remove();
 
+          function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str || '';
+            return div.innerHTML;
+          }
           const item = document.createElement('div');
           item.style.cssText = 'display: flex; gap: 0.5rem; font-size: 0.82rem; align-items: baseline;';
           item.innerHTML = `
-            <strong style="color: var(--text-primary);">${data.comment.author}:</strong>
-            <span style="color: var(--text-secondary); flex: 1;">${data.comment.text}</span>
+            <strong style="color: var(--text-primary);">${escapeHtml(data.comment.author)}:</strong>
+            <span style="color: var(--text-secondary); flex: 1;">${escapeHtml(data.comment.text)}</span>
             <span style="color: var(--text-muted); font-size: 0.7rem;">Just now</span>
           `;
           feed.appendChild(item);

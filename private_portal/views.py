@@ -1,3 +1,4 @@
+import os
 import datetime
 import nepali_datetime
 import random
@@ -11,6 +12,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import TemplateView, ListView, CreateView, DeleteView, UpdateView, DetailView
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
 from django.db.models import Q, Count
@@ -26,9 +28,19 @@ from public_portal.models import (
 )
 
 
-
-
 User = get_user_model()
+
+
+def safe_redirect(request, target_url, fallback='private_portal:dashboard'):
+    """Redirect only to approved, safe local destinations to prevent Open Redirects."""
+    if target_url and url_has_allowed_host_and_scheme(
+        url=target_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure()
+    ):
+        return redirect(target_url)
+    return redirect(fallback)
+
 
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'private_portal/dashboard.html'
@@ -400,7 +412,7 @@ class GuardianPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
 def toggle_love(request):
     ct_id = request.POST.get('content_type_id')
     obj_id = request.POST.get('object_id')
-    ct = ContentType.objects.get(id=ct_id)
+    ct = get_object_or_404(ContentType, id=ct_id)
     
     reaction, created = Reaction.objects.get_or_create(
         user=request.user,
@@ -433,7 +445,7 @@ def toggle_love(request):
 def toggle_bookmark(request):
     ct_id = request.POST.get('content_type_id')
     obj_id = request.POST.get('object_id')
-    ct = ContentType.objects.get(id=ct_id)
+    ct = get_object_or_404(ContentType, id=ct_id)
     
     bookmark, created = Bookmark.objects.get_or_create(
         user=request.user,
@@ -454,7 +466,7 @@ def toggle_bookmark(request):
 def toggle_pin(request):
     ct_id = request.POST.get('content_type_id')
     obj_id = request.POST.get('object_id')
-    ct = ContentType.objects.get(id=ct_id)
+    ct = get_object_or_404(ContentType, id=ct_id)
     
     # Check if this exact post is already pinned
     existing_pin = PinnedPost.objects.filter(user=request.user, content_type=ct, object_id=obj_id).first()
@@ -582,11 +594,27 @@ class ChatView(LoginRequiredMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         recipient_id = self.kwargs.get('user_id')
-        recipient = User.objects.get(pk=recipient_id)
+        recipient = get_object_or_404(User, pk=recipient_id)
         body = request.POST.get('body', '').strip()
         image = request.FILES.get('image')
         file = request.FILES.get('file')
         
+        ALLOWED_IMAGE_EXTS = {'.jpg', '.jpeg', '.png', '.webp', '.gif'}
+        ALLOWED_FILE_EXTS = {'.pdf', '.txt', '.doc', '.docx', '.xls', '.xlsx', '.csv', '.zip', '.tar.gz', '.png', '.jpg', '.jpeg', '.webp'}
+        MAX_UPLOAD_SIZE = 15 * 1024 * 1024  # 15 MB limit
+
+        if image:
+            ext = os.path.splitext(image.name)[1].lower()
+            if ext not in ALLOWED_IMAGE_EXTS or image.size > MAX_UPLOAD_SIZE:
+                messages.error(request, 'Invalid image format or image exceeds 15MB limit.')
+                return redirect('private_portal:chat_detail', user_id=recipient_id)
+
+        if file:
+            ext = os.path.splitext(file.name)[1].lower()
+            if ext not in ALLOWED_FILE_EXTS or file.size > MAX_UPLOAD_SIZE:
+                messages.error(request, 'Unsupported file format or file exceeds 15MB limit.')
+                return redirect('private_portal:chat_detail', user_id=recipient_id)
+
         if body or image or file:
             Message.objects.create(
                 sender=request.user,
@@ -607,6 +635,14 @@ class ChatView(LoginRequiredMixin, TemplateView):
 class BaseMediaListView(LoginRequiredMixin, ListView):
     paginate_by = 12
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        model = getattr(self, 'model', None)
+        if model and hasattr(model, 'is_public'):
+            return qs.filter(Q(user=self.request.user) | Q(is_public=True) | Q(user__isnull=True))
+        return qs.filter(user=self.request.user)
+
+
 class BaseMediaCreateView(LoginRequiredMixin, CreateView):
     template_name = 'private_portal/generic_form.html'
 
@@ -617,8 +653,15 @@ class BaseMediaCreateView(LoginRequiredMixin, CreateView):
 class BaseMediaUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'private_portal/generic_form.html'
 
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
+
 class BaseMediaDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'private_portal/confirm_delete.html'
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
+
 
 
 # Photo Views
@@ -752,38 +795,37 @@ class TodoDeleteView(BaseMediaDeleteView):
     model = Todo
     success_url = reverse_lazy('private_portal:dashboard')
 
+@login_required
+@require_POST
 def add_comment(request):
-    if request.method == 'POST' and request.user.is_authenticated:
-        ct_id = request.POST.get('content_type_id')
-        obj_id = request.POST.get('object_id')
-        text = request.POST.get('text', '').strip()
-        
-        if ct_id and obj_id and text:
-            ct = ContentType.objects.get(id=ct_id)
-            comment = Comment.objects.create(
-                content_type=ct,
-                object_id=obj_id,
-                text=text,
-                user=request.user,
-                author_name=request.user.get_full_name() or request.user.username,
-                author_email=request.user.email
-            )
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('ajax') == '1':
-                return JsonResponse({
-                    'status': 'ok',
-                    'comment': {
-                        'id': comment.id,
-                        'author': comment.display_author,
-                        'initial': comment.initial,
-                        'avatar_url': comment.avatar_url,
-                        'text': comment.text,
-                        'time_ago': 'Just now',
-                    }
-                })
-    ref = request.META.get('HTTP_REFERER')
-    if ref:
-        return redirect(ref)
-    return redirect('private_portal:dashboard')
+    ct_id = request.POST.get('content_type_id')
+    obj_id = request.POST.get('object_id')
+    text = request.POST.get('text', '').strip()
+    
+    if ct_id and obj_id and text:
+        ct = get_object_or_404(ContentType, id=ct_id)
+        comment = Comment.objects.create(
+            content_type=ct,
+            object_id=obj_id,
+            text=text,
+            user=request.user,
+            author_name=request.user.get_full_name() or request.user.username,
+            author_email=request.user.email
+        )
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('ajax') == '1':
+            return JsonResponse({
+                'status': 'ok',
+                'comment': {
+                    'id': comment.id,
+                    'author': comment.display_author,
+                    'initial': comment.initial,
+                    'avatar_url': comment.avatar_url,
+                    'text': comment.text,
+                    'time_ago': 'Just now',
+                }
+            })
+    return safe_redirect(request, request.META.get('HTTP_REFERER'))
+
 
 
 @login_required
@@ -2121,6 +2163,7 @@ def export_leads_csv(request):
 
 
 @login_required
+@require_POST
 def purge_bot_traffic(request):
     if not request.user.is_staff:
         return HttpResponse('Unauthorized', status=403)

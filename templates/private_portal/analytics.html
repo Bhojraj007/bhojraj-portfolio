@@ -36,9 +36,12 @@
             <a href="{% url 'private_portal:sm_inquiry_list' %}" class="skill-pill" style="text-decoration: none; padding: 0.6rem 1.15rem; font-size: 0.82rem; border-color: rgba(249, 205, 5, 0.4); color: #F9CD05;">
                 <i class="fas fa-inbox"></i> Inquiries ({{ inquiries_count }})
             </a>
-            <a href="{% url 'private_portal:analytics_purge_bots' %}" onclick="return confirm('Purge automated bot and crawler log entries?')" class="skill-pill" style="text-decoration: none; padding: 0.6rem 1rem; font-size: 0.82rem; color: #f87171; border-color: rgba(239, 68, 68, 0.35);" title="Clean bot/crawler telemetry">
-                <i class="fas fa-broom"></i> Clean Bots
-            </a>
+            <form method="POST" action="{% url 'private_portal:analytics_purge_bots' %}" style="display: inline;" onsubmit="return confirm('Purge automated bot and crawler log entries?')">
+                {% csrf_token %}
+                <button type="submit" class="skill-pill" style="cursor: pointer; background: transparent; padding: 0.6rem 1rem; font-size: 0.82rem; color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35);" title="Clean bot/crawler telemetry">
+                    <i class="fas fa-broom"></i> Clean Bots
+                </button>
+            </form>
             <a href="{% url 'private_portal:site_manager' %}" class="skill-pill" style="text-decoration: none; padding: 0.6rem 1rem; font-size: 0.82rem;">
                 <i class="fas fa-cogs"></i> CMS
             </a>
